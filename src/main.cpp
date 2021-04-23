@@ -46,7 +46,8 @@ int main()
 							"AND"_TO,
 							Token{"5",Type::Num}};*/
 
-	std::vector<Token> exp {"COS"_TF, "("_TO, Token{"PIE", Type::Var}, ")"_TO};
+	std::vector<Token> exp {Token{"PIE", Type::Arr}, "("_TO, Token{"0", Type::Num}, ")"_TO, "="_TO,
+	"COS"_TF, "("_TO, Token{"PIE", Type::Arr}, "("_TO, Token{"0", Type::Num}, ")"_TO, ")"_TO};
 
 	auto r = e.process(exp);
 	
@@ -55,6 +56,11 @@ int main()
 	auto v = e.calculate(r);
 
 	std::cout << std::get<Number>(v) << std::endl;
+
+	v = e.calculate(r);
+
+	std::cout << std::get<Number>(v) << std::endl;
+
 	
 	//PROGRAM/TOKENIZATION TESTS
 	Header h{};
@@ -67,7 +73,7 @@ int main()
 	auto tk = tokenize(p);
 	
 	Program program(tk);
-	
+	/*
 	int n = 0;
 	while(!program.at_eof()){
 		auto tok = program.next_instruction();
@@ -78,11 +84,10 @@ int main()
 		
 		n++;
 		print("Instr " + std::to_string(n), tok);
-	}
+	}*/
 	
 	//DO THIS NEXT: implement some sort of program class to
-	//read lines /yes
-	//execute commands
+	//execute commands ...?
 	//call evaluator
 	
 	//print("TOKENIZED:", tk);

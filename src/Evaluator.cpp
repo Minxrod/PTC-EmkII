@@ -86,24 +86,60 @@ const std::map<Token, op_func> functions{
 	//func_map{"VAL"_TF, ptc::val},
 };
 
-Var get_var_val(std::string name, std::vector<Var> args, const std::map<std::string, Var>& vars){
+VarPtr get_varptr(std::string name, std::vector<Var> args, const std::map<std::string, Var>& vars){
 	Var v = vars.at(name);
 	if (name.find("[]") != std::string::npos){
 		if (args.size() == 2){
-			if (name.find("$") != std::string::npos){
-				return std::get<Str2d>(v)[std::get<Number>(args[0])][std::get<Number>(args[1])];
-			} else {
-				return std::get<Num2d>(v)[std::get<Number>(args[0])][std::get<Number>(args[1])];
-			}
+			auto& a_ij = std::get<Array2>(v)[std::get<Number>(args[0])][std::get<Number>(args[1])];
+			if (std::holds_alternative<String>(a_ij))
+				return VarPtr(&std::get<String>(a_ij));
+			return VarPtr(&std::get<Number>(a_ij));
 		} else if (args.size() == 1){
-			if (name.find("$") != std::string::npos){
-				return std::get<Str1d>(v)[std::get<Number>(args[0])];
-			} else {
-				return std::get<Num1d>(v)[std::get<Number>(args[0])];
-			}				
+			auto& a_i = std::get<Array1>(v)[std::get<Number>(args[0])];
+			if (std::holds_alternative<String>(a_i))
+				return VarPtr(&std::get<String>(a_i));
+			return VarPtr(&std::get<Number>(a_i));
 		}
 	}
-	return v;
+	if (std::holds_alternative<Number>(v))
+		return VarPtr(&std::get<Number>(v));
+	if (std::holds_alternative<String>(v))
+		return VarPtr(&std::get<String>(v));
+	return VarPtr(&std::get<Array1>(v)); //cannot use 2d array refs, ever
+}
+
+Var get_var_val(std::string name, std::vector<Var> args, const std::map<std::string, Var>& vars){
+	//note: cannot get array by value (why would you?)
+	auto ptr = get_varptr(name, args, vars);
+	return (std::holds_alternative<Number*>(ptr)) ? Var(*std::get<Number*>(ptr)) : Var(*std::get<String*>(ptr));
+}
+
+void create_var(std::string name, std::vector<Var> args, std::map<std::string, Var>& vars){
+	if (name.find("[]") != std::string::npos){
+		if (name.find("$") != std::string::npos){
+			//string type arr
+			if (args.size() == 2){
+				vars.insert(std::pair<std::string, Var>(name, Var(Array2{10,Array1{10,SimpleVar("")}})));
+			} else {
+				vars.insert(std::pair<std::string, Var>(name, Var(Array1{10,SimpleVar("")})));			
+			}
+		} else {
+			//num type arr
+			if (args.size() == 2){
+				vars.insert(std::pair<std::string, Var>(name, Var(Array2{10,Array1(10,SimpleVar(0))})));
+			} else {
+				vars.insert(std::pair<std::string, Var>(name, Var(Array1(10,SimpleVar(0)))));		
+			}
+		}
+	} else {
+		if (name.find("$") != std::string::npos){
+			//string type
+			vars.insert(std::pair<std::string, Var>(name, Var(String(""))));					
+		} else {
+			//num type
+			vars.insert(std::pair<std::string, Var>(name, Var(Number(0.0))));					
+		}
+	}
 }
 
 Var Evaluator::get_var(std::string name, std::vector<Var> args){
@@ -112,35 +148,23 @@ Var Evaluator::get_var(std::string name, std::vector<Var> args){
 		return v;
 	} else {
 		//create new variable
-		if (name.find("[]") != std::string::npos){
-			if (name.find("$") != std::string::npos){
-				//string type arr
-				if (args.size() == 2){
-					vars.insert(std::pair<std::string, Var>(name, Var(Str2d{10,Str1d{10,""}})));
-				} else {
-					vars.insert(std::pair<std::string, Var>(name, Var(Str1d{10,""})));			
-				}
-			} else {
-				//num type arr
-				if (args.size() == 2){
-					vars.insert(std::pair<std::string, Var>(name, Var(Num2d{10,Num1d(10,0)})));
-				} else {
-					vars.insert(std::pair<std::string, Var>(name, Var(Num1d(10,0))));			
-				}
-			}
-		} else {
-			if (name.find("$") != std::string::npos){
-				//string type arr
-				vars.insert(std::pair<std::string, Var>(name, Var(String(""))));					
-			} else {
-				//num type arr
-				vars.insert(std::pair<std::string, Var>(name, Var(Number(0.0))));					
-			}
-		}
+		create_var(name, args, vars);
+	
 	}
 	auto v = get_var_val(name, args, vars);
 	return v;
+}
 
+VarPtr Evaluator::get_var_ptr(std::string name, std::vector<Var> args){
+	if (vars.count(name) > 0){
+		auto v = get_varptr(name, args, vars);
+		return v;
+	} else {
+		//create new variable
+		create_var(name, args, vars);
+	}
+	auto v = get_varptr(name, args, vars);
+	return v;
 }
 
 Var Evaluator::evaluate(const std::vector<Token>& expression){
@@ -153,7 +177,7 @@ Var Evaluator::evaluate(const std::vector<Token>& expression){
 	auto rpn = processed.at(expression);
 	
 	auto res = calculate(rpn);
-	return Var{Number{2}};
+	return res;
 }
 
 //,
@@ -228,7 +252,7 @@ std::vector<Token> op_to_rpn(std::vector<PrioToken>& e, std::vector<PrioToken>::
 		e.insert(r, PrioToken{"r" + std::to_string(n), Type::Op, INTERNAL_SUBEXP});
 		
 		return rpn;
-	} else if (local_prio == 0){
+	} else if (local_prio == 0 && op.text != "="){
 		std::vector<Token> rpn{*i};
 		auto r = e.erase(i, i+1);
 		e.insert(r, PrioToken{"r" + std::to_string(n), Type::Op, INTERNAL_SUBEXP});
@@ -271,7 +295,7 @@ std::vector<PrioToken> conv_tokens(const std::vector<Token>& expression){
 			is_func.pop();
 		}
 		
-		is_func_paren = t.type == Type::Func;		
+		is_func_paren = t.type == Type::Func || t.type == Type::Arr;		
 	
 		if (t.text == "-"){
 			if (i == 0 || expression.at(i-1).type != Type::Op){
@@ -311,7 +335,7 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 				//have RPN subsequence
 				subseq.push_back(r_n);
 				itr = tokens.begin();
-				//print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);			
+				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);			
 			} else {
 				itr++;
 			}
@@ -319,10 +343,10 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 		max_prio--;
 	}
 	
-	/*for (unsigned int i = 0; i < subseq.size(); i++){
+	for (unsigned int i = 0; i < subseq.size(); i++){
 		auto r = subseq[i];
 		print("R" + std::to_string(i), r);
-	}*/
+	}
 	
 	std::vector<Token> rpn{};
 	auto exp = subseq.back();
@@ -417,12 +441,23 @@ Var call_func(const Token& op, std::vector<Var>& args){
 Var Evaluator::calculate(const std::vector<Token>& rpn_expression){
 	std::stack<Var> values{};
 	std::stack<int> len_args{}; //for functions of unknown argument count
+	bool has_varptr = false;
+	VarPtr first_access{};
 	
 	for (auto t : rpn_expression){
 		//convert to value
 		if (t.type == Type::Op){
 			if (t.text == "."){
 				len_args.push(values.size());
+			} else if (t.text == "=") {
+				//assignment op is special
+				if (std::holds_alternative<Number*>(first_access)){
+					*std::get<Number*>(first_access) = std::get<Number>(values.top());
+				} else {
+					*std::get<String*>(first_access) = std::get<String>(values.top());
+				}
+				//don't pop value: return value assigned instead
+				break;
 			} else {
 				//calc'd value
 				auto v = call_op(t, values);
@@ -444,12 +479,20 @@ Var Evaluator::calculate(const std::vector<Token>& rpn_expression){
 			} else { //Type::Arr
 				//ptr to array element
 				Var v = get_var(t.text+"[]", args);//array access
+				if (!has_varptr){
+					first_access = get_var_ptr(t.text+"[]", args);
+					has_varptr = true;
+				}
 				values.push(v);
 			}
 			
 		} else if (t.type == Type::Var){
 			//add ptr to var to stack
 			Var v = get_var(t.text);
+			if (!has_varptr){
+				first_access = get_var_ptr(t.text);			
+				has_varptr = true;
+			}
 			values.push(v);
 		} else {
 			//add value to stack

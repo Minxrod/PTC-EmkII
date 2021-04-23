@@ -20,7 +20,8 @@ struct Evaluator {
 	
 	Var get_var(std::string name, std::vector<Var> args = {});
 
-	Var* get_var_ptr(std::string name);
+	VarPtr get_var_ptr(std::string name, std::vector<Var> args = {});
+	//VarPtr get_var_ptr(std::string name);
 
 	Var convert_to_value(const Token&);
 	
@@ -30,7 +31,7 @@ struct Evaluator {
 	//takes an expression and modifies it to a calculatable form
 	std::vector<Token> process(const std::vector<Token>&);
 	
-	//takes a command and breaks it into calculable forms
+	//takes a command and breaks it into smaller arg/cmd chunks
 	//ex. PRINT 5,6,7;8+9,ARR[I)
 	std::vector<std::vector<Token>> split(const std::vector<Token>&);
 	
