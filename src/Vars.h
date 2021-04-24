@@ -33,10 +33,13 @@ struct PrioToken : public Token{
 	int prio;
 };
 
+typedef std::vector<Token> Expr;
+
 bool operator<(const Token& a, const Token& b);
 bool operator<(const PrioToken& a, const PrioToken& b);
 bool operator==(const Token& a, const Token& b);
 Token operator""_TO(const char*, long unsigned int);
 Token operator""_TF(const char*, long unsigned int);
+Token operator""_TC(const char*, long unsigned int);
 
 

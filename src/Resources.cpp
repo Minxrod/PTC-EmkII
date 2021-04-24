@@ -2,9 +2,16 @@
 #include <sstream>
 #include <vector>
 #include <regex>
+#include <algorithm>
+#include <cmath>
+#include <chrono>
+#include <thread>
+
+#include <iostream>
 
 #include "Resources.h"
 #include "Vars.h"
+#include "Evaluator.h"
 
 const std::regex string{ R"("[^]*("|\r))" };
 const std::regex number{ R"(([0-9]*\.)?[0-9]+)" };
@@ -23,8 +30,32 @@ const std::string operations{" AND NOT OR ! - + - * / = == => =< < > != % ( ) [ 
 
 const std::string sysvars{" CSRX CSRY FREEMEM VARSION ERR ERL RESULT TCHX TCHY TCHST TCHTIME MAINCNTL MAINCNTH TABSTEP TRUE FALSE CANCEL ICONPUSE ICONPAGE ICONPMAX FUNCNO FREEVAR SYSBEEP KEYBOARD SPHITNO SPHITX SPHITY SPHITT TIME$ DATE$ MEM$ PRGNAME$ PACKAGE$ "};
 
-Program::Program(const std::vector<Token>& t) : tokens{t}{
+template <typename T>
+auto getfunc(T* obj, void(T::* fptr)(const Args&)){
+	return [obj, fptr](const Args& a) -> void{
+		(obj->*fptr)(a);
+	};
+}
+
+Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens{t}{
 	current = tokens.cbegin();
+	
+	commands = std::map<Token, cmd_type>{
+		cmd_map("FOR"_TC, getfunc<Program>(this, &Program::for_)),
+
+//		cmd_map("IF"_TC, if_),
+		cmd_map("NEXT"_TC, getfunc<Program>(this, &Program::next_)),
+//		cmd_map("GOTO"_TC, goto_),
+//		cmd_map("GOSUB"_TC, gosub_),
+//		cmd_map("ON"_TC, on_),
+//		cmd_map("RETURN"_TC, return_),
+//		cmd_map("STOP"_TC, &Program::stop_),
+//		cmd_map("END"_TC, &Program::end_),
+		cmd_map("WAIT"_TC, getfunc<Program>(this, &Program::wait_)),
+
+		cmd_map("CLS"_TC, getfunc<Program>(this, &Program::debugprint)),
+		cmd_map("PRINT"_TC, getfunc<Program>(this, &Program::debugprint)),
+	};
 }
 
 std::vector<Token> Program::next_instruction(){
@@ -41,6 +72,140 @@ void Program::goto_label(const std::string& label){
 
 bool Program::at_eof(){
 	return current == tokens.cend();
+}
+
+std::vector<std::vector<Token>> Program::split(const std::vector<Token>& expression){
+	std::vector<std::vector<Token>> subexp{};
+	
+	std::vector<PrioToken> all = conv_tokens(expression);
+	
+	auto i = 0;
+	auto start = expression.begin();
+	auto old = i;
+	while (i < (int)all.size()){
+		if (all.at(i).type == Type::Cmd){
+			if (old != i) //ON ... GOTO
+				subexp.push_back(std::vector<Token>(start+old, start+i));
+			subexp.push_back(std::vector<Token>{all.at(i)}); //some command
+			old=i+1;
+		}
+		if (all.at(i).prio == 1){
+			//found low-prio comma
+			subexp.push_back(std::vector<Token>(start+old, start+i));
+			old=i+1;
+		}
+		i++;
+	}
+	//this works since there should always be at least one subexp.
+	if (i != old)
+		subexp.push_back(std::vector<Token>(start+old,start+i));
+		
+	return subexp;
+}
+
+void Program::call_cmd(Token instr, const Args& chunks){
+	commands.at(instr)(chunks);
+}
+
+void Program::run(){
+	current = tokens.cbegin();
+	std::cout << "\nbegin run\n" << std::endl;
+	
+	while (current != tokens.cend()){
+		auto instr = next_instruction();
+		if (instr.empty())
+			continue; //it's an empty line, don't try to run it
+		
+		auto chunks = split(instr);
+		auto instr_form = chunks[0][0]; //if chunks[0] is empty, we have other problems
+		
+		for (auto chunk : chunks)
+			print("Instr:", chunk);
+		
+/*		if (instr_form.type == Type::Rem){ //ignore it, this is the entire line
+		} else if (instr_form.type == Type::Label){ //ignore
+		}else*/if (instr_form.type == Type::Num){ //error
+		} else if (instr_form.type == Type::Str){ //error
+		} else if (instr_form.type == Type::Arr){ //check for valid assignment
+			if (chunks.size() == 1){
+				//probably valid
+				e.evaluate(chunks[0]);
+			}
+		} else if (instr_form.type == Type::Var){ //check for assignment
+			if (chunks.size() == 1){
+				//probably valid
+				e.evaluate(chunks[0]);
+			}
+		} else if (instr_form.type == Type::Op){ //error
+		} else if (instr_form.type == Type::Func){ //error
+		} else if (instr_form.type == Type::Cmd){ //run cmd
+			call_cmd(instr_form, chunks);
+		//} else if (instr_form.type == Type::Newl){ //ignore
+		} else { //something has gone horrifically wrong
+		}
+	}
+}
+
+void Program::debugprint(const Args& a){
+	for (auto exp : a)
+		print("dubug:"+exp[0].text, exp);
+}
+
+void Program::for_(const Args& a){
+	//FOR <initial> TO <value> [STEP <value>]
+	auto& init = a[1]; //initial
+	auto eq = std::find(init.begin(), init.end(), "="_TO);
+	auto var = std::vector<Token>{init.begin(), eq}; //read until = to get var expression
+	
+	auto& end = a[3]; //end value
+	auto cond = std::vector<Token>{var};
+	cond.push_back("<="_TO);
+	cond.insert(cond.end(), end.begin(), end.end());
+	
+	//buiild <var>=<var>+<step> expression
+	auto step = std::vector<Token>{var};
+	step.push_back("="_TO);
+	step.insert(step.end(), var.begin(), var.end());
+	step.push_back("+"_TO);
+	if (a.size() == 6){
+		step.insert(step.end(), a[5].begin(), a[5].end());
+	} else {
+		step.push_back(Token{"1", Type::Num}); //default step is 1
+	}
+	
+	print("init:", init);
+	print("cond:", cond);
+	print("step:", step);
+	
+	e.evaluate(init); //run init condition
+	for_calls.push_back(std::make_tuple(var, current, cond, step)); //needed for looping
+}
+
+void Program::next_(const Args& a){
+	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>>::iterator itr;
+	if (a.size() > 1){
+		//a contains a variable name, referring to a specifc for loop
+		//search for specific vector of var name
+		itr = std::find_if(for_calls.begin(), for_calls.end(), [&a](auto& x){ return std::get<0>(x) == a[1];});
+	} else {
+		itr = for_calls.end()-1;
+	}
+	
+	e.evaluate(std::get<3>(*itr)); //run step
+	auto res = e.evaluate(std::get<2>(*itr)); //check condition
+	if (std::abs(std::get<Number>(res)) < 0.000244140625){
+		//false: loop ends
+		for_calls.erase(itr); //remove from ""stack"" when loop ends
+	} else {
+		//true: loop continues
+		current = std::get<1>(*itr);
+	}
+}
+
+void Program::wait_(const Args& a){
+	auto frames = 1000.0 / 60.0 * std::get<Number>(e.evaluate(a[1]));
+	
+	std::this_thread::sleep_for(std::chrono::milliseconds((int)frames));
 }
 
 std::vector<Token> tokenize(PRG& prg){

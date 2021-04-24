@@ -12,7 +12,9 @@ std::ostream& print(std::string name, const std::vector<PrioToken>&);
 
 const int INTERNAL_ENDLIST = -999;
 const int INTERNAL_SUBEXP = -888;
-const int INTERNAL_PAREN = -23;
+const int INTERNAL_PAREN = -24;
+
+std::vector<PrioToken> conv_tokens(const std::vector<Token>&);
 
 struct Evaluator {
 	std::map<std::string, Var> vars;
@@ -33,7 +35,7 @@ struct Evaluator {
 	
 	//takes a command and breaks it into smaller arg/cmd chunks
 	//ex. PRINT 5,6,7;8+9,ARR[I)
-	std::vector<std::vector<Token>> split(const std::vector<Token>&);
+	//std::vector<std::vector<Token>> split(const std::vector<Token>&);
 	
 	//takes a calculable form and gets a value
 	Var calculate(const std::vector<Token>&);

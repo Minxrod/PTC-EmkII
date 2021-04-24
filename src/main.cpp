@@ -66,29 +66,27 @@ int main()
 	Header h{};
 	
 	PRG p{};
-	auto fs = get_filestream("programs/SAMPLE7.PTC");
+	auto fs = get_filestream("programs/FORLOOP.PTC");
 	read_n(fs, h.data, 60);
 	read_n(fs, p.data, h.get_size());
 	
 	auto tk = tokenize(p);
 	
-	Program program(tk);
-	/*
+	Program program(e, tk);
+	
 	int n = 0;
 	while(!program.at_eof()){
 		auto tok = program.next_instruction();
-		auto proc = e.split(tok);
+		auto proc = program.split(tok);
 		for (uint32_t p = 0; p < proc.size(); ++p){ 
 			print("V"+std::to_string(p), proc[p]);
 		}
 		
 		n++;
 		print("Instr " + std::to_string(n), tok);
-	}*/
+	}
 	
-	//DO THIS NEXT: implement some sort of program class to
-	//execute commands ...?
-	//call evaluator
+	program.run();
 	
 	//print("TOKENIZED:", tk);
 	

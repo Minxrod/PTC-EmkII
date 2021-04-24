@@ -86,8 +86,8 @@ const std::map<Token, op_func> functions{
 	//func_map{"VAL"_TF, ptc::val},
 };
 
-VarPtr get_varptr(std::string name, std::vector<Var> args, const std::map<std::string, Var>& vars){
-	Var v = vars.at(name);
+VarPtr get_varptr(std::string name, std::vector<Var> args, std::map<std::string, Var>& vars){
+	Var& v = vars.at(name);
 	if (name.find("[]") != std::string::npos){
 		if (args.size() == 2){
 			auto& a_ij = std::get<Array2>(v)[std::get<Number>(args[0])][std::get<Number>(args[1])];
@@ -108,7 +108,7 @@ VarPtr get_varptr(std::string name, std::vector<Var> args, const std::map<std::s
 	return VarPtr(&std::get<Array1>(v)); //cannot use 2d array refs, ever
 }
 
-Var get_var_val(std::string name, std::vector<Var> args, const std::map<std::string, Var>& vars){
+Var get_var_val(std::string name, std::vector<Var> args, std::map<std::string, Var>& vars){
 	//note: cannot get array by value (why would you?)
 	auto ptr = get_varptr(name, args, vars);
 	return (std::holds_alternative<Number*>(ptr)) ? Var(*std::get<Number*>(ptr)) : Var(*std::get<String*>(ptr));
@@ -314,7 +314,7 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 	std::vector<PrioToken> tokens = conv_tokens(expression);
 	
 	//remove parenthesis
-	auto end = std::remove_if(tokens.begin(), tokens.end(), [](PrioToken& p){return p.prio == -23;});
+	auto end = std::remove_if(tokens.begin(), tokens.end(), [](PrioToken& p){return p.prio == INTERNAL_PAREN;});
 	tokens.erase(end, tokens.end());
 	
 	//note: relies on internal priority "flag" values to be <0.
@@ -363,35 +363,6 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 	}
 	
 	return exp;
-}
-
-std::vector<std::vector<Token>> Evaluator::split(const std::vector<Token>& expression){
-	std::vector<std::vector<Token>> subexp{};
-	
-	std::vector<PrioToken> all = conv_tokens(expression);
-	
-	auto i = 0;
-	auto start = expression.begin();
-	auto old = i;
-	while (i < (int)all.size()){
-		if (all.at(i).type == Type::Cmd){
-			if (old != i) //ON ... GOTO
-				subexp.push_back(std::vector<Token>(start+old, start+i));
-			subexp.push_back(std::vector<Token>{all.at(i)}); //some command
-			old=i+1;
-		}
-		if (all.at(i).prio == 1){
-			//found low-prio comma
-			subexp.push_back(std::vector<Token>(start+old, start+i));
-			old=i+1;
-		}
-		i++;
-	}
-	//this works since there should always be at least one subexp.
-	if (i != old)
-		subexp.push_back(std::vector<Token>(start+old,start+i));
-		
-	return subexp;
 }
 
 Var Evaluator::convert_to_value(const Token& t){

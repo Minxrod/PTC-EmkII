@@ -19,3 +19,7 @@ Token operator""_TO(const char* x, long unsigned int y){
 Token operator""_TF(const char* x, long unsigned int y){
 	return Token{std::string{x, y}, Type::Func};
 }
+
+Token operator""_TC(const char* x, long unsigned int y){
+	return Token{std::string{x, y}, Type::Cmd};
+}
