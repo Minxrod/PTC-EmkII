@@ -26,7 +26,7 @@ std::string Header::get_type() const {
 std::ifstream get_filestream(std::string file){
 	std::ifstream ifs{file, std::ios::binary | std::ios::in};
 	if (!ifs)
-		throw std::runtime_error{"bad"};
+		throw std::runtime_error{file};
 	
 	return ifs;
 }

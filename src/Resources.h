@@ -8,46 +8,82 @@
 
 #include "Vars.h"
 #include "Evaluator.h"
+#include "FileLoader.h"
 
 struct PRG {
 	std::vector<unsigned char> data;
 };
 
 struct CHR{
-	std::array<unsigned char, 256*8*8/2> data;
+	static const int SIZE = 256*8*8/2;
+	
+	std::vector<unsigned char> data;
+	
+	CHR() = default;
+	
+	unsigned char get_pixel(int c, int x, int y){
+		auto ch = data[32*c+x/2+4*y];
+		return (x%2==0) ? (ch & 0x0f) : ((ch & 0xf0) >> 4);
+	};
 };
 
 struct MEM{
-	std::array<unsigned char, 256*2> data;
+	static const int SIZE = 256*2;
+	
+	std::vector<unsigned char> data;
 	
 	std::string get_mem();
 };
 
 struct SCR{
-	std::array<uint16_t, 64*64> data;
+	static const int SIZE = 64*64*2;
+	
+	std::vector<unsigned char> data;
 };
 
 struct COL{
-	std::array<uint16_t, 256> data;
+	static const int SIZE = 256*2;
+	
+	std::vector<unsigned char> data;
+	
+	std::vector<unsigned char> COL_to_RGBA(){
+		std::vector<unsigned char> cols;
+		cols.resize(256*4);
+		
+		for (int i = 0; i < 256; ++i){
+			int col = (data[2*i] << 8) + data[2*i+1];
+			uint8_t red = (col & 0x1F00) >> 8;
+			uint8_t green = ((col & 0xE000) >> 13) | ((col & 0x0003) << 3);
+			uint8_t blue = (col & 0x007C) >> 2;
+			cols[4 * i] = 8 * red;
+			cols[4 * i + 1] = 8 * green;
+			cols[4 * i + 2] = 8 * blue;
+			cols[4 * i + 3] = (i % 16 == 0) ? 0 : 255;
+		}
+		return cols;
+	}
 };
 
 struct GRP{
-	std::array<unsigned char, 256*192> data;
+	static const int SIZE = 256*192;
+	
+	std::vector<unsigned char> data;
 };
 
 struct Resources{
 	//should contain all required resources
+	Header prg_info;
 	PRG prg;
 	MEM mem;
 	std::map<std::string, GRP> grp; //grp0-3 (ul does nothing, gpage does nothing)
 	std::map<std::string, CHR> chr; //bgu0-3*2,bgf0*2,bgd0-1*2,spu0-7 (on ul),sps0-1*2,spd0-3 (on ul)
 	std::map<std::string, SCR> scr;	//scu0-1 *2 //works with ul and bgpage
 	std::map<std::string, COL> col; //col0-2 *2 //ul only
+	
+	Resources() = default;
+	void load_program(std::string name);
+	void load_default();
 };
-
-typedef const std::vector<std::vector<Token>>& Args;
-using cmd_type = std::function<void(const Args&)>;
-typedef std::pair<Token, cmd_type> cmd_map;
 
 class Program{
 	Evaluator& e;
@@ -74,9 +110,10 @@ class Program{
 	void wait_(const Args&);
 	
 public:
-	void call_cmd(Token, const std::vector<std::vector<Token>>&);
-
 	Program(Evaluator&, const std::vector<Token>&);
+	
+	void add_cmds(std::map<Token, cmd_type>);
+	void call_cmd(Token, const std::vector<std::vector<Token>>&);
 	
 	std::vector<Token> next_instruction();
 	bool at_eof();

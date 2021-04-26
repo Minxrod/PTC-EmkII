@@ -15,6 +15,6 @@ struct Header {
 
 std::ifstream get_filestream(std::string);
 
-void read_n(std::ifstream& ifs, std::vector<unsigned char>&, int);
+void read_n(std::ifstream&, std::vector<unsigned char>&, int);
 
-void read_data(std::ifstream&, std::vector<unsigned char>&);
+//void read_data(std::ifstream&, std::vector<unsigned char>&);

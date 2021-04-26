@@ -4,75 +4,37 @@
 #include "Evaluator.h"
 #include "FileLoader.h"
 #include "Resources.h"
+#include "Console.h"
 
 #include <iostream>
 
 int main()
 {
-    //sf::RenderWindow window(sf::VideoMode(256, 384), "PTCEmukII");
+    sf::RenderWindow window(sf::VideoMode(256, 384), "PTCEmukII");
     
-    const char* string = "hello\0";
-    String str{ string };
-    std::cout << str << std::endl;
+	if (!sf::Shader::isAvailable()){
+        std::cout << "Error: Shaders are unavailable";
+        return 0;
+    }
 
-    Number num{ 0x33 };
-    std::cout << num << std::endl;
-	
+    sf::Shader s;
+    if (!s.loadFromFile("resources/shaders/bgsp.frag", sf::Shader::Fragment)){
+        std::cout << "Error: Shader could not be loaded";
+        return 0;
+    }
+    
 	Evaluator e{};
 	
-	/*std::vector<Token> 	exp{Token{"2",Type::Num},
-							Token{"+",Type::Op},
-							Token{"3",Type::Num},
-							Token{"*",Type::Op},
-							Token{"5",Type::Num}};
-	*/
+	Resources r{};
+	r.load_program("programs/FORLOOP.PTC");
+	r.load_default();
 	
-	/*std::vector<Token> 	exp{Token{"5",Type::Num},
-							Token{"*",Type::Op},
-							//"!"_TO,
-							Token{"(",Type::Op},
-							Token{"2",Type::Num},
-							Token{"+",Type::Op},
-							Token{"3",Type::Num},
-							Token{")",Type::Op},
-							};
-	*/
-	
-	/*std::vector<Token> exp {Token{"7",Type::Num},
-							"*"_TO, Token{"FNC",Type::Func}, "("_TO,
-							Token{"5",Type::Num}, "+"_TO, Token{"7.5", Type::Num}, ","_TO, Token{"5.5",Type::Num}, 								","_TO, Token{"75",Type::Num}, ")"_TO};*/
-	
-	/*std::vector<Token> exp {Token{"6",Type::Num},
-							"AND"_TO,
-							Token{"5",Type::Num}};*/
-
-	std::vector<Token> exp {Token{"PIE", Type::Arr}, "("_TO, Token{"0", Type::Num}, ")"_TO, "="_TO,
-	"COS"_TF, "("_TO, Token{"PIE", Type::Arr}, "("_TO, Token{"0", Type::Num}, ")"_TO, ")"_TO};
-
-	auto r = e.process(exp);
-	
-	print("RESULT", r);
-
-	auto v = e.calculate(r);
-
-	std::cout << std::get<Number>(v) << std::endl;
-
-	v = e.calculate(r);
-
-	std::cout << std::get<Number>(v) << std::endl;
-
-	
-	//PROGRAM/TOKENIZATION TESTS
-	Header h{};
-	
-	PRG p{};
-	auto fs = get_filestream("programs/FORLOOP.PTC");
-	read_n(fs, h.data, 60);
-	read_n(fs, p.data, h.get_size());
-	
-	auto tk = tokenize(p);
+	auto tk = tokenize(r.prg);
 	
 	Program program(e, tk);
+	Console console(e, r.chr.at("BGF0U"));
+	
+	program.add_cmds(console.get_cmds());
 	
 	int n = 0;
 	while(!program.at_eof()){
@@ -89,8 +51,16 @@ int main()
 	program.run();
 	
 	//print("TOKENIZED:", tk);
+	sf::Texture contx{};
+	contx.create(256, 192);
+	sf::Sprite consp{};
+	consp.setTexture(contx);
+
+	sf::Texture color_tex{}; 
+	color_tex.create(256, 1);
+	color_tex.update(r.col.at("COL0U").COL_to_RGBA().data());
 	
-    /*while (window.isOpen())
+    while (window.isOpen())
     {
         sf::Event event;
         while (window.pollEvent(event))
@@ -101,16 +71,17 @@ int main()
 
         //get updated textures for drawing to screen
         
-        
-        
         window.clear();
-
+	
+		s.setUniform("texture", sf::Shader::CurrentTexture);
+    	s.setUniform("colors", color_tex);
+	
+		contx.update(console.draw().data());
+		window.draw(consp, &s);
         //draw textures
 
-
-
         window.display();
-    }*/
+    }
 
     return 0;
 }

@@ -6,12 +6,14 @@
 #include <cmath>
 #include <chrono>
 #include <thread>
+#include <iterator>
 
 #include <iostream>
 
 #include "Resources.h"
 #include "Vars.h"
 #include "Evaluator.h"
+#include "FileLoader.h"
 
 const std::regex string{ R"("[^]*("|\r))" };
 const std::regex number{ R"(([0-9]*\.)?[0-9]+)" };
@@ -30,19 +32,53 @@ const std::string operations{" AND NOT OR ! - + - * / = == => =< < > != % ( ) [ 
 
 const std::string sysvars{" CSRX CSRY FREEMEM VARSION ERR ERL RESULT TCHX TCHY TCHST TCHTIME MAINCNTL MAINCNTH TABSTEP TRUE FALSE CANCEL ICONPUSE ICONPAGE ICONPMAX FUNCNO FREEVAR SYSBEEP KEYBOARD SPHITNO SPHITX SPHITY SPHITT TIME$ DATE$ MEM$ PRGNAME$ PACKAGE$ "};
 
-template <typename T>
-auto getfunc(T* obj, void(T::* fptr)(const Args&)){
-	return [obj, fptr](const Args& a) -> void{
-		(obj->*fptr)(a);
-	};
+void Resources::load_program(std::string name){
+	auto fs = get_filestream(name);
+	read_n(fs, prg_info.data, 60);
+	read_n(fs, prg.data, prg_info.get_size());
 }
+
+void Resources::load_default(){
+	std::vector<std::string> chr_resources{
+		"BGU0L", "BGU1L", "BGU2L", "BGU3L",
+		"BGU0U", "BGU1U", "BGU2U", "BGU3U",
+		"BGF0U",
+		"BGF0L",
+		"BGD0U", "BGD1U",
+		"BGD0L", "BGD1L",
+		"SPS0L", "SPS1L",
+		"SPS0U", "SPS1U",
+		"SPU0", "SPU1", "SPU2", "SPU3", "SPU4", "SPU5", "SPU6", "SPU7",
+		"SPD0", "SPD1", "SPD2", "SPD3"
+	};
+	
+	for (auto r : chr_resources){
+		auto fs = get_filestream("resources/graphics/"+r.substr(0,4)+".PTC");
+		chr.insert(std::pair(r, CHR()));
+		read_n(fs, chr.at(r).data, 48); //dummy read to skip header
+		read_n(fs, chr.at(r).data, CHR::SIZE);
+	}
+	
+	std::vector<std::string> col_resources{
+		"COL0U", "COL1U", "COL2U",
+		"COL0L", "COL1L", "COL2L",
+	};
+	
+	for (auto c : col_resources){
+		auto fs = get_filestream("resources/graphics/"+c.substr(0,4)+".PTC");
+		col.insert(std::pair(c, COL()));
+		read_n(fs, col.at(c).data, 48); //dummy read to skip header
+		read_n(fs, col.at(c).data, COL::SIZE);
+	}
+
+}
+
 
 Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens{t}{
 	current = tokens.cbegin();
 	
 	commands = std::map<Token, cmd_type>{
 		cmd_map("FOR"_TC, getfunc<Program>(this, &Program::for_)),
-
 //		cmd_map("IF"_TC, if_),
 		cmd_map("NEXT"_TC, getfunc<Program>(this, &Program::next_)),
 //		cmd_map("GOTO"_TC, goto_),
@@ -52,15 +88,23 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens
 //		cmd_map("STOP"_TC, &Program::stop_),
 //		cmd_map("END"_TC, &Program::end_),
 		cmd_map("WAIT"_TC, getfunc<Program>(this, &Program::wait_)),
-
-		cmd_map("CLS"_TC, getfunc<Program>(this, &Program::debugprint)),
-		cmd_map("PRINT"_TC, getfunc<Program>(this, &Program::debugprint)),
+//		cmd_map("CLS"_TC, getfunc<Program>(this, &Program::debugprint)),
+//		cmd_map("PRINT"_TC, getfunc<Program>(this, &Program::debugprint)),
 	};
 }
 
+void Program::add_cmds(std::map<Token, cmd_type> other){
+	commands.merge(other);
+}
+
 std::vector<Token> Program::next_instruction(){
-	auto newline = std::min(std::find(current, tokens.end(), Token{"\r", Type::Newl}),
+	Expr::const_iterator newline;
+	if (*current == "IF"_TC){ //IF should read entire line
+		newline = std::find(current, tokens.end(), Token{"\r", Type::Newl});
+	} else {
+		newline = std::min(std::find(current, tokens.end(), Token{"\r", Type::Newl}),
 							std::find(current, tokens.end(), Token{":", Type::Newl}));
+	}
 	std::vector<Token> instr{current, newline};
 	current = newline+1;
 	return instr;
@@ -84,7 +128,7 @@ std::vector<std::vector<Token>> Program::split(const std::vector<Token>& express
 	auto old = i;
 	while (i < (int)all.size()){
 		if (all.at(i).type == Type::Cmd){
-			if (old != i) //ON ... GOTO
+			if (old != i) //ON ... GOTO IF ... THEN 
 				subexp.push_back(std::vector<Token>(start+old, start+i));
 			subexp.push_back(std::vector<Token>{all.at(i)}); //some command
 			old=i+1;
@@ -139,11 +183,17 @@ void Program::run(){
 		} else if (instr_form.type == Type::Op){ //error
 		} else if (instr_form.type == Type::Func){ //error
 		} else if (instr_form.type == Type::Cmd){ //run cmd
-			call_cmd(instr_form, chunks);
+			if (instr_form.text == "IF"){
+				call_cmd(instr_form, std::vector<Expr>{instr});
+			} else {
+				call_cmd(instr_form, chunks);
+			}
 		//} else if (instr_form.type == Type::Newl){ //ignore
 		} else { //something has gone horrifically wrong
 		}
 	}
+	
+	std::cout << "Program.run() end" << std::endl;
 }
 
 void Program::debugprint(const Args& a){
@@ -206,6 +256,44 @@ void Program::wait_(const Args& a){
 	auto frames = 1000.0 / 60.0 * std::get<Number>(e.evaluate(a[1]));
 	
 	std::this_thread::sleep_for(std::chrono::milliseconds((int)frames));
+}
+
+void Program::if_(const Args& a){
+	//IF <cond> THEN CMD A,B:CMD C,D ELSE CMD E\r
+	//IF, <cond>, THEN, CMD, A, B, : CMD, C, D, ELSE, CMD, E, \r
+	//<nextline>
+	//correct code will look like this (can be GOTO or THEN!)
+	auto& line = a[0]; //if is special case, all data in one chunk
+	
+	auto pass = std::find_if(line.begin(), line.end(), [](auto& x){return x=="THEN"_TC || x=="GOTO"_TC;});
+	//from IF <COND> THEN/GOTO
+	Expr cond = Expr(line.begin()+1, pass);
+	
+	int nest = 0;
+	//needed to handle stuff like IF A THEN IF B THEN ?"B" ELSE ?"A" ELSE ?"0"
+	auto if_else = [&nest](auto& i){
+		if (i == "IF"_TC)
+			nest++;
+		if (i == "ELSE"_TC){
+			if (nest > 0){
+				nest--;
+			} else {
+				return true;
+			}
+		}
+		return false;
+	};
+	auto fail = std::find_if(pass+1, line.end(), if_else); //else (might not exist)
+	
+	auto res = e.evaluate(cond); //condition
+	if (std::abs(std::get<Number>(res)) > 0){
+		current = current - std::distance(pass, line.end());
+	} else {
+		if (fail != line.end()){ //else was found
+			current = current - std::distance(fail, line.end());
+		} //else not found, current is already past instruction (no change needed)
+	}
+
 }
 
 std::vector<Token> tokenize(PRG& prg){

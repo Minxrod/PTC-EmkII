@@ -13,12 +13,6 @@ using SimpleVar = std::variant<Number, String>;
 typedef std::vector<SimpleVar> Array1;
 typedef std::vector<Array1> Array2;
 
-//typedef std::vector<double> Num1d;
-//typedef std::vector<std::string> Str1d;
-//typedef std::vector<std::vector<double>> Num2d;
-//typedef std::vector<std::vector<std::string>> Str2d;
-//typedef int Internal;
-
 using Var = std::variant<Number, String, Array1, Array2>;
 using VarPtr = std::variant<Number*, String*, Array1*>;
 
@@ -34,6 +28,9 @@ struct PrioToken : public Token{
 };
 
 typedef std::vector<Token> Expr;
+typedef const std::vector<Expr>& Args;
+using cmd_type = std::function<void(const Args&)>;
+typedef std::pair<Token, cmd_type> cmd_map;
 
 bool operator<(const Token& a, const Token& b);
 bool operator<(const PrioToken& a, const PrioToken& b);
@@ -41,5 +38,12 @@ bool operator==(const Token& a, const Token& b);
 Token operator""_TO(const char*, long unsigned int);
 Token operator""_TF(const char*, long unsigned int);
 Token operator""_TC(const char*, long unsigned int);
+
+template <typename T>
+auto getfunc(T* obj, void(T::* fptr)(const Args&)){
+	return [obj, fptr](const Args& a) -> void{
+		(obj->*fptr)(a);
+	};
+}
 
 
