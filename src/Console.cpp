@@ -117,12 +117,19 @@ void Console::tab(){
 }
 
 
-void Console::color_(const Args& ){
+void Console::color_(const Args& a){
 	
+	cur_fg_color = (int)std::get<Number>(e.evaluate(a[1]));
+	if (a.size() == 2){
+		cur_bg_color = (int)std::get<Number>(e.evaluate(a[1]));
+	}
 }
 
-Var Console::chkchr_(const Expr& ){
-	return Var(0);
+Var Console::chkchr_(const std::vector<Var>& v){
+	auto x = (int)std::get<Number>(v.at(0));
+	auto y = (int)std::get<Number>(v.at(1));
+
+	return Var(text[x+WIDTH*y]);
 }
 
 std::array<unsigned char, Console::WIDTH*Console::HEIGHT*4*8*8>& Console::draw(){

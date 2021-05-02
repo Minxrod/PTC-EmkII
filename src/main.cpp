@@ -5,6 +5,7 @@
 #include "FileLoader.h"
 #include "Resources.h"
 #include "Console.h"
+#include "Program.h"
 
 #include <iostream>
 
@@ -26,7 +27,7 @@ int main()
 	Evaluator e{};
 	
 	Resources r{};
-	r.load_program("programs/FORLOOP.PTC");
+	r.load_program("programs/SAMPLE1.PTC");
 	r.load_default();
 	
 	auto tk = tokenize(r.prg);
@@ -36,7 +37,7 @@ int main()
 	
 	program.add_cmds(console.get_cmds());
 	
-	int n = 0;
+	/*int n = 0;
 	while(!program.at_eof()){
 		auto tok = program.next_instruction();
 		auto proc = program.split(tok);
@@ -46,7 +47,7 @@ int main()
 		
 		n++;
 		print("Instr " + std::to_string(n), tok);
-	}
+	}*/
 	
 	program.run();
 	

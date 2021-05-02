@@ -15,76 +15,53 @@
 
 #include <stack>
 
-//debug
-std::ostream& print(std::string name, const std::vector<Token>& items){
-	std::cout << name << ":" << std::endl;
-	for (auto i : items){
-		if (i.text != "\r")
-			std::cout << i.text << " ";
-	}
-	return std::cout << std::endl;
+Evaluator::Evaluator(){
+	operators = std::map{
+		op_map{"+"_TO, ptc::add},
+		op_map{"-"_TO, ptc::sub},
+		op_map{"*"_TO, ptc::mul},
+		op_map{"/"_TO, ptc::div},
+		op_map{"%"_TO, ptc::mod},
+		op_map{"!"_TO, ptc::inv},
+		op_map{"=="_TO, ptc::eq},
+		op_map{"!="_TO, ptc::neq},
+		op_map{"<="_TO, ptc::leq},
+		op_map{"<"_TO, ptc::less},
+		op_map{">="_TO, ptc::geq},
+		op_map{">"_TO, ptc::more},
+		op_map{"OR"_TO, ptc::bor},
+		op_map{"AND"_TO, ptc::band},
+		op_map{"NOT"_TO, ptc::bnot},
+		//op_map{"="_TO, assign},
+	};
+	
+	functions = std::map{
+		func_map{"SIN"_TF, ptc::sin},
+		func_map{"COS"_TF, ptc::cos},
+		func_map{"TAN"_TF, ptc::tan},
+		func_map{"PI"_TF, ptc::pi},
+		func_map{"ABS"_TF, ptc::abs},
+		func_map{"ASC"_TF, ptc::asc},
+		func_map{"ATAN"_TF, ptc::atan},
+		//func_map{"CHR$"_TF, ptc::chr},
+		func_map{"DEG"_TF, ptc::deg},
+		func_map{"RAD"_TF, ptc::rad},
+		//func_map{"EXP"_TF, ptc::exp},
+		//func_map{"FLOOR"_TF, ptc::floor},
+		//func_map{"HEX$"_TF, ptc::hex},
+		//func_map{"LEN"_TF, ptc::len},	
+		//func_map{"LEFT$"_TF, ptc::left},
+		//func_map{"RIGHT$"_TF, ptc::right},
+		//func_map{"MID$"_TF, ptc::mid},
+		//func_map{"POW"_TF, ptc::pow},
+		//func_map{"RND"_TF, ptc::rnd},
+		//func_map{"SGN"_TF, ptc::sgn},
+		//func_map{"SQR"_TF, ptc::sqr},
+		//func_map{"STR$"_TF, ptc::str},
+		//func_map{"SUBST$"_TF, ptc::subst},
+		//func_map{"VAL"_TF, ptc::val},
+	};
 }
-
-//debug
-std::ostream& print(std::string name, const std::vector<PrioToken>& items){
-	std::cout << name << ":" << std::endl;
-	for (auto i : items){
-		std::cout << i.text << "[" << i.prio << "] ";
-	}
-	return std::cout << std::endl;
-}
-
-
-
-using op_func = Var(*)(const std::vector<Var>&);
-typedef std::pair<Token, op_func> op_map;
-typedef op_map func_map;
-
-const std::map<Token, op_func> operators{
-	op_map{"+"_TO, ptc::add},
-	op_map{"-"_TO, ptc::sub},
-	op_map{"*"_TO, ptc::mul},
-	op_map{"/"_TO, ptc::div},
-	op_map{"%"_TO, ptc::mod},
-	op_map{"!"_TO, ptc::inv},
-	op_map{"=="_TO, ptc::eq},
-	op_map{"!="_TO, ptc::neq},
-	op_map{"<="_TO, ptc::leq},
-	op_map{"<"_TO, ptc::less},
-	op_map{">="_TO, ptc::geq},
-	op_map{">"_TO, ptc::more},
-	op_map{"OR"_TO, ptc::bor},
-	op_map{"AND"_TO, ptc::band},
-	op_map{"NOT"_TO, ptc::bnot},
-	//op_map{"="_TO, assign},
-};
-
-const std::map<Token, op_func> functions{
-	func_map{"SIN"_TF, ptc::sin},
-	func_map{"COS"_TF, ptc::cos},
-	func_map{"TAN"_TF, ptc::tan},
-	func_map{"PI"_TF, ptc::pi},
-	func_map{"ABS"_TF, ptc::abs},
-	func_map{"ASC"_TF, ptc::asc},
-	func_map{"ATAN"_TF, ptc::atan},
-	//func_map{"CHR$"_TF, ptc::chr},
-	func_map{"DEG"_TF, ptc::deg},
-	func_map{"RAD"_TF, ptc::rad},
-	//func_map{"EXP"_TF, ptc::exp},
-	//func_map{"FLOOR"_TF, ptc::floor},
-	//func_map{"HEX$"_TF, ptc::hex},
-	//func_map{"LEN"_TF, ptc::len},	
-	//func_map{"LEFT$"_TF, ptc::left},
-	//func_map{"RIGHT$"_TF, ptc::right},
-	//func_map{"MID$"_TF, ptc::mid},
-	//func_map{"POW"_TF, ptc::pow},
-	//func_map{"RND"_TF, ptc::rnd},
-	//func_map{"SGN"_TF, ptc::sgn},
-	//func_map{"SQR"_TF, ptc::sqr},
-	//func_map{"STR$"_TF, ptc::str},
-	//func_map{"SUBST$"_TF, ptc::subst},
-	//func_map{"VAL"_TF, ptc::val},
-};
 
 VarPtr get_varptr(std::string name, std::vector<Var> args, std::map<std::string, Var>& vars){
 	Var& v = vars.at(name);
@@ -378,7 +355,7 @@ constexpr int cstr_to_val(const char* c){
 	return c[0] + (c[1] << 8);
 }
 
-Var call_op(const Token& op, std::stack<Var>& values){
+Var Evaluator::call_op(const Token& op, std::stack<Var>& values){
 //	int op_val = op.text.at(0);
 //	if (op.text.size() > 1)
 //		op_val += op.text.at(1) << 8;
@@ -402,7 +379,7 @@ Var call_op(const Token& op, std::stack<Var>& values){
 	return r;
 }
 
-Var call_func(const Token& op, std::vector<Var>& args){
+Var Evaluator::call_func(const Token& op, std::vector<Var>& args){
 	Var r = functions.at(op)(args);
 	
 	return r;

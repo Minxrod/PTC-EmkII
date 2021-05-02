@@ -4,7 +4,7 @@
 #include <cmath>
 
 namespace ptc {
-
+	
 	template <typename T>
 	bool is_type(Var v){
 		return std::holds_alternative<T>(v);

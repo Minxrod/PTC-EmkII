@@ -23,3 +23,20 @@ Token operator""_TF(const char* x, long unsigned int y){
 Token operator""_TC(const char* x, long unsigned int y){
 	return Token{std::string{x, y}, Type::Cmd};
 }
+
+std::ostream& print(std::string name, const std::vector<Token>& items){
+	std::cout << name << ":" << std::endl;
+	for (auto i : items){
+		if (i.text != "\r")
+			std::cout << i.text << " ";
+	}
+	return std::cout << std::endl;
+}
+
+std::ostream& print(std::string name, const std::vector<PrioToken>& items){
+	std::cout << name << ":" << std::endl;
+	for (auto i : items){
+		std::cout << i.text << "[" << i.prio << "] ";
+	}
+	return std::cout << std::endl;
+}

@@ -7,9 +7,6 @@
 #include <vector>
 #include <map>
 
-std::ostream& print(std::string name, const std::vector<Token>&);
-std::ostream& print(std::string name, const std::vector<PrioToken>&);
-
 const int INTERNAL_ENDLIST = -999;
 const int INTERNAL_SUBEXP = -888;
 const int INTERNAL_PAREN = -24;
@@ -17,15 +14,22 @@ const int INTERNAL_PAREN = -24;
 std::vector<PrioToken> conv_tokens(const std::vector<Token>&);
 
 struct Evaluator {
+	std::map<Token, op_func> operators;
+	std::map<Token, op_func> functions;
+
 	std::map<std::string, Var> vars;
 	std::map<std::vector<Token>, std::vector<Token>> processed; 
+
+	Evaluator();
+	void add_funcs(std::map<Token, op_func>&);
 	
 	Var get_var(std::string name, std::vector<Var> args = {});
-
 	VarPtr get_var_ptr(std::string name, std::vector<Var> args = {});
 	//VarPtr get_var_ptr(std::string name);
 
 	Var convert_to_value(const Token&);
+	Var call_op(const Token&, std::stack<Var>&);
+	Var call_func(const Token&, std::vector<Var>&);
 	
 	//Takes an expression and evaluates it to a value
 	Var evaluate(const std::vector<Token>&);

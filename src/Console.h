@@ -33,7 +33,7 @@ class Console {
 	void print_(const Var&);
 	void locate_(const Args&);
 	void color_(const Args&);
-	Var chkchr_(const Expr&);
+	Var chkchr_(const std::vector<Var>&);
 	
 	std::array<unsigned char, WIDTH*HEIGHT*4*8*8> image;
 	
