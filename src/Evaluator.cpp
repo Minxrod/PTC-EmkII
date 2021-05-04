@@ -348,18 +348,43 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 	return exp;
 }
 
-Var Evaluator::convert_to_value(const Token& t){
+Var convert_to_value(const Token& t){
 	if (t.type == Type::Num)
 		return Var{std::stod(t.text)};
 	if (t.type == Type::Str)
 		return Var{t.text};
-	return Var{-9876};
+	return Var{"error: convert_to_value failure"};
 }
 
-//expects a char and a \0, or expects two chars
-constexpr int cstr_to_val(const char* c){
-	return c[0] + (c[1] << 8);
+void assign_varptr(VarPtr vp, Var v){
+	if (std::holds_alternative<Number*>(vp)){
+		*std::get<Number*>(vp) = std::get<Number>(v);
+	} else {
+		*std::get<String*>(vp) = std::get<String>(v);
+	}
 }
+
+void Evaluator::assign(const Expr& exp, Token t){
+	auto p = process(exp);
+	auto name = exp[0];
+	
+	if (name.type == Type::Arr){
+		name.text += "[]";
+	}
+	
+	if (name.text.find("$") != std::string::npos){
+		t.type = Type::Str;
+	} else {
+		t.type = Type::Num;
+	}
+	
+	//RPN form of <var>=<value> is <var>,<value>,=
+	p.push_back(t);
+	p.push_back("="_TO);
+	
+	calculate(p);
+}
+
 
 Var Evaluator::call_op(const Token& op, std::stack<Var>& values){
 //	int op_val = op.text.at(0);
@@ -405,11 +430,7 @@ Var Evaluator::calculate(const std::vector<Token>& rpn_expression){
 				len_args.push(values.size());
 			} else if (t.text == "=") {
 				//assignment op is special
-				if (std::holds_alternative<Number*>(first_access)){
-					*std::get<Number*>(first_access) = std::get<Number>(values.top());
-				} else {
-					*std::get<String*>(first_access) = std::get<String>(values.top());
-				}
+				assign_varptr(first_access, values.top());
 				//don't pop value: return value assigned instead
 				break;
 			} else {
@@ -433,7 +454,7 @@ Var Evaluator::calculate(const std::vector<Token>& rpn_expression){
 			} else { //Type::Arr
 				//ptr to array element
 				Var v = get_var(t.text+"[]", args);//array access
-				if (!has_varptr){
+				if (!has_varptr && len_args.empty()){
 					first_access = get_var_ptr(t.text+"[]", args);
 					has_varptr = true;
 				}
@@ -443,7 +464,7 @@ Var Evaluator::calculate(const std::vector<Token>& rpn_expression){
 		} else if (t.type == Type::Var){
 			//add ptr to var to stack
 			Var v = get_var(t.text);
-			if (!has_varptr){
+			if (!has_varptr && len_args.empty()){
 				first_access = get_var_ptr(t.text);			
 				has_varptr = true;
 			}
@@ -457,3 +478,179 @@ Var Evaluator::calculate(const std::vector<Token>& rpn_expression){
 	
 	return values.top();
 }
+
+//general tokenization stuff here
+
+std::vector<std::vector<Token>> split(const std::vector<Token>& expression){
+	std::vector<std::vector<Token>> subexp{};
+	
+	std::vector<PrioToken> all = conv_tokens(expression);
+	
+	auto i = 0;
+	auto start = expression.begin();
+	auto old = i;
+	while (i < (int)all.size()){
+		if (all.at(i).type == Type::Cmd){
+			if (old != i) //ON ... GOTO IF ... THEN 
+				subexp.push_back(std::vector<Token>(start+old, start+i));
+			subexp.push_back(std::vector<Token>{all.at(i)}); //some command
+			old=i+1;
+		}
+		if (all.at(i).prio == 1){
+			//found low-prio comma
+			subexp.push_back(std::vector<Token>(start+old, start+i));
+			old=i+1;
+		}
+		i++;
+	}
+	//this works since there should always be at least one subexp.
+	if (i != old)
+		subexp.push_back(std::vector<Token>(start+old,start+i));
+		
+	return subexp;
+}
+
+const std::regex string{ R"("[^]*("|\r))" };
+const std::regex number{ R"(([0-9]*\.)?[0-9]+)" };
+const std::regex separator{ R"([:\r])" };
+const std::regex variable{ R"([A-Z_][A-Z0-9_]*\$?)" };
+const std::regex label{ R"(\@[A-Z0-9_]+)" };
+const std::regex comment{ R"(('|REM).*\r)" };
+const std::string first_char_ops = ",;[]()+-*/%!<>="; //single character operations or leading characters
+const std::string second_char_ops = "<=>"; //second character of operations
+
+const std::string commands{" ACLS APPEND BEEP BGCLIP BGCLR BGCOPY BGFILL BGMCLEAR BGMPLAY BGMPRG BGMSET BGMSETD BGMSETV BGMSTOP BGMVOL BGOFS BGPAGE BGPUT BGREAD BREPEAT CHRINIT CHRREAD CHRSET CLEAR CLS COLINIT COLOR COLREAD COLSET CONT DATA DELETE DIM DTREAD ELSE END EXEC FOR GBOX GCIRCLE GCLS GCOLOR GCOPY GDRAWMD GFILL GLINE GOSUB GOTO GPAGE GPAINT GPSET GPRIO GPUTCHR ICONCLR ICONSET IF INPUT KEY LINPUT LIST LOAD LOCATE NEW NEXT NOT ON PNLSTR PNLTYPE PRINT READ REBOOT RECVFILE REM RENAME RESTORE RETURN RSORT RUN SAVE SENDFILE SORT SPANGLE SPANIM SPCHR SPCLR SPCOL SPCOLVEC SPHOME SPOFS SPPAGE SPREAD SPSCALE SPSET SPSETV STEP STOP SWAP THEN TMREAD TO VISIBLE VSYNC WAIT "};
+
+const std::string functions{" ABS ASC ATAN BGCHK BGMCHK BGMGETV BTRIG BUTTON CHKCHR CHR$ COS DEG EXP FLOOR GSPOIT HEX$ ICONCHK INKEY$ INSTR LEFT$ LEN LOG MID$ PI POW RAD RIGHT$ RND SGN SIN SPCHK SPGETV SPHIT SPHITRC SPHITSP SQR STR$ SUBST$ TAN VAL "};
+
+const std::string operations{" AND NOT OR ! - + - * / = == => =< < > != % ( ) [ ] , ; "};
+
+std::vector<Token> tokenize(unsigned char* data, int size){
+	int char_pos = 0;
+
+	std::string cur{};
+	
+	std::vector<Token> tokens{};
+
+	auto loop_until_regex = [&](std::regex re, Type tt) 
+	{
+		do
+		{
+			cur += data[char_pos];
+			char_pos++;
+		} while (!std::regex_match(cur, re));
+		//add chars until finding a matching string.
+		//char_pos is left at the start of the next token.
+		tokens.push_back(Token{ std::string(cur), tt });
+	};
+
+	auto loop_while_regex = [&](std::regex re, Type tt)
+	{
+		do
+		{
+			cur += data[char_pos];
+			char_pos++;
+		} while (std::regex_match(cur, re));
+		//add chars until regex no longer matches
+		//when pattern fails, remove failing character
+		cur = cur.substr(0, cur.size() - 1);
+		char_pos--;
+
+		tokens.push_back(Token{ std::string(cur), tt });
+	};
+
+	while (char_pos < size)
+	{
+		cur.clear();
+		char c = data[char_pos];
+
+		if (c == '"') //strings
+		{
+			do
+			{
+				cur += data[char_pos];
+				char_pos++;
+			} while (!std::regex_match(cur, string));
+			//add to list with no quotes
+			tokens.push_back(Token{ cur.substr(1, cur.size() - 2), Type::Str });
+
+			if (data[char_pos-1] == '\r')
+				--char_pos; //needs \r to mark end of instruction line
+
+		}
+		else if (c == '\'') //comments
+		{
+			loop_until_regex(comment, Type::Rem);
+			char_pos--; //don't include newline >_>
+		}
+		else if (c == ':' || c == '\r') //separators
+		{
+			loop_until_regex(separator, Type::Newl);
+		}
+		else if (c == '@')
+		{
+			cur += c;
+			char_pos++; //to match regex, needs @ and at least one character after
+			loop_while_regex(label, Type::Label);
+		}
+		else if ((c >= '0' && c <= '9') || c == '.') //numbers
+		{
+			loop_while_regex(number, Type::Num);
+		}
+		else if ((c <= 'Z' && c >= 'A') || (c <= 'z' && c >= 'a'))
+		{
+			do
+			{
+				cur += data[char_pos] <= 'z' && data[char_pos] >= 'a' ?
+					data[char_pos] - 'a' + 'A' : //make all capitals
+					data[char_pos]; //don't change numbers, symbols, etc.
+
+				char_pos++;
+
+			} while (std::regex_match(cur, variable));
+			cur = cur.substr(0, cur.size() - 1);
+			--char_pos;
+			//assume variable type if not matching any commands, etc.
+			Type tt = Type::Var;
+			if (commands.find(" "+cur+" ") != std::string::npos)
+				tt = Type::Cmd;
+			else if (functions.find(" "+cur+" ") != std::string::npos)
+				tt = Type::Func;
+			else if (operations.find(" "+cur+" ") != std::string::npos)
+				tt = Type::Op;
+			
+			tokens.push_back(Token{ std::string(cur), tt });
+		}
+		else if (first_char_ops.find(c) != std::string::npos)
+		{
+			cur += data[char_pos];
+			++char_pos;
+
+			//check for double-symbol tokens (compare ops)
+			if ((c == '=' || c == '!') && second_char_ops.find(data[char_pos]) != std::string::npos)
+			{
+				cur += data[char_pos];
+				++char_pos;
+			}
+			if (c == '(' || c == '['){
+				//if finding parens directly after a variable, must be an array.
+				if (tokens.back().type == Type::Var)
+					tokens.back().type = Type::Arr;
+			}
+			
+			tokens.push_back(Token{ std::string(cur), Type::Op });
+		}
+		else if (c == '?')
+		{
+			++char_pos;
+			tokens.push_back(Token{ std::string("PRINT"), Type::Cmd });
+		}
+		else
+		{
+			++char_pos;
+		}
+	}
+	
+	return tokens;
+}
+

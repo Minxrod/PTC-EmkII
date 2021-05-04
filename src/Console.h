@@ -5,8 +5,10 @@
 #include "Vars.h"
 #include "Evaluator.h"
 #include "Resources.h"
+#include "Input.h"
 
 class Console {
+	Input& in;
 	Evaluator& e;
 	CHR& c;
 	
@@ -29,7 +31,7 @@ class Console {
 	void scroll();
 
 	void print_(const Var&);
-	std::vector<Token> input_common(const Args&);
+	std::pair<std::vector<Token>, std::string> input_common(const Args&);
 	
 	void cls_(const Args&);
 	void print_(const Args&);
@@ -42,7 +44,7 @@ class Console {
 	std::array<unsigned char, WIDTH*HEIGHT*4*8*8> image;
 	
 public:
-	Console(Evaluator&, CHR&);
+	Console(Evaluator&, CHR&, Input&);
 	
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();

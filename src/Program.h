@@ -19,9 +19,7 @@ class Program{
 	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>> for_calls;
 
 	std::map<Token, cmd_type> commands;
-	
-	void debugprint(const Args&);
-	
+		
 	void if_(const Args&);
 	void for_(const Args&);
 	void next_(const Args&);
@@ -45,7 +43,7 @@ public:
 	std::vector<Token> next_instruction();
 	bool at_eof();
 	void goto_label(const std::string&);
-	std::vector<std::vector<Token>> split(const std::vector<Token>&);
+//	std::vector<std::vector<Token>> split(const std::vector<Token>&);
 	
 	//start thread
 	void run();

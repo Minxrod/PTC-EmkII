@@ -1,10 +1,10 @@
 #include "Visual.h"
 #include "Vars.h"
 
-Visual::Visual(Evaluator& ev, Resources& r) :
+Visual::Visual(Evaluator& ev, Resources& r, Input& i) :
 	visible{true,true,true,true,true,true},
 	e{ev},
-	c{ev, r.chr.at("BGF0U")}
+	c{ev, r.chr.at("BGF0U"), i}
 {}
 
 std::map<Token, cmd_type> Visual::get_cmds(){
@@ -25,5 +25,5 @@ std::map<Token, op_func> Visual::get_funcs(){
 
 void Visual::visible_(const Args& a){
 	for (int i = 0; i < 6; i++)
-		visible[i] = (bool)(int)std::get<Number>(e.evaluate(a[i]));
+		visible[i] = (bool)(int)std::get<Number>(e.evaluate(a[i+1]));
 }

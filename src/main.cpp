@@ -34,8 +34,8 @@ int main()
 	auto tk = tokenize(r.prg);
 	
 	Program program(e, tk);
-	Visual v{e, r};
 	Input i{e};
+	Visual v{e, r, i};
 	//Console console(e, r.chr.at("BGF0U"));
 	
 	e.add_funcs(v.get_funcs());
@@ -69,16 +69,30 @@ int main()
 	
     while (window.isOpen())
     {
-        sf::Event event;
-        while (window.pollEvent(event))
-        {
-            if (event.type == sf::Event::Closed)
-                window.close();
-        }
-
+    	sf::Keyboard::Key k = sf::Keyboard::Key::Unknown;
+		sf::Event event;
+		while (window.pollEvent(event))
+		{
+			if (event.type == sf::Event::Closed){
+				window.close();
+			}
+			if (event.type == sf::Event::KeyPressed){
+				k = event.key.code;
+			}
+		}
+		//update buttons
+		int b = 0;
+		for (const auto kp : i.code_to_button){
+			if (sf::Keyboard::isKeyPressed(kp.first)){
+				b+=kp.second;
+			}
+		}
+		
+		i.update(b, k);
+		
         //get updated textures for drawing to screen
         
-        window.clear();
+        window.clear();		
 	
 		s.setUniform("texture", sf::Shader::CurrentTexture);
     	s.setUniform("colors", color_tex);

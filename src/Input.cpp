@@ -9,7 +9,9 @@ void Input::update(int b, Key k){
 	keycode = code_to_ptc.at(k);
 	//if keycode != (enter) and is in (valid ranges) add to inkey queue
 	std::lock_guard loc(inkeybuf_mutex);
-	inkeybuffer.push((char)code_to_ptc.at(k));
+	auto c = kya.at(code_to_ptc.at(k));
+	if (c != kya.at(0))
+		inkeybuffer.push(kya.at(code_to_ptc.at(k)));
 }
 
 void Input::touch(bool t, int x, int y){
@@ -38,14 +40,18 @@ void Input::brepeat_(const Args& a){
 	button_info[id][2] = repeat;	
 }
 
-Var Input::inkey_(const Vals&){
+char Input::inkey_internal(){
 	std::lock_guard loc(inkeybuf_mutex);
 	char c = '\0';
 	if (!inkeybuffer.empty()){
 		c = inkeybuffer.front();
 		inkeybuffer.pop();
 	}
-	return String(""+c);
+	return c;
+}
+
+Var Input::inkey_(const Vals&){
+	return Var(""+inkey_internal());
 }
 
 Var Input::button_(const Vals&){

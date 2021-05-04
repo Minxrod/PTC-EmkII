@@ -12,6 +12,9 @@ const int INTERNAL_SUBEXP = -888;
 const int INTERNAL_PAREN = -24;
 
 std::vector<PrioToken> conv_tokens(const std::vector<Token>&);
+Var convert_to_value(const Token& t);
+std::vector<Token> tokenize(unsigned char*, int);
+std::vector<std::vector<Token>> split(const std::vector<Token>&);
 
 struct Evaluator {
 	std::map<Token, op_func> operators;
@@ -25,9 +28,9 @@ struct Evaluator {
 	
 	Var get_var(std::string name, std::vector<Var> args = {});
 	VarPtr get_var_ptr(std::string name, std::vector<Var> args = {});
-	//VarPtr get_var_ptr(std::string name);
-
-	Var convert_to_value(const Token&);
+	
+	void assign(const Expr& exp, Token t);
+	
 	Var call_op(const Token&, std::stack<Var>&);
 	Var call_func(const Token&, std::vector<Var>&);
 	
