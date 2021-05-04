@@ -4,8 +4,9 @@
 #include "Evaluator.h"
 #include "FileLoader.h"
 #include "Resources.h"
-#include "Console.h"
 #include "Program.h"
+#include "Visual.h"
+#include "Input.h"
 
 #include <iostream>
 
@@ -27,15 +28,20 @@ int main()
 	Evaluator e{};
 	
 	Resources r{};
-	r.load_program("programs/SAMPLE1.PTC");
+	r.load_program("programs/SAMPLE2.PTC");
 	r.load_default();
 	
 	auto tk = tokenize(r.prg);
 	
 	Program program(e, tk);
-	Console console(e, r.chr.at("BGF0U"));
+	Visual v{e, r};
+	Input i{e};
+	//Console console(e, r.chr.at("BGF0U"));
 	
-	program.add_cmds(console.get_cmds());
+	e.add_funcs(v.get_funcs());
+	e.add_funcs(i.get_funcs());
+	program.add_cmds(v.get_cmds());
+	program.add_cmds(i.get_cmds());
 	
 	/*int n = 0;
 	while(!program.at_eof()){
@@ -48,9 +54,7 @@ int main()
 		n++;
 		print("Instr " + std::to_string(n), tok);
 	}*/
-	
-	program.run();
-	
+		
 	//print("TOKENIZED:", tk);
 	sf::Texture contx{};
 	contx.create(256, 192);
@@ -60,6 +64,8 @@ int main()
 	sf::Texture color_tex{}; 
 	color_tex.create(256, 1);
 	color_tex.update(r.col.at("COL0U").COL_to_RGBA().data());
+	
+	program.run();
 	
     while (window.isOpen())
     {
@@ -77,7 +83,7 @@ int main()
 		s.setUniform("texture", sf::Shader::CurrentTexture);
     	s.setUniform("colors", color_tex);
 	
-		contx.update(console.draw().data());
+		contx.update(v.c.draw().data());
 		window.draw(consp, &s);
         //draw textures
 

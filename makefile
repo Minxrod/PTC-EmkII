@@ -7,8 +7,10 @@ BUILD = build/
 
 CXX = g++
 OFLAGS = -std=c++17 -Wall -Werror -Wpedantic -Wextra -MMD
-CXXFLAGS = $(OFLAGS) -lsfml-graphics -lsfml-window -lsfml-system
-OBJECTS = main.o Evaluator.o Vars.o Resources.o FileLoader.o Console.o Program.o
+
+# https://stackoverflow.com/questions/24096807/dso-missing-from-command-line
+CXXFLAGS = $(OFLAGS) -lsfml-graphics -lsfml-window -lsfml-system -lpthread
+OBJECTS = main.o Evaluator.o Vars.o Resources.o FileLoader.o Console.o Program.o Visual.o Input.o
 
 objs = $(OBJECTS:%=$(BUILD)%)
 

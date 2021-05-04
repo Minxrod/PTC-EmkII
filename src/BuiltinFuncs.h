@@ -79,15 +79,25 @@ namespace ptc {
 	}
 
 	Var eq(const std::vector<Var>& vals){
-		auto [n1, n2] = get_nums(vals);
-			
-		return Var(Number{static_cast<double>(n1 == n2)});
+		if (is_type<Number>(vals.at(0))){
+			auto [n1, n2] = get_nums(vals);
+			return Var(Number{static_cast<double>(n1 == n2)});
+		} else {
+			auto s1 = std::get<String>(vals.at(0));
+			auto s2 = std::get<String>(vals.at(1));
+			return Var(Number{static_cast<double>(s1 == s2)});
+		}
 	}
 
 	Var neq(const std::vector<Var>& vals){
-		auto [n1, n2] = get_nums(vals);
-			
-		return Var(Number{static_cast<double>(n1 != n2)});
+		if (is_type<Number>(vals.at(0))){
+			auto [n1, n2] = get_nums(vals);
+			return Var(Number{static_cast<double>(n1 != n2)});
+		} else {
+			auto s1 = std::get<String>(vals.at(0));
+			auto s2 = std::get<String>(vals.at(1));
+			return Var(Number{static_cast<double>(s1 != s2)});
+		}
 	}
 
 	Var leq(const std::vector<Var>& vals){

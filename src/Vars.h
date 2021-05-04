@@ -53,7 +53,7 @@ auto getfunc(T* obj, void(T::* fptr)(const Args&)){
 }
 
 template <typename T>
-auto getfunc(T* obj, void(T::* fptr)(const Vals&)){
+auto getfunc(T* obj, Var(T::* fptr)(const Vals&)){
 	return [obj, fptr](const Vals& v) -> Var{
 		return (obj->*fptr)(v);
 	};

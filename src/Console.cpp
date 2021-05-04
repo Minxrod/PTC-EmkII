@@ -15,8 +15,17 @@ std::map<Token, cmd_type> Console::get_cmds(){
 		cmd_map("PRINT"_TC, getfunc<Console>(this, &Console::print_)),
 		cmd_map("COLOR"_TC, getfunc<Console>(this, &Console::color_)),
 		cmd_map("LOCATE"_TC, getfunc<Console>(this, &Console::locate_)),
+		cmd_map("INPUT"_TC, getfunc<Console>(this, &Console::input_)),
+		cmd_map("LINPUT"_TC, getfunc<Console>(this, &Console::linput_)),
 	};
 }
+
+std::map<Token, op_func> Console::get_funcs(){
+	return std::map<Token, op_func>{
+		func_map("CHKCHR$"_TF, getfunc<Console>(this, &Console::chkchr_)),
+	};
+}
+
 
 void Console::cls_([[maybe_unused]]const Args& a){
 	std::fill(text.begin(), text.end(), 0);
@@ -60,6 +69,15 @@ void Console::print_(const Var& v){
 	std::string str;
 	if (std::holds_alternative<Number>(v)){
 		str = std::to_string(std::get<Number>(v));
+		//some assumptions: to_string outputs a number of form [aaaaa]a.bbbbbb
+		//currently, the type Number = double, so this works reliably.
+		str = str.substr(0, str.find(".")+3);
+		while (str.back() == '0'){
+			str = str.substr(0, str.size()-1);
+		}
+		if (str.back() == '.')
+			str = str.substr(0, str.size()-1);		
+		
 	} else {
 		str = std::get<String>(v);
 	}
@@ -74,10 +92,36 @@ void Console::print_(const Var& v){
 
 }
 
+std::vector<Token> Console::input_common(const Args& a){
+	auto& guide = a[1];
+	auto str = std::vector<Token>(guide.begin(), std::find(guide.begin(), guide.end(), ";"_TO));
+	auto var = std::vector<Token>(std::find(guide.begin(), guide.end(), ";"_TO)+1, guide.end());
+	
+	//auto old_x = cur_x;
+	//auto old_y = cur_y;
+	
+	print_(e.evaluate(str));
+	print_(Var(String("?"))); //no newline here
+	
+	//do inputs loop
+	
+	return var;
+}
+
+void Console::input_(const Args&){
+	//LINPUT [string;]a$
+	//read to semicolon to get string
+}
+
+void Console::linput_(const Args&){
+	//LINPUT [string;]a$
+	//read to semicolon to get string
+}
+
 void Console::locate_(const Args& a){
 	//LOCATE <x> <y>
 	cur_x = (int)std::get<Number>(e.evaluate(a[1]));
-	cur_y = (int)std::get<Number>(e.evaluate(a[1]));
+	cur_y = (int)std::get<Number>(e.evaluate(a[2]));
 }
 
 void Console::newline(){
@@ -92,17 +136,16 @@ void Console::scroll(){
 	cur_x = 0;
 	cur_y = HEIGHT-1;
 	std::copy(text.begin() + WIDTH, text.end(), text.begin());
+	std::copy(fg_color.begin() + WIDTH, fg_color.end(), fg_color.begin());
+	std::copy(bg_color.begin() + WIDTH, bg_color.end(), bg_color.begin());
 }
 
 //returns true if console needed to scroll
 bool Console::advance(){
 	++cur_x;
 	if (cur_x >= WIDTH){
-		++cur_y;
-		if (cur_y >= HEIGHT){
-			scroll();
-			return true;
-		}
+		newline();
+		return true;
 	}
 	return false;
 }
@@ -120,20 +163,20 @@ void Console::tab(){
 void Console::color_(const Args& a){
 	
 	cur_fg_color = (int)std::get<Number>(e.evaluate(a[1]));
-	if (a.size() == 2){
-		cur_bg_color = (int)std::get<Number>(e.evaluate(a[1]));
+	if (a.size() == 3){
+		cur_bg_color = (int)std::get<Number>(e.evaluate(a[2]));
 	}
 }
 
-Var Console::chkchr_(const std::vector<Var>& v){
+Var Console::chkchr_(const Vals& v){
 	auto x = (int)std::get<Number>(v.at(0));
 	auto y = (int)std::get<Number>(v.at(1));
 
-	return Var(text[x+WIDTH*y]);
+	return Var(String(""+(char)text[x+WIDTH*y]));
 }
 
 std::array<unsigned char, Console::WIDTH*Console::HEIGHT*4*8*8>& Console::draw(){
-	std::fill(image.begin(), image.end(), 1);
+	std::fill(image.begin(), image.end(), 0);
 	for (int x = 0; x < 256; ++x){
 		for (int y = 0; y < 192; ++y){
 			int cx = x % 8;
@@ -141,7 +184,7 @@ std::array<unsigned char, Console::WIDTH*Console::HEIGHT*4*8*8>& Console::draw()
 			int tx = x / 8;
 			int ty = y / 8;
 			auto col = c.get_pixel(text[tx+WIDTH*ty],cx,cy);
-			image[(x+256*y)*4] = col; //(!col) ? bg_color[tx+WIDTH*ty] : col + 16*fg_color[tx+WIDTH*ty];
+			image[(x+256*y)*4] = (!col) ? bg_color[tx+WIDTH*ty] : col + 16*fg_color[tx+WIDTH*ty];
 		}
 	}
 	

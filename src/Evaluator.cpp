@@ -63,6 +63,10 @@ Evaluator::Evaluator(){
 	};
 }
 
+void Evaluator::add_funcs(std::map<Token, op_func> other){
+	functions.merge(other);
+}
+
 VarPtr get_varptr(std::string name, std::vector<Var> args, std::map<std::string, Var>& vars){
 	Var& v = vars.at(name);
 	if (name.find("[]") != std::string::npos){
@@ -168,32 +172,34 @@ Var Evaluator::evaluate(const std::vector<Token>& expression){
 //( ) [ ]
 PrioToken conv_prio(const Token& t, int& n){
 	PrioToken p{t.text, t.type, -1};
-		
+	
 	p.prio = n; //base prio, depends on parens/nesting
-	if (p.text == ","){
-		p.prio += 1;
-	} else if (p.text == "AND" || p.text == "OR"){
-		p.prio += 2;
-	} else if (p.text == "==" || p.text == "!=" || p.text == "<" ||
-			p.text == ">" || p.text == "<=" || p.text == ">="){
-		p.prio += 3;
-	} else if (p.text == "+" || p.text == "-"){
-		p.prio += 4;
-	} else if (p.text == "*" || p.text == "/"){
-		p.prio += 5;
-	} else if (p.text == "!" || p.text == "0-" || p.text == "NOT"){
-		p.prio += 6;
-	} else if (p.type == Type::Func || p.type == Type::Arr){
-		p.prio += 7;
-	} else if (p.text == "(" || p.text == "["){
-		n += 8;
-		p.prio = INTERNAL_PAREN;
-	} else if (p.text == ")" || p.text == "]" || p.text == "."){
-		n -= 8;
-		if (p.text != ".")
+	if (p.type == Type::Op){ //if it's not an op, don't change prio
+		if (p.text == ","){
+			p.prio += 1;
+		} else if (p.text == "AND" || p.text == "OR"){
+			p.prio += 2;
+		} else if (p.text == "==" || p.text == "!=" || p.text == "<" ||
+				p.text == ">" || p.text == "<=" || p.text == ">="){
+			p.prio += 3;
+		} else if (p.text == "+" || p.text == "-"){
+			p.prio += 4;
+		} else if (p.text == "*" || p.text == "/"){
+			p.prio += 5;
+		} else if (p.text == "!" || p.text == "0-" || p.text == "NOT"){
+			p.prio += 6;
+		} else if (p.type == Type::Func || p.type == Type::Arr){
+			p.prio += 7;
+		} else if (p.text == "(" || p.text == "["){
+			n += 8;
 			p.prio = INTERNAL_PAREN;
-		else
-			p.prio = INTERNAL_ENDLIST;
+		} else if (p.text == ")" || p.text == "]" || p.text == "."){
+			n -= 8;
+			if (p.text != ".")
+				p.prio = INTERNAL_PAREN;
+			else
+				p.prio = INTERNAL_ENDLIST;
+		}
 	}
 		
 	return p;

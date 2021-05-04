@@ -21,7 +21,7 @@ struct Evaluator {
 	std::map<std::vector<Token>, std::vector<Token>> processed; 
 
 	Evaluator();
-	void add_funcs(std::map<Token, op_func>&);
+	void add_funcs(std::map<Token, op_func>);
 	
 	Var get_var(std::string name, std::vector<Var> args = {});
 	VarPtr get_var_ptr(std::string name, std::vector<Var> args = {});

@@ -8,17 +8,15 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens
 	
 	commands = std::map<Token, cmd_type>{
 		cmd_map("FOR"_TC, getfunc<Program>(this, &Program::for_)),
-//		cmd_map("IF"_TC, if_),
+		cmd_map("IF"_TC, getfunc<Program>(this, &Program::if_)),
 		cmd_map("NEXT"_TC, getfunc<Program>(this, &Program::next_)),
 //		cmd_map("GOTO"_TC, goto_),
 //		cmd_map("GOSUB"_TC, gosub_),
 //		cmd_map("ON"_TC, on_),
 //		cmd_map("RETURN"_TC, return_),
 //		cmd_map("STOP"_TC, &Program::stop_),
-//		cmd_map("END"_TC, &Program::end_),
-		cmd_map("WAIT"_TC, getfunc<Program>(this, &Program::wait_)),
-//		cmd_map("CLS"_TC, getfunc<Program>(this, &Program::debugprint)),
-//		cmd_map("PRINT"_TC, getfunc<Program>(this, &Program::debugprint)),
+		cmd_map("END"_TC, getfunc(this, &Program::end_)),
+		cmd_map("WAIT"_TC, getfunc(this, &Program::wait_)),
 	};
 }
 
@@ -80,7 +78,7 @@ void Program::call_cmd(Token instr, const Args& chunks){
 	commands.at(instr)(chunks);
 }
 
-void Program::run(){
+void Program::run_(){
 	current = tokens.cbegin();
 	std::cout << "\nbegin run\n" << std::endl;
 	
@@ -121,8 +119,13 @@ void Program::run(){
 		} else { //something has gone horrifically wrong
 		}
 	}
-	
-	std::cout << "Program.run() end" << std::endl;
+
+	std::cout << "Program end" << std::endl;
+}
+
+void Program::run(){
+	std::thread t{&Program::run_, this};
+	t.detach();
 }
 
 void Program::debugprint(const Args& a){
@@ -222,7 +225,10 @@ void Program::if_(const Args& a){
 			current = current - std::distance(fail, line.end());
 		} //else not found, current is already past instruction (no change needed)
 	}
+}
 
+void Program::end_(const Args&){
+	current = tokens.end();
 }
 
 const std::regex string{ R"("[^]*("|\r))" };

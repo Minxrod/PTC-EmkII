@@ -32,6 +32,9 @@ class Program{
 	void end_(const Args&);
 	void stop_(const Args&);
 	void wait_(const Args&);
+
+	//actual program runner
+	void run_();
 	
 public:
 	Program(Evaluator&, const std::vector<Token>&);
@@ -44,6 +47,7 @@ public:
 	void goto_label(const std::string&);
 	std::vector<std::vector<Token>> split(const std::vector<Token>&);
 	
+	//start thread
 	void run();
 };
 

@@ -27,13 +27,17 @@ class Console {
 	void newline();
 	void tab();
 	void scroll();
+
+	void print_(const Var&);
+	std::vector<Token> input_common(const Args&);
 	
 	void cls_(const Args&);
 	void print_(const Args&);
-	void print_(const Var&);
 	void locate_(const Args&);
 	void color_(const Args&);
-	Var chkchr_(const std::vector<Var>&);
+	void input_(const Args&);
+	void linput_(const Args&);
+	Var chkchr_(const Vals&);
 	
 	std::array<unsigned char, WIDTH*HEIGHT*4*8*8> image;
 	
@@ -41,6 +45,7 @@ public:
 	Console(Evaluator&, CHR&);
 	
 	std::map<Token, cmd_type> get_cmds();
+	std::map<Token, op_func> get_funcs();
 	
 	std::array<unsigned char, WIDTH*HEIGHT*4*8*8>& draw();
 };
