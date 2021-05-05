@@ -10,10 +10,10 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens
 		cmd_map("FOR"_TC, getfunc<Program>(this, &Program::for_)),
 		cmd_map("IF"_TC, getfunc<Program>(this, &Program::if_)),
 		cmd_map("NEXT"_TC, getfunc<Program>(this, &Program::next_)),
-//		cmd_map("GOTO"_TC, goto_),
-//		cmd_map("GOSUB"_TC, gosub_),
-//		cmd_map("ON"_TC, on_),
-//		cmd_map("RETURN"_TC, return_),
+		cmd_map("GOTO"_TC, getfunc<Program>(this, &Program::goto_)),
+		cmd_map("GOSUB"_TC, getfunc<Program>(this, &Program::gosub_)),
+		cmd_map("ON"_TC, getfunc<Program>(this, &Program::on_)),
+		cmd_map("RETURN"_TC, getfunc<Program>(this, &Program::return_)),
 //		cmd_map("STOP"_TC, &Program::stop_),
 		cmd_map("END"_TC, getfunc(this, &Program::end_)),
 		cmd_map("WAIT"_TC, getfunc(this, &Program::wait_)),
@@ -35,10 +35,6 @@ std::vector<Token> Program::next_instruction(){
 	std::vector<Token> instr{current, newline};
 	current = newline+1;
 	return instr;
-}
-
-void Program::goto_label(const std::string& label){
-	current = std::find(tokens.begin(), tokens.end(), Token{label, Type::Label});
 }
 
 bool Program::at_eof(){
@@ -195,6 +191,48 @@ void Program::if_(const Args& a){
 
 void Program::end_(const Args&){
 	current = tokens.end();
+}
+
+void Program::goto_label(const std::string& lbl){
+	for (auto itr = tokens.begin(); itr != tokens.end(); itr++){
+		if (*itr == Token{lbl, Type::Label}){
+			if (itr-1 == tokens.begin() || (itr-1)->type != Type::Cmd){
+				current = itr;
+				break;
+			} 
+		}
+	}
+}
+
+void Program::goto_(const Args& a){
+	//GOTO <label>
+	//GOTO <string expression>
+	std::string lbl = std::get<String>(e.evaluate(a[1]));
+	goto_label(lbl);
+}
+
+void Program::gosub_(const Args& a){
+	//GOSUB <label expression>
+	std::string lbl = std::get<String>(e.evaluate(a[1]));
+
+	gosub_calls.push(current);	
+	goto_label(lbl);
+}
+
+void Program::return_(const Args& ){
+	current = gosub_calls.top();
+	gosub_calls.pop();
+}
+
+void Program::on_(const Args& a){
+	//ON <label exp> GOTO/GOSUB <lbl>, <lbl>, <lbl>
+	int index = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+	
+	std::string lbl = std::get<String>(e.evaluate(a[index+3]));
+	if (a[2][0].text == "GOSUB"){
+		gosub_calls.push(current);
+	}
+	goto_label(lbl);
 }
 
 std::vector<Token> tokenize(PRG& prg){
