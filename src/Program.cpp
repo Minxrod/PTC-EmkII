@@ -196,10 +196,11 @@ void Program::end_(const Args&){
 void Program::goto_label(const std::string& lbl){
 	for (auto itr = tokens.begin(); itr != tokens.end(); itr++){
 		if (*itr == Token{lbl, Type::Label}){
-			if (itr-1 == tokens.begin() || (itr-1)->type != Type::Cmd){
+			if (itr-1 == tokens.begin() || 
+			((itr-1)->type == Type::Newl)){
 				current = itr;
 				break;
-			} 
+			}
 		}
 	}
 }

@@ -176,6 +176,7 @@ void Console::scroll(){
 	std::copy(text.begin() + WIDTH, text.end(), text.begin());
 	std::copy(fg_color.begin() + WIDTH, fg_color.end(), fg_color.begin());
 	std::copy(bg_color.begin() + WIDTH, bg_color.end(), bg_color.begin());
+	std::fill(text.begin() + WIDTH * 23, text.end(), 0);
 }
 
 //returns true if console needed to scroll

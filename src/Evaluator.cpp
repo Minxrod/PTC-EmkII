@@ -32,7 +32,6 @@ Evaluator::Evaluator(){
 		op_map{"OR"_TO, ptc::bor},
 		op_map{"AND"_TO, ptc::band},
 		op_map{"NOT"_TO, ptc::bnot},
-		//op_map{"="_TO, assign},
 	};
 	
 	functions = std::map{
@@ -235,7 +234,7 @@ std::vector<Token> op_to_rpn(std::vector<PrioToken>& e, std::vector<PrioToken>::
 		e.insert(r, PrioToken{"r" + std::to_string(n), Type::Op, INTERNAL_SUBEXP});
 		
 		return rpn;
-	} else if (local_prio == 0 && op.text != "="){
+	} else if (local_prio == 0 && !(op == "="_TO)){
 		std::vector<Token> rpn{*i};
 		auto r = e.erase(i, i+1);
 		e.insert(r, PrioToken{"r" + std::to_string(n), Type::Op, INTERNAL_SUBEXP});
@@ -280,8 +279,8 @@ std::vector<PrioToken> conv_tokens(const std::vector<Token>& expression){
 		
 		is_func_paren = t.type == Type::Func || t.type == Type::Arr;		
 	
-		if (t.text == "-"){
-			if (i == 0 || expression.at(i-1).type != Type::Op){
+		if (t == "-"_TO){
+			if (i == 0 || expression.at(i-1).type == Type::Op){
 				t.text = "0-";
 			}
 		} 
@@ -353,6 +352,8 @@ Var convert_to_value(const Token& t){
 		return Var{std::stod(t.text)};
 	if (t.type == Type::Str)
 		return Var{t.text};
+	if (t.type == Type::Label)
+		return Var{t.text};	
 	return Var{"error: convert_to_value failure"};
 }
 
@@ -401,8 +402,8 @@ Var Evaluator::call_op(const Token& op, std::stack<Var>& values){
 		Var a = values.top(); values.pop();
 		Var b = values.top(); values.pop();
 		
-		vals.push_back(a);
 		vals.push_back(b);
+		vals.push_back(a);
 	}
 	
 	Var r = operators.at(op)(vals);

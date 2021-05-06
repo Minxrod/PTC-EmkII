@@ -7,6 +7,7 @@
 #include "Program.h"
 #include "Visual.h"
 #include "Input.h"
+#include "Sound.h"
 
 #include <iostream>
 
@@ -19,8 +20,8 @@ int main()
         return 0;
     }
 
-    sf::Shader s;
-    if (!s.loadFromFile("resources/shaders/bgsp.frag", sf::Shader::Fragment)){
+    sf::Shader bgsp_shader;
+    if (!bgsp_shader.loadFromFile("resources/shaders/bgsp.frag", sf::Shader::Fragment)){
         std::cout << "Error: Shader could not be loaded";
         return 0;
     }
@@ -36,12 +37,15 @@ int main()
 	Program program(e, tk);
 	Input i{e};
 	Visual v{e, r, i};
+	Sound s{e};
 	//Console console(e, r.chr.at("BGF0U"));
 	
 	e.add_funcs(v.get_funcs());
 	e.add_funcs(i.get_funcs());
+	e.add_funcs(s.get_funcs());
 	program.add_cmds(v.get_cmds());
 	program.add_cmds(i.get_cmds());
+	program.add_cmds(s.get_cmds());
 	
 	/*int n = 0;
 	while(!program.at_eof()){
@@ -94,11 +98,11 @@ int main()
         
         window.clear();		
 	
-		s.setUniform("texture", sf::Shader::CurrentTexture);
-    	s.setUniform("colors", color_tex);
+		bgsp_shader.setUniform("texture", sf::Shader::CurrentTexture);
+    	bgsp_shader.setUniform("colors", color_tex);
 	
 		contx.update(v.c.draw().data());
-		window.draw(consp, &s);
+		window.draw(consp, &bgsp_shader);
         //draw textures
 
         window.display();
