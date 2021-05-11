@@ -99,14 +99,14 @@ void create_var(std::string name, std::vector<Var> args, std::map<std::string, V
 		if (name.find("$") != std::string::npos){
 			//string type arr
 			if (args.size() == 2){
-				vars.insert(std::pair<std::string, Var>(name, Var(Array2{10,Array1{10,SimpleVar("")}})));
+//				vars.insert(std::pair<std::string, Var>(name, Var(Array2{10,Array1{10,SimpleVar("")}})));
 			} else {
 				vars.insert(std::pair<std::string, Var>(name, Var(Array1{10,SimpleVar("")})));			
 			}
 		} else {
 			//num type arr
 			if (args.size() == 2){
-				vars.insert(std::pair<std::string, Var>(name, Var(Array2{10,Array1(10,SimpleVar(0))})));
+//				vars.insert(std::pair<std::string, Var>(name, Var(Array2{10,Array1(10,SimpleVar(0))})));
 			} else {
 				vars.insert(std::pair<std::string, Var>(name, Var(Array1(10,SimpleVar(0)))));		
 			}

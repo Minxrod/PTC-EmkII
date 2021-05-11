@@ -5,18 +5,23 @@
 
 Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens{t}{
 	current = tokens.cbegin();
+	data_current = std::find(tokens.begin(), tokens.end(), "DATA"_TC);
+	if (data_current != tokens.end())
+		data_current++; //first piece of data will be directly after DATA statement
 	
 	commands = std::map<Token, cmd_type>{
-		cmd_map("FOR"_TC, getfunc<Program>(this, &Program::for_)),
-		cmd_map("IF"_TC, getfunc<Program>(this, &Program::if_)),
-		cmd_map("NEXT"_TC, getfunc<Program>(this, &Program::next_)),
-		cmd_map("GOTO"_TC, getfunc<Program>(this, &Program::goto_)),
-		cmd_map("GOSUB"_TC, getfunc<Program>(this, &Program::gosub_)),
-		cmd_map("ON"_TC, getfunc<Program>(this, &Program::on_)),
-		cmd_map("RETURN"_TC, getfunc<Program>(this, &Program::return_)),
+		cmd_map("FOR"_TC, getfunc(this, &Program::for_)),
+		cmd_map("IF"_TC, getfunc(this, &Program::if_)),
+		cmd_map("NEXT"_TC, getfunc(this, &Program::next_)),
+		cmd_map("GOTO"_TC, getfunc(this, &Program::goto_)),
+		cmd_map("GOSUB"_TC, getfunc(this, &Program::gosub_)),
+		cmd_map("ON"_TC, getfunc(this, &Program::on_)),
+		cmd_map("RETURN"_TC, getfunc(this, &Program::return_)),
 //		cmd_map("STOP"_TC, &Program::stop_),
 		cmd_map("END"_TC, getfunc(this, &Program::end_)),
 		cmd_map("WAIT"_TC, getfunc(this, &Program::wait_)),
+		cmd_map("DATA"_TC, getfunc(this, &Program::data_)),
+		cmd_map("CLEAR"_TC, getfunc(this, &Program::clear_)),
 	};
 }
 
@@ -235,6 +240,22 @@ void Program::on_(const Args& a){
 	}
 	goto_label(lbl);
 }
+
+void Program::data_(const Args&){
+	//DATA doesn't do anything as an instruction.
+}
+
+void Program::read_(const Args&){
+}
+
+void Program::clear_(const Args&){
+	e.vars.erase(e.vars.begin(), e.vars.end());
+}
+
+void Program::dim_(const Args&){
+	
+}
+
 
 std::vector<Token> tokenize(PRG& prg){
 	return tokenize(prg.data.data(), prg.data.size());

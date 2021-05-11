@@ -14,6 +14,7 @@ class Program{
 	
 	const std::vector<Token> tokens;
 	std::vector<Token>::const_iterator current;
+	std::vector<Token>::const_iterator data_current;
 	
 	std::stack<std::vector<Token>::const_iterator> gosub_calls;
 	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>> for_calls;
@@ -30,7 +31,14 @@ class Program{
 	void end_(const Args&);
 	void stop_(const Args&);
 	void wait_(const Args&);
+	
+	void data_(const Args&);
+	void read_(const Args&);
+	void restore_(const Args&);
 
+	void clear_(const Args&);
+	void dim_(const Args&);
+	
 	//actual program runner
 	void run_();
 	

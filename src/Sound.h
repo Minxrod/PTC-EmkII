@@ -13,9 +13,11 @@ class Sound {
 	
 	const std::string resource_path{"resources/sounds/"};
 
-	std::vector<sf::SoundBuffer> wav;	
+	std::vector<sf::SoundBuffer> wav;
 	std::vector<sf::Sound> sfx;
 	std::vector<sf::Music> bgm;
+	
+	sf::Sound& get_available_sound();
 	
 	void beep_(const Args&);
 
