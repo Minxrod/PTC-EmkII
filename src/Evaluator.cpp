@@ -53,7 +53,7 @@ Evaluator::Evaluator(){
 		//func_map{"RIGHT$"_TF, ptc::right},
 		//func_map{"MID$"_TF, ptc::mid},
 		//func_map{"POW"_TF, ptc::pow},
-		//func_map{"RND"_TF, ptc::rnd},
+		func_map{"RND"_TF, ptc::rnd},
 		//func_map{"SGN"_TF, ptc::sgn},
 		//func_map{"SQR"_TF, ptc::sqr},
 		//func_map{"STR$"_TF, ptc::str},

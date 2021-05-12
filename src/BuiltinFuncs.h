@@ -2,6 +2,7 @@
 
 #include "Vars.h"
 #include <cmath>
+#include <random>
 
 namespace ptc {
 	
@@ -189,5 +190,9 @@ namespace ptc {
 	Var rad(const std::vector<Var>& vals){
 		return Var(Number(std::get<Number>(vals.at(0))*PI/180.0));
 	}
+	
+	Var rnd(const std::vector<Var>& vals){
+		return Var(std::rand() % (int)std::get<Number>(vals.at(0)));
+	}	
 
 }
