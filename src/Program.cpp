@@ -22,6 +22,8 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens
 		cmd_map("WAIT"_TC, getfunc(this, &Program::wait_)),
 		cmd_map("DATA"_TC, getfunc(this, &Program::data_)),
 		cmd_map("CLEAR"_TC, getfunc(this, &Program::clear_)),
+		cmd_map("DIM"_TC, getfunc(this, &Program::dim_)),
+		cmd_map("READ"_TC, getfunc(this, &Program::read_)),
 	};
 }
 
@@ -187,9 +189,15 @@ void Program::if_(const Args& a){
 	auto res = e.evaluate(cond); //condition
 	if (std::abs(std::get<Number>(res)) > 0){
 		current = current - std::distance(pass, line.end());
+		if (current->type == Type::Label){
+			goto_label(current->text);
+		}
 	} else {
 		if (fail != line.end()){ //else was found
 			current = current - std::distance(fail, line.end());
+			if (current->type == Type::Label){
+				goto_label(current->text);
+			}
 		} //else not found, current is already past instruction (no change needed)
 	}
 }
@@ -245,15 +253,46 @@ void Program::data_(const Args&){
 	//DATA doesn't do anything as an instruction.
 }
 
-void Program::read_(const Args&){
+void Program::read_(const Args& a){
+	//READ var1[,var2,var3$,...]
+	
+	auto expr = [](auto& current, const auto& tokens){
+		auto data_end = std::min(std::find(current, tokens.end(), Token{"\r", Type::Newl}),
+			std::find(current, tokens.end(), Token{",", Type::Op}));
+		auto data_exp = std::vector<Token>(current, data_end);
+		if (data_end->text == "\r"){
+			current = std::find(data_end, tokens.end(), "DATA"_TC); //search for next DATA statement
+			if (current != tokens.end())
+				current++; //first piece of data will be directly after DATA statement
+		} else if (data_end->text == ","){
+			current = data_end+1;
+		}
+		return data_exp;
+	};
+	
+	for (auto i = 1; i < (int)a.size(); ++i){
+		auto value_pieces = expr(data_current, tokens);
+		Token data_value{"", Type::Str};
+		for (auto tok : value_pieces){
+			data_value.text += tok.text;
+		}
+		
+		auto& name_exp = a[i];
+		
+		e.assign(name_exp, data_value);
+	}
 }
 
 void Program::clear_(const Args&){
-	e.vars.erase(e.vars.begin(), e.vars.end());
+	e.vars = Variables();
 }
 
-void Program::dim_(const Args&){
-	
+void Program::dim_(const Args& a){
+	//DIM ARR(arg1 [,arg2]), [ARR2(arg1 [,arg2])]
+	for (auto i = 1; i < (int)a.size(); ++i){
+		auto p = e.process(a[i]);
+		e.calculate(p, true); //boolean flag to do array creation
+	}
 }
 
 

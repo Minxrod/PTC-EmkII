@@ -103,13 +103,13 @@ namespace ptc {
 	Var leq(const std::vector<Var>& vals){
 		auto [n1, n2] = get_nums(vals);
 			
-		return Var(Number{static_cast<double>(n1 >= n2)});
+		return Var(Number{static_cast<double>(n1 <= n2)});
 	}
 
 	Var geq(const std::vector<Var>& vals){
 		auto [n1, n2] = get_nums(vals);
 			
-		return Var(Number{static_cast<double>(n1 <= n2)});
+		return Var(Number{static_cast<double>(n1 >= n2)});
 	}
 
 	Var less(const std::vector<Var>& vals){

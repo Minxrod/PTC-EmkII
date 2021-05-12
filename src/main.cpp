@@ -29,7 +29,7 @@ int main()
 	Evaluator e{};
 	
 	Resources r{};
-	r.load_program("programs/SAMPLE2.PTC");
+	r.load_program("programs/SAMPLE3.PTC");
 	r.load_default();
 	
 	auto tk = tokenize(r.prg);

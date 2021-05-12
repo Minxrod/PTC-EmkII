@@ -10,7 +10,7 @@ OFLAGS = -std=c++17 -Wall -Werror -Wpedantic -Wextra -MMD
 
 # https://stackoverflow.com/questions/24096807/dso-missing-from-command-line
 CXXFLAGS = $(OFLAGS) -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -lpthread
-OBJECTS = main.o Evaluator.o Vars.o Resources.o FileLoader.o Console.o Program.o Visual.o Input.o Sound.o
+OBJECTS = main.o Evaluator.o Vars.o Resources.o FileLoader.o Console.o Program.o Visual.o Input.o Sound.o Variables.o
 
 objs = $(OBJECTS:%=$(BUILD)%)
 

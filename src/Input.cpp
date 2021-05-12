@@ -51,7 +51,9 @@ char Input::inkey_internal(){
 }
 
 Var Input::inkey_(const Vals&){
-	return Var(""+inkey_internal());
+	std::string res = "";
+	res += inkey_internal();
+	return Var(res);
 }
 
 Var Input::button_(const Vals&){
@@ -70,8 +72,8 @@ std::map<Token, cmd_type> Input::get_cmds(){
 
 std::map<Token, op_func> Input::get_funcs(){
 	return std::map<Token, op_func>{
-		func_map{"BUTTON"_TF, getfunc<Input>(this, &Input::button_)},
-		func_map{"BTRIG"_TF, getfunc<Input>(this, &Input::btrig_)},
-		func_map{"INKEY$"_TF, getfunc<Input>(this, &Input::inkey_)},
+		func_map{"BUTTON"_TF, getfunc(this, &Input::button_)},
+		func_map{"BTRIG"_TF, getfunc(this, &Input::btrig_)},
+		func_map{"INKEY$"_TF, getfunc(this, &Input::inkey_)},
 	};
 }

@@ -66,87 +66,6 @@ void Evaluator::add_funcs(std::map<Token, op_func> other){
 	functions.merge(other);
 }
 
-VarPtr get_varptr(std::string name, std::vector<Var> args, std::map<std::string, Var>& vars){
-	Var& v = vars.at(name);
-	if (name.find("[]") != std::string::npos){
-		if (args.size() == 2){
-			auto& a_ij = std::get<Array2>(v)[std::get<Number>(args[0])][std::get<Number>(args[1])];
-			if (std::holds_alternative<String>(a_ij))
-				return VarPtr(&std::get<String>(a_ij));
-			return VarPtr(&std::get<Number>(a_ij));
-		} else if (args.size() == 1){
-			auto& a_i = std::get<Array1>(v)[std::get<Number>(args[0])];
-			if (std::holds_alternative<String>(a_i))
-				return VarPtr(&std::get<String>(a_i));
-			return VarPtr(&std::get<Number>(a_i));
-		}
-	}
-	if (std::holds_alternative<Number>(v))
-		return VarPtr(&std::get<Number>(v));
-	if (std::holds_alternative<String>(v))
-		return VarPtr(&std::get<String>(v));
-	return VarPtr(&std::get<Array1>(v)); //cannot use 2d array refs, ever
-}
-
-Var get_var_val(std::string name, std::vector<Var> args, std::map<std::string, Var>& vars){
-	//note: cannot get array by value (why would you?)
-	auto ptr = get_varptr(name, args, vars);
-	return (std::holds_alternative<Number*>(ptr)) ? Var(*std::get<Number*>(ptr)) : Var(*std::get<String*>(ptr));
-}
-
-void create_var(std::string name, std::vector<Var> args, std::map<std::string, Var>& vars){
-	if (name.find("[]") != std::string::npos){
-		if (name.find("$") != std::string::npos){
-			//string type arr
-			if (args.size() == 2){
-//				vars.insert(std::pair<std::string, Var>(name, Var(Array2{10,Array1{10,SimpleVar("")}})));
-			} else {
-				vars.insert(std::pair<std::string, Var>(name, Var(Array1{10,SimpleVar("")})));			
-			}
-		} else {
-			//num type arr
-			if (args.size() == 2){
-//				vars.insert(std::pair<std::string, Var>(name, Var(Array2{10,Array1(10,SimpleVar(0))})));
-			} else {
-				vars.insert(std::pair<std::string, Var>(name, Var(Array1(10,SimpleVar(0)))));		
-			}
-		}
-	} else {
-		if (name.find("$") != std::string::npos){
-			//string type
-			vars.insert(std::pair<std::string, Var>(name, Var(String(""))));					
-		} else {
-			//num type
-			vars.insert(std::pair<std::string, Var>(name, Var(Number(0.0))));					
-		}
-	}
-}
-
-Var Evaluator::get_var(std::string name, std::vector<Var> args){
-	if (vars.count(name) > 0){
-		auto v = get_var_val(name, args, vars);
-		return v;
-	} else {
-		//create new variable
-		create_var(name, args, vars);
-	
-	}
-	auto v = get_var_val(name, args, vars);
-	return v;
-}
-
-VarPtr Evaluator::get_var_ptr(std::string name, std::vector<Var> args){
-	if (vars.count(name) > 0){
-		auto v = get_varptr(name, args, vars);
-		return v;
-	} else {
-		//create new variable
-		create_var(name, args, vars);
-	}
-	auto v = get_varptr(name, args, vars);
-	return v;
-}
-
 Var Evaluator::evaluate(const std::vector<Token>& expression){
 	//check for expression in processed;
 	if (processed.count(expression) == 0){
@@ -156,6 +75,13 @@ Var Evaluator::evaluate(const std::vector<Token>& expression){
 	
 	auto rpn = processed.at(expression);
 	
+	auto res = calculate(rpn);
+	return res;
+}
+
+Var Evaluator::eval_no_save(const std::vector<Token>& expression){
+	//no check for expression in processed, no store processed expression.
+	auto rpn = process(expression);
 	auto res = calculate(rpn);
 	return res;
 }
@@ -173,7 +99,7 @@ PrioToken conv_prio(const Token& t, int& n){
 	PrioToken p{t.text, t.type, -1};
 	
 	p.prio = n; //base prio, depends on parens/nesting
-	if (p.type == Type::Op){ //if it's not an op, don't change prio
+	if (p.type == Type::Op || p.type == Type::Arr || p.type == Type::Func){ //if it's not an op, don't change prio
 		if (p.text == ","){
 			p.prio += 1;
 		} else if (p.text == "AND" || p.text == "OR"){
@@ -418,7 +344,7 @@ Var Evaluator::call_func(const Token& op, std::vector<Var>& args){
 }
 
 //requires expressions in the form of output from Evaluator::process()
-Var Evaluator::calculate(const std::vector<Token>& rpn_expression){
+Var Evaluator::calculate(const std::vector<Token>& rpn_expression, bool do_array_init){
 	std::stack<Var> values{};
 	std::stack<int> len_args{}; //for functions of unknown argument count
 	bool has_varptr = false;
@@ -453,20 +379,28 @@ Var Evaluator::calculate(const std::vector<Token>& rpn_expression){
 				Var v = call_func(t, args);
 				values.push(v);
 			} else { //Type::Arr
-				//ptr to array element
-				Var v = get_var(t.text+"[]", args);//array access
-				if (!has_varptr && len_args.empty()){
-					first_access = get_var_ptr(t.text+"[]", args);
-					has_varptr = true;
+				if (do_array_init && len_args.empty()){//special array creation hack
+					//needs to handle needing args for array creation otherwise
+					//might have array ACCESS as part of args, so must have len_args be empty.
+					vars.create_arr(t.text+"[]", args);
+					values.push(Var(1)); //this result should be ignored, but 1 will indicate success.
+					break;
+				} else {
+					//ptr to array element
+					Var v = vars.get_var(t.text+"[]", args);//array access
+					if (!has_varptr && len_args.empty()){
+						first_access = vars.get_var_ptr(t.text+"[]", args);
+						has_varptr = true;
+					}
+					values.push(v);
 				}
-				values.push(v);
 			}
 			
 		} else if (t.type == Type::Var){
 			//add ptr to var to stack
-			Var v = get_var(t.text);
+			Var v = vars.get_var(t.text);
 			if (!has_varptr && len_args.empty()){
-				first_access = get_var_ptr(t.text);			
+				first_access = vars.get_var_ptr(t.text);			
 				has_varptr = true;
 			}
 			values.push(v);

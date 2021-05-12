@@ -1,5 +1,7 @@
 #include "Sound.h"
 
+#include <cmath>
+
 Sound::Sound(Evaluator& ev) : e{ev}{
 	for (auto i = 0; i < 264; i++){
 		sf::SoundBuffer buf;
@@ -29,6 +31,11 @@ void Sound::beep_(const Args& a){
 	} else if (a.size() == 2){ //BEEP <waveform number>
 		auto wf = (int)std::get<Number>(e.evaluate(a[1]));
 		s.setBuffer(wav.at(wf));
+	} else if (a.size() == 3){ //BEEP <waveform number>,<pitch>
+		auto wf = (int)std::get<Number>(e.evaluate(a[1]));
+		s.setBuffer(wav.at(wf));
+		auto p = std::get<Number>(e.evaluate(a[2]));
+		s.setPitch(std::pow(2, p/4096.0));
 	}
 	s.play();
 }
