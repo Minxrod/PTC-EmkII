@@ -4,9 +4,10 @@
 Console::Console(Evaluator& eval, CHR& chr, Input& i) : in{i}, e{eval}, c{chr}{
 	cur_fg_color = 0;
 	cur_bg_color = 0;
-	cur_x = 0;
-	cur_y = 0;
-	tabstep = 4;
+	cur_x = std::get<Number*>(e.vars.get_var_ptr("CSRX"));
+	cur_y = std::get<Number*>(e.vars.get_var_ptr("CSRY"));
+	tabstep = std::get<Number*>(e.vars.get_var_ptr("TABSTEP"));
+	*tabstep = 4;
 }
 
 std::map<Token, cmd_type> Console::get_cmds(){
@@ -83,9 +84,9 @@ void Console::print_(const Var& v){
 	}
 	
 	for (char c : str){
-		text[cur_x+WIDTH*cur_y] = c;
-		bg_color[cur_x + WIDTH * cur_y] = cur_bg_color;
-		fg_color[cur_x + WIDTH * cur_y] = cur_fg_color;
+		text[*cur_x+WIDTH * *cur_y] = c;
+		bg_color[*cur_x + WIDTH * *cur_y] = cur_bg_color;
+		fg_color[*cur_x + WIDTH * *cur_y] = cur_fg_color;
 
 		advance();
 	}
@@ -103,8 +104,8 @@ std::pair<std::vector<Token>, std::string> Console::input_common(const Args& a){
 	print_(Var(String("?")));
 	newline();
 	
-	auto old_x = cur_x;
-	auto old_y = cur_y;
+	auto old_x = *cur_x;
+	auto old_y = *cur_y;
 	
 	//do inputs loop
 	char lastpress = '\0';
@@ -118,8 +119,8 @@ std::pair<std::vector<Token>, std::string> Console::input_common(const Args& a){
 			res += lastpress;
 		}
 		
-		cur_x = old_x;
-		cur_y = old_y;
+		*cur_x = old_x;
+		*cur_y = old_y;
 		print_(Var(res));
 	}
 	newline();
@@ -158,21 +159,21 @@ void Console::linput_(const Args& a){
 
 void Console::locate_(const Args& a){
 	//LOCATE <x> <y>
-	cur_x = (int)std::get<Number>(e.evaluate(a[1]));
-	cur_y = (int)std::get<Number>(e.evaluate(a[2]));
+	*cur_x = (int)std::get<Number>(e.evaluate(a[1]));
+	*cur_y = (int)std::get<Number>(e.evaluate(a[2]));
 }
 
 void Console::newline(){
-	cur_x = 0;
-	cur_y++;
-	if (cur_y >= HEIGHT){
+	*cur_x = 0;
+	(*cur_y)++;
+	if (*cur_y >= HEIGHT){
 		scroll();
 	}
 }
 
 void Console::scroll(){
-	cur_x = 0;
-	cur_y = HEIGHT-1;
+	*cur_x = 0;
+	*cur_y = HEIGHT-1;
 	std::copy(text.begin() + WIDTH, text.end(), text.begin());
 	std::copy(fg_color.begin() + WIDTH, fg_color.end(), fg_color.begin());
 	std::copy(bg_color.begin() + WIDTH, bg_color.end(), bg_color.begin());
@@ -181,8 +182,8 @@ void Console::scroll(){
 
 //returns true if console needed to scroll
 bool Console::advance(){
-	++cur_x;
-	if (cur_x >= WIDTH){
+	++*cur_x;
+	if (*cur_x >= WIDTH){
 		newline();
 		return true;
 	}
@@ -192,10 +193,10 @@ bool Console::advance(){
 void Console::tab(){
 	do
 	{
-		text[cur_x + WIDTH * cur_y] = 0;
-		bg_color[cur_x + WIDTH * cur_y] = cur_bg_color;
-		fg_color[cur_x + WIDTH * cur_y] = cur_fg_color;
-	} while (!advance() && cur_x % tabstep != 0);
+		text[*cur_x + WIDTH * *cur_y] = 0;
+		bg_color[*cur_x + WIDTH * *cur_y] = cur_bg_color;
+		fg_color[*cur_x + WIDTH * *cur_y] = cur_fg_color;
+	} while (!advance() && static_cast<int>(*cur_x) % static_cast<int>(*tabstep) != 0);
 }
 
 

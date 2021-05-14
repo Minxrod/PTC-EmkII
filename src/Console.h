@@ -17,9 +17,9 @@ class Console {
 	
 	char cur_fg_color = 0;
 	char cur_bg_color = 0;
-	char cur_x = 0;
-	char cur_y = 0;
-	char tabstep = 4;
+	Number* cur_x;
+	Number* cur_y;
+	Number* tabstep;
 	
 	std::array<unsigned char, WIDTH*HEIGHT> bg_color;
 	std::array<unsigned char, WIDTH*HEIGHT> fg_color;	

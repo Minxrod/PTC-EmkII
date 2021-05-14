@@ -8,28 +8,24 @@
 #include "Visual.h"
 #include "Input.h"
 #include "Sound.h"
+#include "Variables.h"
 
 #include <iostream>
 
 int main()
 {
-    sf::RenderWindow window(sf::VideoMode(256, 384), "PTCEmukII");
-    
-	if (!sf::Shader::isAvailable()){
-        std::cout << "Error: Shaders are unavailable";
-        return 0;
-    }
-
-    sf::Shader bgsp_shader;
-    if (!bgsp_shader.loadFromFile("resources/shaders/bgsp.frag", sf::Shader::Fragment)){
-        std::cout << "Error: Shader could not be loaded";
-        return 0;
-    }
     
 	Evaluator e{};
 	
+	std::string prgname;
+	std::cout << "Enter a program name, file must be in 'programs/':" << std::endl;
+	std::cout << "Example: SAMPLE1.PTC" << std::endl;
+	std::cin >> prgname;
+
+    sf::RenderWindow window(sf::VideoMode(256, 384), "PTCEmukII");
+	
 	Resources r{};
-	r.load_program("programs/SAMPLE4.PTC");
+	r.load_program("programs/" + prgname);
 	r.load_default();
 	
 	auto tk = tokenize(r.prg);
@@ -46,35 +42,18 @@ int main()
 	program.add_cmds(v.get_cmds());
 	program.add_cmds(i.get_cmds());
 	program.add_cmds(s.get_cmds());
-	
-	/*int n = 0;
-	while(!program.at_eof()){
-		auto tok = program.next_instruction();
-		auto proc = program.split(tok);
-		for (uint32_t p = 0; p < proc.size(); ++p){ 
-			print("V"+std::to_string(p), proc[p]);
-		}
-		
-		n++;
-		print("Instr " + std::to_string(n), tok);
-	}*/
-		
-	//print("TOKENIZED:", tk);
-	sf::Texture contx{};
-	contx.create(256, 192);
-	sf::Sprite consp{};
-	consp.setTexture(contx);
-
-	sf::Texture color_tex{}; 
-	color_tex.create(256, 1);
-	color_tex.update(r.col.at("COL0U").COL_to_RGBA().data());
-	
+			
+	//print("TOKENIZED:", tk);	
 	program.run();
 	
+	bool mouse_press = false;
+	int mouse_x = 0;
+	int mouse_y = 0;
     while (window.isOpen())
     {
-    	sf::Keyboard::Key k = sf::Keyboard::Key::Unknown;
 		sf::Event event;
+
+    	sf::Keyboard::Key k = sf::Keyboard::Key::Unknown;
 		while (window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed){
@@ -82,6 +61,14 @@ int main()
 			}
 			if (event.type == sf::Event::KeyPressed){
 				k = event.key.code;
+			}
+			if (event.type == sf::Event::MouseButtonPressed){
+				mouse_x = event.mouseButton.x;
+				mouse_y = event.mouseButton.y;
+				mouse_press = true;
+			}
+			if (event.type == sf::Event::MouseButtonReleased){
+				mouse_press = false;
 			}
 		}
 		//update buttons
@@ -93,20 +80,15 @@ int main()
 		}
 		
 		i.update(b, k);
+		i.touch(mouse_press, mouse_x, mouse_y);
 		
         //get updated textures for drawing to screen
-        
-        window.clear();		
+        window.clear();
 	
-		bgsp_shader.setUniform("texture", sf::Shader::CurrentTexture);
-    	bgsp_shader.setUniform("colors", color_tex);
+		v.draw(window);
 	
-		contx.update(v.c.draw().data());
-		window.draw(consp, &bgsp_shader);
-        //draw textures
+		window.display();
+	}
 
-        window.display();
-    }
-
-    return 0;
+	return 0;
 }

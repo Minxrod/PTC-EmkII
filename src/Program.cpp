@@ -284,7 +284,7 @@ void Program::read_(const Args& a){
 }
 
 void Program::clear_(const Args&){
-	e.vars = Variables();
+	e.vars.clear_();
 }
 
 void Program::dim_(const Args& a){

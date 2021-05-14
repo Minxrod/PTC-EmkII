@@ -48,17 +48,17 @@ Evaluator::Evaluator(){
 		//func_map{"EXP"_TF, ptc::exp},
 		//func_map{"FLOOR"_TF, ptc::floor},
 		//func_map{"HEX$"_TF, ptc::hex},
-		//func_map{"LEN"_TF, ptc::len},	
-		//func_map{"LEFT$"_TF, ptc::left},
-		//func_map{"RIGHT$"_TF, ptc::right},
-		//func_map{"MID$"_TF, ptc::mid},
+		func_map{"LEN"_TF, ptc::len},	
+		func_map{"LEFT$"_TF, ptc::left},
+		func_map{"RIGHT$"_TF, ptc::right},
+		func_map{"MID$"_TF, ptc::mid},
 		//func_map{"POW"_TF, ptc::pow},
 		func_map{"RND"_TF, ptc::rnd},
 		//func_map{"SGN"_TF, ptc::sgn},
 		//func_map{"SQR"_TF, ptc::sqr},
 		//func_map{"STR$"_TF, ptc::str},
 		//func_map{"SUBST$"_TF, ptc::subst},
-		//func_map{"VAL"_TF, ptc::val},
+		func_map{"VAL"_TF, ptc::val},
 	};
 }
 
@@ -373,6 +373,7 @@ Var Evaluator::calculate(const std::vector<Token>& rpn_expression, bool do_array
 				values.pop();
 			}
 			len_args.pop();
+			std::reverse(args.begin(), args.end()); //stack has reversed order of args
 			//args list complete
 			if (t.type == Type::Func){
 				//calc'd value

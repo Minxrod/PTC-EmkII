@@ -77,8 +77,8 @@ struct Resources{
 	MEM mem;
 	std::map<std::string, GRP> grp; //grp0-3 (ul does nothing, gpage does nothing)
 	std::map<std::string, CHR> chr; //bgu0-3*2,bgf0*2,bgd0-1*2,spu0-7 (on ul),sps0-1*2,spd0-3 (on ul)
-	std::map<std::string, SCR> scr;	//scu0-1 *2 //works with ul and bgpage
-	std::map<std::string, COL> col; //col0-2 *2 //ul only
+	std::map<std::string, SCR> scr;	//scu0-1*2 //works with ul and bgpage
+	std::map<std::string, COL> col; //col0-2*2 //ul only
 	
 	Resources() = default;
 	void load_program(std::string name);

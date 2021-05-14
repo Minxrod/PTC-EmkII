@@ -141,12 +141,6 @@ namespace ptc {
 		return Var(Number{static_cast<double>(~static_cast<int>(std::get<Number>(vals.at(0))))});
 	}
 
-	/*Var assign(const std::vector<Var>& vals){
-		vals.size();
-		
-		return Var{0.0};
-	}*/
-
 	Var sin(const std::vector<Var>& vals){
 		return Var(Number(std::sin(std::get<Number>(vals.at(0)))));
 	}
@@ -193,6 +187,33 @@ namespace ptc {
 	
 	Var rnd(const std::vector<Var>& vals){
 		return Var(std::rand() % (int)std::get<Number>(vals.at(0)));
-	}	
+	}
+	
+	Var len(const Vals& vals){
+		return Var(std::get<String>(vals.at(0)).size());
+	}
+	
+	Var left(const Vals& vals){
+		return Var(std::get<String>(vals.at(0)).substr(0,(int)std::get<Number>(vals.at(1))));
+	}
+
+	Var mid(const Vals& vals){
+		return Var(std::get<String>(vals.at(0)).substr((int)std::get<Number>(vals.at(1)), (int)std::get<Number>(vals.at(2))));
+	}
+
+	Var right(const Vals& vals){
+		return Var(std::get<String>(vals.at(0)).substr((int)std::get<Number>(vals.at(1))));
+	}
+	
+	Var val(const Vals& vals){
+		return Var(std::stoi(std::get<String>(vals.at(0))));
+	}
+
+	//BUILTIN COMMANDS HERE
+	void dtread(const Args& ){
+		//DTREAD (date$) y m d
+		
+		
+	}
 
 }

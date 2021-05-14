@@ -13,8 +13,6 @@
 #include "Evaluator.h"
 #include "FileLoader.h"
 
-const std::string sysvars{" CSRX CSRY FREEMEM VARSION ERR ERL RESULT TCHX TCHY TCHST TCHTIME MAINCNTL MAINCNTH TABSTEP TRUE FALSE CANCEL ICONPUSE ICONPAGE ICONPMAX FUNCNO FREEVAR SYSBEEP KEYBOARD SPHITNO SPHITX SPHITY SPHITT TIME$ DATE$ MEM$ PRGNAME$ PACKAGE$ "};
-
 void Resources::load_program(std::string name){
 	auto fs = get_filestream(name);
 	read_n(fs, prg_info.data, 60);
@@ -52,6 +50,15 @@ void Resources::load_default(){
 		col.insert(std::pair(c, COL()));
 		read_n(fs, col.at(c).data, 48); //dummy read to skip header
 		read_n(fs, col.at(c).data, COL::SIZE);
+	}
+	
+	std::vector<std::string> grp_resources{
+		"GRP0", "GRP1", "GRP2", "GRP3"
+	};
+	
+	for (auto g : grp_resources){
+		grp.insert(std::pair(g, GRP()));
+		grp.at(g).data = std::vector<unsigned char>(GRP::SIZE, 0);
 	}
 }
 

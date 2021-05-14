@@ -72,6 +72,7 @@ struct Input {
 		kc(Key::B, 53),
 		kc(Key::N, 54),
 		kc(Key::M, 55),
+		kc(Key::Comma, 56),
 		kc(Key::Period, 57),
 		kc(Key::Enter, 60),
 		kc(Key::Space, 65),

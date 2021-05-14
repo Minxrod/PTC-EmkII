@@ -1,5 +1,7 @@
 #include "Input.h"
 
+#include "Variables.h"
+
 Input::Input(Evaluator& ev) : e{ev}, button_info{12, std::vector<int>{0,0,0}}{
 	
 }
@@ -24,6 +26,10 @@ void Input::touch(bool t, int x, int y){
 		tchx = x;
 		tchy = y;
 	}
+	e.vars.write_sysvar("TCHX", static_cast<double>(tchx));
+	e.vars.write_sysvar("TCHY", static_cast<double>(tchy));
+	e.vars.write_sysvar("TCHTIME", static_cast<double>(tchtime));
+	e.vars.write_sysvar("TCHST", tchst ? 1.0 : 0.0);
 }
 	
 void Input::brepeat_(const Args& a){
