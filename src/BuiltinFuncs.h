@@ -82,7 +82,7 @@ namespace ptc {
 	Var eq(const std::vector<Var>& vals){
 		if (is_type<Number>(vals.at(0))){
 			auto [n1, n2] = get_nums(vals);
-			return Var(Number{static_cast<double>(n1 == n2)});
+			return Var(Number{static_cast<double>(std::abs(n1 - n2) < (1.0/4096.0))});
 		} else {
 			auto s1 = std::get<String>(vals.at(0));
 			auto s2 = std::get<String>(vals.at(1));
@@ -93,7 +93,7 @@ namespace ptc {
 	Var neq(const std::vector<Var>& vals){
 		if (is_type<Number>(vals.at(0))){
 			auto [n1, n2] = get_nums(vals);
-			return Var(Number{static_cast<double>(n1 != n2)});
+			return Var(Number{static_cast<double>(std::abs(n1 - n2) >= (1.0/4096.0))});
 		} else {
 			auto s1 = std::get<String>(vals.at(0));
 			auto s2 = std::get<String>(vals.at(1));
@@ -127,7 +127,7 @@ namespace ptc {
 
 	Var band(const std::vector<Var>& vals){
 		auto [n1, n2] = get_nums(vals);
-			
+		
 		return Var(Number{static_cast<double>(static_cast<int>(n1) & static_cast<int>(n2))});
 	}
 
@@ -207,13 +207,6 @@ namespace ptc {
 	
 	Var val(const Vals& vals){
 		return Var(std::stoi(std::get<String>(vals.at(0))));
-	}
-
-	//BUILTIN COMMANDS HERE
-	void dtread(const Args& ){
-		//DTREAD (date$) y m d
-		
-		
 	}
 
 }

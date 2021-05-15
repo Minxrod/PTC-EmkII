@@ -61,15 +61,15 @@ void Visual::visible_(const Args& a){
 void Visual::draw(sf::RenderWindow& w){
 	bgsp_shader.setUniform("colors", col_tex);
 	bgsp_shader.setUniform("texture", sf::Shader::CurrentTexture);
-	bgsp_shader.setUniform("palette", 0.0f);
-	bgsp_shader.setUniform("colbank", 0.0f);	
+	bgsp_shader.setUniform("colbank", 0.0f);
 
-	auto res = c.draw();
-	
-	display_texture.update(res.data(), 256, 192, 0, 0);
-		
-	for (auto& prio_sprites : display_sprites){
-		for (auto& ds : prio_sprites){
+	display_texture.update(c.draw().data(), WIDTH, HEIGHT, 0*WIDTH, CON*HEIGHT);
+	display_texture.update(g.draw().data(), WIDTH, HEIGHT, 0*WIDTH, GRP*HEIGHT);
+
+	for (int prio = 3; prio >= 0; --prio){
+		auto& prio_sprites = display_sprites[prio];
+		for (int elem = 3; elem >= 0; --elem){
+			auto& ds = prio_sprites[elem];
 			w.draw(ds, &bgsp_shader);
 		}
 	}

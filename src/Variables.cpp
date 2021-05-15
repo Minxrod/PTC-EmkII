@@ -65,7 +65,7 @@ void create_var(std::string name, std::map<std::string, Var>& vars, std::vector<
 
 //This gets variables by VALUE, including sysvars.
 Var Variables::get_var(std::string name, std::vector<Var> args){
-	if (sysvars.find(name) != std::string::npos)
+	if (sysvars.find(" "+name+" ") != std::string::npos)
 		return get_sysvar(name);
 	
 	if (vars.count(name) > 0){
@@ -81,7 +81,7 @@ Var Variables::get_var(std::string name, std::vector<Var> args){
 }
 
 VarPtr Variables::get_var_ptr(std::string name, std::vector<Var> args){
-	if (sysvars.find(name) != std::string::npos){
+	if (sysvars.find(" "+name+" ") != std::string::npos){
 		//should not happen in most cases...
 	}
 	if (vars.count(name) > 0){
@@ -108,7 +108,7 @@ void Variables::create_arr(std::string name, std::vector<Var> args){
 
 void Variables::clear_(){
 	for (auto& v : vars){
-		if (sysvars.find(v.first) == std::string::npos){
+		if (sysvars.find(" "+v.first+" ") == std::string::npos){
 			//erase if not sysvar
 			vars.erase(v.first);
 		}

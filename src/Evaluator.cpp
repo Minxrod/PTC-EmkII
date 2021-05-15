@@ -66,6 +66,25 @@ void Evaluator::add_funcs(std::map<Token, op_func> other){
 	functions.merge(other);
 }
 
+void Evaluator::dtread_(const Args& a){
+	//DTREAD (yyyy/mm/dd) y m d 
+	String str = std::get<String>(evaluate(a[1]));
+	
+	assign(a[2], Token{str.substr(0,4), Type::Str});
+	assign(a[3], Token{str.substr(5,2), Type::Str});
+	assign(a[4], Token{str.substr(8,2), Type::Str});
+}
+
+
+void Evaluator::tmread_(const Args& a){
+	//TMREAD hh:mm:ss h m s
+	String str = std::get<String>(evaluate(a[1]));
+
+	assign(a[2], Token{str.substr(0,2), Type::Str});
+	assign(a[3], Token{str.substr(3,2), Type::Str});
+	assign(a[4], Token{str.substr(6,2), Type::Str});
+}
+
 Var Evaluator::evaluate(const std::vector<Token>& expression){
 	//check for expression in processed;
 	if (processed.count(expression) == 0){
@@ -109,7 +128,7 @@ PrioToken conv_prio(const Token& t, int& n){
 			p.prio += 3;
 		} else if (p.text == "+" || p.text == "-"){
 			p.prio += 4;
-		} else if (p.text == "*" || p.text == "/"){
+		} else if (p.text == "*" || p.text == "/" || p.text == "%"){
 			p.prio += 5;
 		} else if (p.text == "!" || p.text == "0-" || p.text == "NOT"){
 			p.prio += 6;
@@ -188,7 +207,7 @@ std::vector<PrioToken> conv_tokens(const std::vector<Token>& expression){
 	std::vector<PrioToken> tokens{};
 	
 	int nest = 0;
-	bool is_func_paren;
+	bool is_func_paren = false;
 	std::stack<bool> is_func{};
 	for (std::vector<PrioToken>::size_type i = 0; i < expression.size(); ++i){
 		Token t = expression.at(i);
@@ -243,7 +262,7 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 				//have RPN subsequence
 				subseq.push_back(r_n);
 				itr = tokens.begin();
-				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);			
+//				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);			
 			} else {
 				itr++;
 			}
@@ -253,7 +272,7 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 	
 	for (unsigned int i = 0; i < subseq.size(); i++){
 		auto r = subseq[i];
-		print("R" + std::to_string(i), r);
+//		print("R" + std::to_string(i), r);
 	}
 	
 	std::vector<Token> rpn{};
@@ -453,13 +472,13 @@ const std::regex variable{ R"([A-Z_][A-Z0-9_]*\$?)" };
 const std::regex label{ R"(\@[A-Z0-9_]+)" };
 const std::regex comment{ R"(('|REM).*\r)" };
 const std::string first_char_ops = ",;[]()+-*/%!<>="; //single character operations or leading characters
-const std::string second_char_ops = "<=>"; //second character of operations
+const std::string second_char_ops = "="; //second character of operations
 
 const std::string commands{" ACLS APPEND BEEP BGCLIP BGCLR BGCOPY BGFILL BGMCLEAR BGMPLAY BGMPRG BGMSET BGMSETD BGMSETV BGMSTOP BGMVOL BGOFS BGPAGE BGPUT BGREAD BREPEAT CHRINIT CHRREAD CHRSET CLEAR CLS COLINIT COLOR COLREAD COLSET CONT DATA DELETE DIM DTREAD ELSE END EXEC FOR GBOX GCIRCLE GCLS GCOLOR GCOPY GDRAWMD GFILL GLINE GOSUB GOTO GPAGE GPAINT GPSET GPRIO GPUTCHR ICONCLR ICONSET IF INPUT KEY LINPUT LIST LOAD LOCATE NEW NEXT NOT ON PNLSTR PNLTYPE PRINT READ REBOOT RECVFILE REM RENAME RESTORE RETURN RSORT RUN SAVE SENDFILE SORT SPANGLE SPANIM SPCHR SPCLR SPCOL SPCOLVEC SPHOME SPOFS SPPAGE SPREAD SPSCALE SPSET SPSETV STEP STOP SWAP THEN TMREAD TO VISIBLE VSYNC WAIT "};
 
 const std::string functions{" ABS ASC ATAN BGCHK BGMCHK BGMGETV BTRIG BUTTON CHKCHR CHR$ COS DEG EXP FLOOR GSPOIT HEX$ ICONCHK INKEY$ INSTR LEFT$ LEN LOG MID$ PI POW RAD RIGHT$ RND SGN SIN SPCHK SPGETV SPHIT SPHITRC SPHITSP SQR STR$ SUBST$ TAN VAL "};
 
-const std::string operations{" AND NOT OR ! - + - * / = == => =< < > != % ( ) [ ] , ; "};
+const std::string operations{" AND NOT OR ! - + - * / = == >= <= < > != % ( ) [ ] , ; "};
 
 std::vector<Token> tokenize(unsigned char* data, int size){
 	int char_pos = 0;
@@ -472,7 +491,10 @@ std::vector<Token> tokenize(unsigned char* data, int size){
 	{
 		do
 		{
-			cur += data[char_pos];
+			cur += data[char_pos] <= 'z' && data[char_pos] >= 'a' ?
+				data[char_pos] - 'a' + 'A' : //make all capitals
+				data[char_pos]; //don't change numbers, symbols, etc.
+
 			char_pos++;
 		} while (!std::regex_match(cur, re));
 		//add chars until finding a matching string.
@@ -484,7 +506,10 @@ std::vector<Token> tokenize(unsigned char* data, int size){
 	{
 		do
 		{
-			cur += data[char_pos];
+			cur += data[char_pos] <= 'z' && data[char_pos] >= 'a' ?
+				data[char_pos] - 'a' + 'A' : //make all capitals
+				data[char_pos]; //don't change numbers, symbols, etc.
+
 			char_pos++;
 		} while (std::regex_match(cur, re));
 		//add chars until regex no longer matches
@@ -563,7 +588,7 @@ std::vector<Token> tokenize(unsigned char* data, int size){
 			++char_pos;
 
 			//check for double-symbol tokens (compare ops)
-			if ((c == '=' || c == '!') && second_char_ops.find(data[char_pos]) != std::string::npos)
+			if ((c == '<' || c == '>' || c == '=' || c == '!') && data[char_pos] == '=')
 			{
 				cur += data[char_pos];
 				++char_pos;

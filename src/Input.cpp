@@ -9,6 +9,7 @@ Input::Input(Evaluator& ev) : e{ev}, button_info{12, std::vector<int>{0,0,0}}{
 void Input::update(int b, Key k){
 	buttons = b;
 	keycode = code_to_ptc.at(k);
+	e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
 	//if keycode != (enter) and is in (valid ranges) add to inkey queue
 	std::lock_guard loc(inkeybuf_mutex);
 	auto c = kya.at(code_to_ptc.at(k));
@@ -43,7 +44,7 @@ void Input::brepeat_(const Args& a){
 	
 	std::lock_guard loc(button_mutex);
 	button_info[id][1] = start;
-	button_info[id][2] = repeat;	
+	button_info[id][2] = repeat;
 }
 
 char Input::inkey_internal(){
@@ -62,8 +63,23 @@ Var Input::inkey_(const Vals&){
 	return Var(res);
 }
 
-Var Input::button_(const Vals&){
-	return Var(Number(buttons));
+Var Input::button_(const Vals& v){
+	if (v.size() == 1){
+		switch (static_cast<int>(std::get<Number>(v.at(0)))){
+			case 0:
+				return Var(buttons);
+			case 1:
+				//moment pressed
+			case 2:
+				//moment pressed no repeat?
+			case 3:
+				//moment released?
+				return Var(buttons);
+		}
+		return Var(Number(buttons));
+	} else {
+		return Var(Number(buttons));	
+	}
 }
 
 Var Input::btrig_(const Vals&){

@@ -24,6 +24,8 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens
 		cmd_map("CLEAR"_TC, getfunc(this, &Program::clear_)),
 		cmd_map("DIM"_TC, getfunc(this, &Program::dim_)),
 		cmd_map("READ"_TC, getfunc(this, &Program::read_)),
+		cmd_map("DTREAD"_TC, getfunc(&eval, &Evaluator::dtread_)),
+		cmd_map("TMREAD"_TC, getfunc(&eval, &Evaluator::tmread_))
 	};
 }
 
@@ -64,8 +66,8 @@ void Program::run_(){
 		auto chunks = split(instr);
 		auto instr_form = chunks[0][0]; //if chunks[0] is empty, we have other problems
 		
-		for (auto chunk : chunks)
-			print("Instr:", chunk);
+//		for (auto chunk : chunks)
+//			print("Instr:", chunk);
 		
 /*		if (instr_form.type == Type::Rem){ //ignore it, this is the entire line
 		} else if (instr_form.type == Type::Label){ //ignore
@@ -124,9 +126,9 @@ void Program::for_(const Args& a){
 		step.push_back(Token{"1", Type::Num}); //default step is 1
 	}
 	
-	print("init:", init);
-	print("cond:", cond);
-	print("step:", step);
+//	print("init:", init);
+//	print("cond:", cond);
+//	print("step:", step);
 	
 	e.evaluate(init); //run init condition
 	for_calls.push_back(std::make_tuple(var, current, cond, step)); //needed for looping
@@ -209,7 +211,7 @@ void Program::end_(const Args&){
 void Program::goto_label(const std::string& lbl){
 	for (auto itr = tokens.begin(); itr != tokens.end(); itr++){
 		if (*itr == Token{lbl, Type::Label}){
-			if (itr-1 == tokens.begin() || 
+			if (itr == tokens.begin() || 
 			((itr-1)->type == Type::Newl)){
 				current = itr;
 				break;

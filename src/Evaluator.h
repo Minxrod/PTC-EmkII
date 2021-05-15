@@ -42,4 +42,7 @@ struct Evaluator {
 	
 	//takes a calculable form and gets a value
 	Var calculate(const std::vector<Token>&, bool = false);
+	
+	void dtread_(const Args&);
+	void tmread_(const Args&);
 };

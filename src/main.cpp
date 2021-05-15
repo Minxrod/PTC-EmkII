@@ -11,6 +11,8 @@
 #include "Variables.h"
 
 #include <iostream>
+#include <chrono>
+#include <ctime>
 
 int main()
 {
@@ -81,6 +83,26 @@ int main()
 		
 		i.update(b, k);
 		i.touch(mouse_press, mouse_x, mouse_y);
+		
+		//begin chunk to be moved
+		//todo: move to somewhere else (likely Program)
+		//https://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c
+		//https://en.cppreference.com/w/cpp/chrono
+		auto time_t = std::time(0);
+		std::tm* tm = std::localtime(&time_t);
+		char date[10+1];//"yyyy/mm/dd\0";
+		char time[8+1]; //"hh:mm:ss\0";
+		//date[10]='\0';
+		//time[8]='\0';
+		strftime(date, 11, "%F", tm);
+		strftime(time, 9, "%T", tm);
+		date[4] = '/';
+		date[7] = '/';
+		
+		e.vars.write_sysvar("DATE$", std::string(date));
+		e.vars.write_sysvar("TIME$", std::string(time));
+		//end chunk to be moved
+		
 		
         //get updated textures for drawing to screen
         window.clear();
