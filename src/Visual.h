@@ -11,6 +11,7 @@
 //#include "Background.h"
 //#include "Sprites.h"
 #include "Graphics.h"
+#include "Panel.h"
 
 struct Visual {
 	const static int WIDTH = 256;
@@ -28,12 +29,14 @@ struct Visual {
 	//Background b;
 	//Sprites s;
 	Graphics g;
+	Panel p;
 
 	bool visible[6]; //CON, PNL, FG, BG, SP, GRP
 
 	sf::Shader bgsp_shader;
 	sf::Shader grp_shader;
-	sf::Texture col_tex;
+	sf::Texture col_tex; //all colors fit pretty easily into one texture
+	std::vector<sf::Texture> resource_tex;
 	
 	std::vector<std::vector<sf::Sprite>> display_sprites;
 	sf::Texture display_texture;

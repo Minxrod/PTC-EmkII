@@ -1,7 +1,8 @@
 #include "Console.h"
 #include <algorithm>
 
-Console::Console(Evaluator& eval, CHR& chr, Input& i) : in{i}, e{eval}, c{chr}{
+Console::Console(Evaluator& eval, CHR& chr, Input& i) : 
+in{i}, e{eval}, c{chr}, tm{WIDTH,HEIGHT}{
 	cur_fg_color = 0;
 	cur_bg_color = 0;
 	cur_x = std::get<Number*>(e.vars.get_var_ptr("CSRX"));
@@ -66,7 +67,7 @@ void Console::print_(const Args& a){
 	}
 }
 
-void Console::print_(const Var& v){
+std::string printable(const Var& v){
 	std::string str;
 	if (std::holds_alternative<Number>(v)){
 		str = std::to_string(std::get<Number>(v));
@@ -82,7 +83,10 @@ void Console::print_(const Var& v){
 	} else {
 		str = std::get<String>(v);
 	}
-	
+	return str;	
+}
+
+void Console::print_str(std::string str){
 	for (char c : str){
 		text[*cur_x+WIDTH * *cur_y] = c;
 		bg_color[*cur_x + WIDTH * *cur_y] = cur_bg_color;
@@ -90,7 +94,11 @@ void Console::print_(const Var& v){
 
 		advance();
 	}
+}
 
+void Console::print_(const Var& v){
+	std::string str = printable(v);
+	print_str(str);
 }
 
 std::pair<std::vector<Token>, std::string> Console::input_common(const Args& a){
@@ -215,18 +223,31 @@ Var Console::chkchr_(const Vals& v){
 	return Var(String(""+(char)text[x+WIDTH*y]));
 }
 
-std::array<unsigned char, Console::WIDTH*Console::HEIGHT*4*8*8>& Console::draw(){
-	std::fill(image.begin(), image.end(), 0);
-	for (int x = 0; x < 256; ++x){
-		for (int y = 0; y < 192; ++y){
-			int cx = x % 8;
-			int cy = y % 8;
-			int tx = x / 8;
-			int ty = y / 8;
-			auto col = c.get_pixel(text[tx+WIDTH*ty],cx,cy);
-			image[(x+256*y)*4] = (!col) ? bg_color[tx+WIDTH*ty] : col + 16*fg_color[tx+WIDTH*ty];
+void Console::print(int x, int y, Var& v, int c){
+	cur_fg_color = c;
+	*cur_x = x;
+	*cur_y = y;
+	
+	auto str = std::get<String>(v);
+	if (*cur_x >= WIDTH)
+		return;
+
+	for (char c : str){		
+		text[*cur_x+WIDTH * *cur_y] = c;
+		bg_color[*cur_x + WIDTH * *cur_y] = cur_bg_color;
+		fg_color[*cur_x + WIDTH * *cur_y] = cur_fg_color;
+
+		if (advance())
+			break;
+	}
+}
+
+TileMap& Console::draw(){
+	for (int x = 0; x < WIDTH; ++x){
+		for (int y = 0; y < HEIGHT; ++y){
+			tm.tile(x,y,text[x+WIDTH*y]);
+			tm.palette(x,y,16*fg_color[x+WIDTH*y],16*bg_color[x+WIDTH*y]);
 		}
 	}
-	
-	return image;
+	return tm;
 }

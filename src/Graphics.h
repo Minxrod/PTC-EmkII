@@ -23,7 +23,7 @@ class Graphics {
 	void gpage_(const Args&);
 	void gpset_(const Args&);
 	void gline_(const Args&);
-	void gcirc_(const Args&);
+	void gcircle_(const Args&);
 	void gpaint_(const Args&);
 	void gbox_(const Args&);
 	void gfill_(const Args&);

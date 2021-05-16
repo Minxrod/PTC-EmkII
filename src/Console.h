@@ -6,11 +6,13 @@
 #include "Evaluator.h"
 #include "Resources.h"
 #include "Input.h"
+#include "TileMap.h"
 
 class Console {
 	Input& in;
 	Evaluator& e;
 	CHR& c;
+	TileMap tm;
 	
 	static const int WIDTH = 32;
 	static const int HEIGHT = 24;
@@ -31,6 +33,7 @@ class Console {
 	void scroll();
 
 	void print_(const Var&);
+	void print_str(std::string);
 	std::pair<std::vector<Token>, std::string> input_common(const Args&);
 	
 	void cls_(const Args&);
@@ -41,13 +44,13 @@ class Console {
 	void linput_(const Args&);
 	Var chkchr_(const Vals&);
 	
-	std::array<unsigned char, WIDTH*HEIGHT*4*8*8> image;
-	
 public:
 	Console(Evaluator&, CHR&, Input&);
+	
+	void print(int, int, Var&, int);
 	
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	
-	std::array<unsigned char, WIDTH*HEIGHT*4*8*8>& draw();
+	TileMap& draw();
 };

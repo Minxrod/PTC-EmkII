@@ -1,5 +1,7 @@
 #include "Graphics.h"
 
+#include <cmath>
+
 Graphics::Graphics(Evaluator& ev, std::map<std::string, GRP>& grps) : 
 	e{ev},
 	grp{grps}
@@ -14,7 +16,7 @@ std::map<Token, cmd_type> Graphics::get_cmds(){
 		std::pair<Token, cmd_type>("GLINE"_TC, getfunc(this, &Graphics::gline_)),
 		std::pair<Token, cmd_type>("GBOX"_TC, getfunc(this, &Graphics::gbox_)),
 		std::pair<Token, cmd_type>("GFILL"_TC, getfunc(this, &Graphics::gfill_)),
-
+		std::pair<Token, cmd_type>("GCIRCLE"_TC, getfunc(this, &Graphics::gcircle_)),
 	};
 }
 
@@ -113,12 +115,28 @@ void Graphics::gline_(const Args& a){
 	draw_line(g,x1,y1,x2,y2,col);
 }
 
-void Graphics::gcirc_(const Args&){
-	//oh nooo I need to implement a circle alg??
+void Graphics::gcircle_(const Args& a){
+	//GCIRCLE x y r [c]
+	auto col = a.size() == 4 ? gcolor : static_cast<int>(std::get<Number>(e.evaluate(a[4])));
+	int x = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+	int y = static_cast<int>(std::get<Number>(e.evaluate(a[2])));
+	int r = static_cast<int>(std::get<Number>(e.evaluate(a[3])));
+	
+	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
+	
+	const int detail = 32;
+	for (int i = 0; i < detail; ++i){
+		int x1 = x + r * std::cos(i / detail * 6.283);
+		int y1 = y + r * std::sin(i / detail * 6.283);
+		int x2 = x + r * std::cos((i + 1) / detail * 6.283);
+		int y2 = y + r * std::sin((i + 1) / detail * 6.283);
+		
+		draw_line(g,x1,y1,x2,y2,col);
+	}
 }
 
 void Graphics::gpaint_(const Args&){
-
+	//GPAINT x y [c]
 }
 
 void Graphics::gbox_(const Args& a){

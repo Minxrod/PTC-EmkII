@@ -25,6 +25,22 @@ struct CHR{
 		auto ch = data[32*c+x/2+4*y];
 		return (x%2==0) ? (ch & 0x0f) : ((ch & 0xf0) >> 4);
 	};
+	
+	std::vector<unsigned char> get_array(){
+		std::vector<unsigned char> array(256*8*8*4, 0);
+		
+		for (int i = 0; i < 256; ++i){
+			int x = i % 32;
+			int y = i / 32;
+			for (int cx = 0; cx < 8; ++cx){
+				for (int cy = 0; cy < 8; ++cy){
+					array[4*(8*x+cx+256*(8*y+cy))] = get_pixel(i,cx,cy);
+				}
+			}
+		}
+		
+		return array;
+	};
 };
 
 struct MEM{
@@ -71,6 +87,28 @@ struct GRP{
 };
 
 struct Resources{
+	std::vector<std::string> chr_resources{
+		"BGU0L", "BGU1L", "BGU2L", "BGU3L",
+		"BGU0U", "BGU1U", "BGU2U", "BGU3U",
+		"BGF0U",
+		"BGF0L",
+		"BGD0U", "BGD1U",
+		"BGD0L", "BGD1L",
+		"SPS0L", "SPS1L",
+		"SPS0U", "SPS1U",
+		"SPU0", "SPU1", "SPU2", "SPU3", "SPU4", "SPU5", "SPU6", "SPU7",
+		"SPD0", "SPD1", "SPD2", "SPD3",
+	};
+	
+	std::vector<std::string> col_resources{
+		"COL0U", "COL1U", "COL2U",
+		"COL0L", "COL1L", "COL2L",
+	};
+	
+	std::vector<std::string> grp_resources{
+		"GRP0", "GRP1", "GRP2", "GRP3"
+	};
+	
 	//should contain all required resources
 	Header prg_info;
 	PRG prg;

@@ -466,7 +466,7 @@ std::vector<std::vector<Token>> split(const std::vector<Token>& expression){
 }
 
 const std::regex string{ R"("[^]*("|\r))" };
-const std::regex number{ R"(([0-9]*\.)?[0-9]+)" };
+const std::regex number{ R"([0-9]*\.?[0-9]*)" };
 const std::regex separator{ R"([:\r])" };
 const std::regex variable{ R"([A-Z_][A-Z0-9_]*\$?)" };
 const std::regex label{ R"(\@[A-Z0-9_]+)" };
