@@ -33,7 +33,7 @@ void TileMap::tile(int x, int y, int chr){
 }
 
 //sets the colors of a tile (background only applies when tex color is 0)
-void TileMap::palette(int x, int y, int pal, int bg = 15){
+void TileMap::palette(int x, int y, int pal, int bg = 0){
 	va[4*(x+width*y)].color = sf::Color(pal,bg,0);
 	va[4*(x+width*y)+1].color = sf::Color(pal,bg,0);
 	va[4*(x+width*y)+2].color = sf::Color(pal,bg,0);

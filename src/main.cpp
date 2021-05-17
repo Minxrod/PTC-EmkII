@@ -60,6 +60,7 @@ int main()
 		{
 			if (event.type == sf::Event::Closed){
 				window.close();
+				break;
 			}
 			if (event.type == sf::Event::KeyPressed){
 				k = event.key.code;
@@ -102,7 +103,6 @@ int main()
 		e.vars.write_sysvar("DATE$", std::string(date));
 		e.vars.write_sysvar("TIME$", std::string(time));
 		//end chunk to be moved
-		
 		
         //get updated textures for drawing to screen
         window.clear();

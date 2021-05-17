@@ -89,12 +89,14 @@ std::string printable(const Var& v){
 }
 
 void Console::print_str(std::string str){
-	for (char c : str){
+	for (int i = 0; i < (int)str.size(); ++i){
+		char c = str[i];
 		text[*cur_x+WIDTH * *cur_y] = c;
 		bg_color[*cur_x + WIDTH * *cur_y] = cur_bg_color;
 		fg_color[*cur_x + WIDTH * *cur_y] = cur_fg_color;
-
-		advance();
+		
+		if(i != (int)str.size()-1 || (*cur_x != 31 || *cur_y != 23))
+			advance();
 	}
 }
 

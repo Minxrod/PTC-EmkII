@@ -14,9 +14,9 @@ Visual::Visual(Evaluator& ev, Resources& r, Input& i) :
 		if (!bgsp_shader.loadFromFile("resources/shaders/bgsp.frag", sf::Shader::Fragment)){
 			std::cout << "Error: Shader could not be loaded";
 		}
-		if (!grp_shader.loadFromFile("resources/shaders/grp.frag", sf::Shader::Fragment)){
+		/*if (!grp_shader.loadFromFile("resources/shaders/grp.frag", sf::Shader::Fragment)){
 			std::cout << "Error: Shader could not be loaded";
-		}
+		}*/
 	}
 	//creates a color texture from all colors COL0U to COL2L
 	col_tex.create(256,6);
@@ -28,6 +28,11 @@ Visual::Visual(Evaluator& ev, Resources& r, Input& i) :
 	resource_tex = std::vector<sf::Texture>{12, sf::Texture{}};
 	resource_tex[0].create(256, 64);
 	resource_tex[0].update(r.chr.at("BGF0U").get_array().data());
+	resource_tex[1].create(256, 64*4);
+	for (int i = 0; i <= 3; ++i)
+		resource_tex[1].update(r.chr.at("BGU"+std::to_string(i)+"U").get_array().data(), 256, 64, 0, i*64);
+	
+	grp_tex.create(256,192);
 }
 
 std::map<Token, cmd_type> Visual::get_cmds(){
@@ -56,17 +61,23 @@ void Visual::visible_(const Args& a){
 //note: don't make this silly mistake
 //https://en.sfml-dev.org/forums/index.php?topic=13526.0
 void Visual::draw(sf::RenderWindow& w){
+	//common
 	bgsp_shader.setUniform("colors", col_tex);
 	bgsp_shader.setUniform("texture", sf::Shader::CurrentTexture);
-	bgsp_shader.setUniform("colbank", 0.0f);
-	
-	//display_texture.update(c.draw().data(), WIDTH, HEIGHT, 0*WIDTH, CON*HEIGHT);
-	//display_texture.update(g.draw().data(), WIDTH, HEIGHT, 0*WIDTH, GRP*HEIGHT);
 	sf::RenderStates s;
 	s.shader = &bgsp_shader;
+	//grp
+	sf::Sprite grp;
+	grp_tex.update(g.draw().data());
+	grp.setTexture(grp_tex);
+	grp.setColor(sf::Color(0));
+	bgsp_shader.setUniform("colbank", 2.0f);
+	w.draw(grp, s);
+	//console
 	s.texture = &resource_tex[0];
-	auto& t = c.draw();
-	w.draw(t, s);
+	auto& con = c.draw();
+	bgsp_shader.setUniform("colbank", 0.0f);
+	w.draw(con, s);
 	
 	/*for (int prio = 3; prio >= 0; --prio){
 		auto& prio_sprites = display_sprites[prio];

@@ -37,6 +37,7 @@ struct Visual {
 	sf::Shader grp_shader;
 	sf::Texture col_tex; //all colors fit pretty easily into one texture
 	std::vector<sf::Texture> resource_tex;
+	sf::Texture grp_tex;
 	
 	std::vector<std::vector<sf::Sprite>> display_sprites;
 	sf::Texture display_texture;
