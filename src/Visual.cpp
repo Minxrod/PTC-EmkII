@@ -4,6 +4,7 @@
 Visual::Visual(Evaluator& ev, Resources& r, Input& i) :
 	e{ev},
 	c{ev, r.chr.at("BGF0U"), i},
+	b{ev, r.scr},
 	g{ev, r.grp},
 	p{ev, r, i},
 	visible{true,true,true,true,true,true}
@@ -14,9 +15,6 @@ Visual::Visual(Evaluator& ev, Resources& r, Input& i) :
 		if (!bgsp_shader.loadFromFile("resources/shaders/bgsp.frag", sf::Shader::Fragment)){
 			std::cout << "Error: Shader could not be loaded";
 		}
-		/*if (!grp_shader.loadFromFile("resources/shaders/grp.frag", sf::Shader::Fragment)){
-			std::cout << "Error: Shader could not be loaded";
-		}*/
 	}
 	//creates a color texture from all colors COL0U to COL2L
 	col_tex.create(256,6);
@@ -41,6 +39,7 @@ std::map<Token, cmd_type> Visual::get_cmds(){
 	};
 	
 	cmds.merge(c.get_cmds());
+	cmds.merge(b.get_cmds());
 	cmds.merge(g.get_cmds());
 	cmds.merge(p.get_cmds());
 	return cmds;
@@ -48,6 +47,7 @@ std::map<Token, cmd_type> Visual::get_cmds(){
 
 std::map<Token, op_func> Visual::get_funcs(){
 	auto funcs = c.get_funcs();
+	funcs.merge(b.get_funcs());
 	funcs.merge(g.get_funcs());
 	funcs.merge(p.get_funcs());
 	return funcs;
@@ -73,17 +73,15 @@ void Visual::draw(sf::RenderWindow& w){
 	grp.setColor(sf::Color(0));
 	bgsp_shader.setUniform("colbank", 2.0f);
 	w.draw(grp, s);
+	//bg
+	s.texture = &resource_tex[1];
+	auto& bg = b.draw(0, 0);
+	bgsp_shader.setUniform("colbank", 0.0f);
+	w.draw(bg, s);
 	//console
 	s.texture = &resource_tex[0];
 	auto& con = c.draw();
 	bgsp_shader.setUniform("colbank", 0.0f);
 	w.draw(con, s);
 	
-	/*for (int prio = 3; prio >= 0; --prio){
-		auto& prio_sprites = display_sprites[prio];
-		for (int elem = 3; elem >= 0; --elem){
-			auto& ds = prio_sprites[elem];
-			w.draw(ds, &bgsp_shader);
-		}
-	}*/
 }

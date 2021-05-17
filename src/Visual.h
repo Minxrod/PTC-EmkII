@@ -8,7 +8,7 @@
 #include "Input.h"
 
 #include "Console.h"
-//#include "Background.h"
+#include "Background.h"
 //#include "Sprites.h"
 #include "Graphics.h"
 #include "Panel.h"
@@ -26,7 +26,7 @@ struct Visual {
 	
 	Evaluator& e;
 	Console c;
-	//Background b;
+	Background b;
 	//Sprites s;
 	Graphics g;
 	Panel p;

@@ -2,6 +2,7 @@
 
 TileMap::TileMap(int w, int h/*, sf::Texture t*/) : width{w}, height{h}/*, tex{t}*/{
 	va = sf::VertexArray(sf::Quads, w*h*4);
+	view = sf::View{sf::FloatRect(0.f, 0.f, 256.f, 192.f)};
 	
 	for (int y = 0; y < h; ++y){
 		for (int x = 0; x < w; ++x){
@@ -32,12 +33,23 @@ void TileMap::tile(int x, int y, int chr){
 	va[4*(x+width*y)+3].texCoords = chr_texCoords(chr, 0, 1);
 }
 
+void TileMap::tile(int x, int y, int chr, bool h, bool v){
+	va[4*(x+width*y)].texCoords = chr_texCoords(chr, h ? 1 : 0, v ? 1 : 0);
+	va[4*(x+width*y)+1].texCoords = chr_texCoords(chr, h ? 0 : 1, v ? 1 : 0);
+	va[4*(x+width*y)+2].texCoords = chr_texCoords(chr, h ? 0 : 1, v ? 0 : 1);
+	va[4*(x+width*y)+3].texCoords = chr_texCoords(chr, h ? 1 : 0, v ? 0 : 1);
+}
+
 //sets the colors of a tile (background only applies when tex color is 0)
-void TileMap::palette(int x, int y, int pal, int bg = 0){
+void TileMap::palette(int x, int y, int pal, int bg){
 	va[4*(x+width*y)].color = sf::Color(pal,bg,0);
 	va[4*(x+width*y)+1].color = sf::Color(pal,bg,0);
 	va[4*(x+width*y)+2].color = sf::Color(pal,bg,0);
 	va[4*(x+width*y)+3].color = sf::Color(pal,bg,0);
+}
+
+void TileMap::clip(int x1, int y1, int x2, int y2){
+	view.setViewport(sf::FloatRect(x1/32.0,y1/24.0,(x2-x1+1)/32.0,(y2-y1+1)/24.0));
 }
 
 void TileMap::draw(sf::RenderTarget& t, sf::RenderStates s) const {

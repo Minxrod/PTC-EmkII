@@ -38,5 +38,10 @@ void Resources::load_default(){
 		grp.insert(std::pair(g, GRP()));
 		grp.at(g).data = std::vector<unsigned char>(GRP::SIZE, 0);
 	}
+	
+	for (auto s : scr_resources){
+		scr.insert(std::pair(s, SCR()));
+		scr.at(s).data = std::vector<unsigned char>(SCR::SIZE, 0);
+	}
 }
 
