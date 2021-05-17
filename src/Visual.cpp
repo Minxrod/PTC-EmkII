@@ -16,6 +16,8 @@ Visual::Visual(Evaluator& ev, Resources& r, Input& i) :
 			std::cout << "Error: Shader could not be loaded";
 		}
 	}
+	maincntl = std::get<Number*>(e.vars.get_var_ptr("MAINCNTL"));
+	maincnth = std::get<Number*>(e.vars.get_var_ptr("MAINCNTH"));
 	//creates a color texture from all colors COL0U to COL2L
 	col_tex.create(256,6);
 	for (int i = 0; i < 6; ++i){
@@ -36,6 +38,7 @@ Visual::Visual(Evaluator& ev, Resources& r, Input& i) :
 std::map<Token, cmd_type> Visual::get_cmds(){
 	auto cmds = std::map<Token, cmd_type>{
 		cmd_map{"VISIBLE"_TC, getfunc(this, &Visual::visible_)},
+		cmd_map{"VSYNC"_TC, getfunc(this, &Visual::vsync_)},
 	};
 	
 	cmds.merge(c.get_cmds());
@@ -56,6 +59,20 @@ std::map<Token, op_func> Visual::get_funcs(){
 void Visual::visible_(const Args& a){
 	for (int i = 0; i < 6; i++)
 		visible[i] = (bool)(int)std::get<Number>(e.evaluate(a[i+1]));
+}
+
+void Visual::vsync_(const Args& a){
+	int frames = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+	int wait_until = (int)*maincntl + frames;
+	
+	while (*maincntl < wait_until){
+		//?? idk;
+	}
+}
+
+void Visual::update(){
+	e.vars.write_sysvar("MAINCNTL", *maincntl+1);
+	//do interpolation here as well (bg, sp)
 }
 
 //note: don't make this silly mistake

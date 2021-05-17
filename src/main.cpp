@@ -25,6 +25,7 @@ int main()
 	std::cin >> prgname;
 
     sf::RenderWindow window(sf::VideoMode(256, 384), "PTCEmukII");
+	window.setVerticalSyncEnabled(true);
 	
 	Resources r{};
 	r.load_program("programs/" + prgname);
@@ -74,6 +75,8 @@ int main()
 				mouse_press = false;
 			}
 		}
+		if (!window.isOpen())
+			break;
 		//update buttons
 		int b = 0;
 		for (const auto kp : i.code_to_button){
@@ -108,6 +111,7 @@ int main()
         window.clear();
 	
 		v.draw(window);
+		v.update();
 	
 		window.display();
 	}

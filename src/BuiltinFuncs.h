@@ -44,7 +44,11 @@ namespace ptc {
 			
 		return Var(Number{n1 - n2});
 	}
-
+	
+	Var neg(const Vals& vals){
+		return Var(-std::get<Number>(vals.at(0)));
+	}
+	
 	Var mul(const std::vector<Var>& vals){
 		if (is_type<Number>(vals.at(0))){
 			auto [n1, n2] = get_nums(vals);;
@@ -208,5 +212,24 @@ namespace ptc {
 	Var val(const Vals& vals){
 		return Var(std::stoi(std::get<String>(vals.at(0))));
 	}
-
+	
+	Var chr(const Vals& vals){
+		return Var(String(""+(char)std::get<Number>(vals.at(0))));
+	}
+	
+	Var floor(const Vals& vals){
+		return Var(std::floor(std::get<Number>(vals.at(0))));
+	}
+	
+	Var str(const Vals& vals){
+		std::string str = std::to_string(std::get<Number>(vals.at(0)));
+		str = str.substr(0, str.find(".")+3);
+		while (str.back() == '0'){
+			str = str.substr(0, str.size()-1);
+		}
+		if (str.back() == '.')
+			str = str.substr(0, str.size()-1);	
+		return Var(str);
+	}
+	
 }

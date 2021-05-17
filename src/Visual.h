@@ -32,7 +32,9 @@ struct Visual {
 	Panel p;
 
 	bool visible[6]; //CON, PNL, FG, BG, SP, GRP
-
+	Number* maincntl;
+	Number* maincnth;
+	
 	sf::Shader bgsp_shader;
 	sf::Shader grp_shader;
 	sf::Texture col_tex; //all colors fit pretty easily into one texture
@@ -43,6 +45,7 @@ struct Visual {
 	sf::Texture display_texture;
 	
 	void visible_(const Args&);
+	void vsync_(const Args&);
 	
 public:
 	Visual(Evaluator&, Resources&, Input&);
@@ -50,5 +53,6 @@ public:
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	
+	void update();
 	void draw(sf::RenderWindow&);
 };

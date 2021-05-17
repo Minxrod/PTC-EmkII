@@ -19,6 +19,7 @@ Evaluator::Evaluator(){
 	operators = std::map{
 		op_map{"+"_TO, ptc::add},
 		op_map{"-"_TO, ptc::sub},
+		op_map{"0-"_TO, ptc::neg},
 		op_map{"*"_TO, ptc::mul},
 		op_map{"/"_TO, ptc::div},
 		op_map{"%"_TO, ptc::mod},
@@ -42,11 +43,11 @@ Evaluator::Evaluator(){
 		func_map{"ABS"_TF, ptc::abs},
 		func_map{"ASC"_TF, ptc::asc},
 		func_map{"ATAN"_TF, ptc::atan},
-		//func_map{"CHR$"_TF, ptc::chr},
+		func_map{"CHR$"_TF, ptc::chr},
 		func_map{"DEG"_TF, ptc::deg},
 		func_map{"RAD"_TF, ptc::rad},
 		//func_map{"EXP"_TF, ptc::exp},
-		//func_map{"FLOOR"_TF, ptc::floor},
+		func_map{"FLOOR"_TF, ptc::floor},
 		//func_map{"HEX$"_TF, ptc::hex},
 		func_map{"LEN"_TF, ptc::len},	
 		func_map{"LEFT$"_TF, ptc::left},
@@ -56,7 +57,7 @@ Evaluator::Evaluator(){
 		func_map{"RND"_TF, ptc::rnd},
 		//func_map{"SGN"_TF, ptc::sgn},
 		//func_map{"SQR"_TF, ptc::sqr},
-		//func_map{"STR$"_TF, ptc::str},
+		func_map{"STR$"_TF, ptc::str},
 		//func_map{"SUBST$"_TF, ptc::subst},
 		func_map{"VAL"_TF, ptc::val},
 	};
@@ -225,7 +226,7 @@ std::vector<PrioToken> conv_tokens(const std::vector<Token>& expression){
 		is_func_paren = t.type == Type::Func || t.type == Type::Arr;		
 	
 		if (t == "-"_TO){
-			if (i == 0 || expression.at(i-1).type == Type::Op){
+			if (i == 0 || (expression.at(i-1).type == Type::Op && expression.at(i-1).text != ")")){
 				t.text = "0-";
 			}
 		} 
