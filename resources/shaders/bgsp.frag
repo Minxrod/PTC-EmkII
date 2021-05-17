@@ -8,10 +8,9 @@ void main()
 	
 	float col = colbank / 6.0;
 	
-	float col2 = gl_Color.y * float(t.x == 0.0) + t.x;
+	float col2 = gl_Color.y * float(t.x == 0.0) + float(t.x != 0.0) * gl_Color.x;
 	
-	vec4 c = texture2D(colors, vec2(col2 + gl_Color.x, col));
-	
+	vec4 c = texture2D(colors, vec2(col2 + t.x, col));
 	
 	gl_FragColor = c;
 }

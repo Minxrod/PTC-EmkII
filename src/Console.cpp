@@ -30,9 +30,11 @@ std::map<Token, op_func> Console::get_funcs(){
 
 
 void Console::cls_([[maybe_unused]]const Args& a){
+	*cur_x = 0;
+	*cur_y = 0;
 	std::fill(text.begin(), text.end(), 0);
-	std::fill(fg_color.begin(), fg_color.end(), 0);
-	std::fill(bg_color.begin(), bg_color.end(), 0);
+	std::fill(fg_color.begin(), fg_color.end(), cur_fg_color);
+	std::fill(bg_color.begin(), bg_color.end(), cur_bg_color);
 }
 
 void Console::print_(const Args& a){
@@ -246,7 +248,7 @@ TileMap& Console::draw(){
 	for (int x = 0; x < WIDTH; ++x){
 		for (int y = 0; y < HEIGHT; ++y){
 			tm.tile(x,y,text[x+WIDTH*y]);
-			tm.palette(x,y,16*fg_color[x+WIDTH*y],16*bg_color[x+WIDTH*y]);
+			tm.palette(x,y,16*fg_color[x+WIDTH*y],bg_color[x+WIDTH*y]>0 ? 15+16*bg_color[x+WIDTH*y] : 0);
 		}
 	}
 	return tm;
