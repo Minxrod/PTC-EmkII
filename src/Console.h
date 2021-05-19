@@ -43,6 +43,7 @@ class Console {
 	void input_(const Args&);
 	void linput_(const Args&);
 	Var chkchr_(const Vals&);
+	void ok(const Args&);
 	
 public:
 	Console(Evaluator&, CHR&, Input&);

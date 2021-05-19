@@ -28,7 +28,7 @@ struct Input {
 		kc(Key::Q, 256),
 		kc(Key::Numpad1, 512),
 		kc(Key::Enter, 1024),
-		kc(Key::Escape, 2048),
+		kc(Key::RShift, 2048),
 	};
 	
 	const std::map<Key, int> code_to_ptc{
@@ -45,6 +45,9 @@ struct Input {
 		kc(Key::Num9, 10),
 		kc(Key::Num0, 11),
 		kc(Key::Hyphen, 12),
+		kc(Key::Subtract, 12),
+		kc(Key::Add, 13),
+		kc(Key::Equal, 14),
 		kc(Key::Backspace, 15),
 		kc(Key::Q, 18),
 		kc(Key::W, 19),
@@ -56,6 +59,8 @@ struct Input {
 		kc(Key::I, 25),
 		kc(Key::O, 26),
 		kc(Key::P, 27),
+		kc(Key::Multiply, 29),
+		kc(Key::Tab, 32),
 		kc(Key::A, 34),
 		kc(Key::S, 35),
 		kc(Key::D, 36),
@@ -65,6 +70,9 @@ struct Input {
 		kc(Key::J, 40),
 		kc(Key::K, 41),
 		kc(Key::L, 42),
+		kc(Key::Semicolon, 43),
+		kc(Key::LShift, 47),		
+		kc(Key::Quote, 48),		
 		kc(Key::Z, 49),
 		kc(Key::X, 50),
 		kc(Key::C, 51),
@@ -74,8 +82,12 @@ struct Input {
 		kc(Key::M, 55),
 		kc(Key::Comma, 56),
 		kc(Key::Period, 57),
+		kc(Key::Slash, 58),
+		kc(Key::Divide, 58),
 		kc(Key::Enter, 60),
 		kc(Key::Space, 65),
+		kc(Key::Insert, 66),
+		kc(Key::Delete, 66),
 	};
 	
 	const std::string       kya{"??1234567890-+=\b$\"QWERTYUIOP@*()\t!ASDFGHJKL;:<>?'ZXCVBNM,./%\r???? ???"};

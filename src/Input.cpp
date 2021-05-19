@@ -8,11 +8,14 @@ Input::Input(Evaluator& ev) : e{ev}, button_info{12, std::vector<int>{0,0,0}}{
 
 void Input::update(int b, Key k){
 	buttons = b;
-	keycode = code_to_ptc.at(k);
 	e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
 	//if keycode != (enter) and is in (valid ranges) add to inkey queue
 	std::lock_guard loc(inkeybuf_mutex);
-	auto c = kya.at(code_to_ptc.at(k));
+	auto c = '?';
+	if (code_to_ptc.count(k) != 0){
+		keycode = code_to_ptc.at(k);
+		c = kya.at(keycode);
+	}
 	if (c != kya.at(0))
 		inkeybuffer.push(kya.at(code_to_ptc.at(k)));
 }

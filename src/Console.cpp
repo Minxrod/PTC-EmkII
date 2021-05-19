@@ -19,6 +19,7 @@ std::map<Token, cmd_type> Console::get_cmds(){
 		cmd_map("LOCATE"_TC, getfunc<Console>(this, &Console::locate_)),
 		cmd_map("INPUT"_TC, getfunc<Console>(this, &Console::input_)),
 		cmd_map("LINPUT"_TC, getfunc<Console>(this, &Console::linput_)),
+		cmd_map("OK"_TC, getfunc<Console>(this, &Console::ok)),
 	};
 }
 
@@ -127,13 +128,15 @@ std::pair<std::vector<Token>, std::string> Console::input_common(const Args& a){
 		
 		if (lastpress == '\b'){
 			res = res.substr(0, res.size()-1);
+			--*cur_x;
+			print_str(" ");
 		} else if (lastpress != '\0' && lastpress != '\r' && lastpress != '\b' && res.size() < WIDTH) {
 			res += lastpress;
 		}
 		
 		*cur_x = old_x;
 		*cur_y = old_y;
-		print_(Var(res));
+		print_str(res);
 	}
 	newline();
 	
@@ -244,6 +247,12 @@ void Console::print(int x, int y, Var& v, int c){
 		if (advance())
 			break;
 	}
+}
+
+void Console::ok(const Args&){
+	//maybe use args to pass error messages later on
+	print_str("OK");
+	newline();
 }
 
 TileMap& Console::draw(){

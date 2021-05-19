@@ -95,7 +95,8 @@ void Program::run_(){
 		} else { //something has gone horrifically wrong
 		}
 	}
-
+	
+	commands.at("OK"_TC)({});
 	std::cout << "Program end" << std::endl;
 }
 

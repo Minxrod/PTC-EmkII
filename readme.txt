@@ -9,12 +9,12 @@ Please note that this is heavily a WIP and nowhere near finished, so don't expec
 = Support =
 The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Sample 1: Works.
-- Sample 2: Partially working, some keys are not mapped and instead will crash. Backspace does not visually erase characters (they are removed from the string)
-- Sample 3: Partially working, some keys are not mapped and instead will crash
+- Sample 2: Partially working, some keys are not mapped.
+- Sample 3: Partially working, same as Sample 2.
 - Sample 4: Partially working, RND is currently unseeded and always returns the same values.
-- Sample 5: Partially working, same issues as Sample 2.
+- Sample 5: Works, same issues as Sample 2. No unmapped inputs are required, though.
 - Sample 6: Partially working, holding down the mouse does not seem to work and only the top screen is currently rendered.
-- Sample 7: Works, same issues as Sample 2. No crashing inputs are required to play this game, however.
+- Sample 7: Works, same issues as Sample 5.
 - Sample 8-12: Not working, require various unimplemented features.
 
 = Features =
@@ -69,9 +69,9 @@ You will be prompted to enter a filename when launching PTC-EmkII.
 - Q = L
 - Numpad1 = R
 - Enter = Start
-- Escape = Select
+- RShift = Select
 
-KEYBOARD and INKEY$() are approximated by typing on the keyboard. Note that currently, not all keys are mapped, and some keys will cause the program to break if pressed, *including Numpad1, Enter, and Escape*.
+KEYBOARD and INKEY$() are approximated by typing on the keyboard. Note that currently, not all keys are mapped, so some symbols are currently unable to be typed (ex. $ or %)
 
 == Resources/Links ==
 
