@@ -25,6 +25,8 @@ struct Visual {
 	const static int ELEM_COUNT = 4;	
 	
 	Evaluator& e;
+	Resources& r;
+	
 	Console c;
 	Background b;
 	//Sprites s;
@@ -46,6 +48,17 @@ struct Visual {
 	
 	void visible_(const Args&);
 	void vsync_(const Args&);
+	
+	void chrinit_(const Args&);
+	void chrset_(const Args&);
+	void chrread_(const Args&);
+	void colinit_(const Args&);
+	void colset_(const Args&);
+	void colread_(const Args&);
+	void acls_(const Args&);
+	
+	void regen_col();
+	void regen_chr();
 	
 public:
 	Visual(Evaluator&, Resources&, Input&);

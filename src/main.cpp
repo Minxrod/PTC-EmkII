@@ -16,7 +16,6 @@
 
 int main()
 {
-    
 	Evaluator e{};
 	
 	std::string prgname;
@@ -68,7 +67,7 @@ int main()
 			}
 			if (event.type == sf::Event::MouseButtonPressed){
 				mouse_x = event.mouseButton.x;
-				mouse_y = event.mouseButton.y;
+				mouse_y = event.mouseButton.y - 192;
 				mouse_press = true;
 			}
 			if (event.type == sf::Event::MouseButtonReleased){

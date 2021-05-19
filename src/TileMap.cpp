@@ -53,6 +53,6 @@ void TileMap::clip(int x1, int y1, int x2, int y2){
 }
 
 void TileMap::draw(sf::RenderTarget& t, sf::RenderStates s) const {
-	s.transform = getTransform();
+	s.transform *= getTransform();
 	t.draw(va, s);
 }

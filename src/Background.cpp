@@ -12,6 +12,7 @@ int to_scr_coords(int x, int y){
 Background::Background(Evaluator& ev, std::map<std::string, SCR>& s) : e{ev}, scr{s}{
 	bg_info = std::vector<BGInfo>{4, BGInfo{0,0,0,0,0}};
 	bg_layers = std::vector<TileMap>{4, TileMap(64,64)};
+	page = 0;
 }
 
 std::map<Token, cmd_type> Background::get_cmds(){
@@ -198,6 +199,8 @@ Var Background::bgchk_(const Vals& v){
 
 TileMap& Background::draw(int screen, int layer){
 	auto& bgl = bg_layers[2*screen+layer];
-	bgl.setPosition(bg_info[2*screen+layer].x, bg_info[2*screen+layer].y);
+	bgl.setPosition(-(int)bg_info[2*screen+layer].x % (64*8), -(int)bg_info[2*screen+layer].y % (64*8));
 	return bgl;
 }
+
+

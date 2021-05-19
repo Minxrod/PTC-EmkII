@@ -26,17 +26,26 @@ sf::Sound& Sound::get_available_sound(){
 
 void Sound::beep_(const Args& a){
 	auto& s = get_available_sound();
-	if (a.size() == 1){ //BEEP
-		s.setBuffer(wav.at(0));
-	} else if (a.size() == 2){ //BEEP <waveform number>
-		auto wf = (int)std::get<Number>(e.evaluate(a[1]));
-		s.setBuffer(wav.at(wf));
-	} else if (a.size() == 3){ //BEEP <waveform number>,<pitch>
-		auto wf = (int)std::get<Number>(e.evaluate(a[1]));
-		s.setBuffer(wav.at(wf));
-		auto p = std::get<Number>(e.evaluate(a[2]));
-		s.setPitch(std::pow(2, p/4096.0));
+	int wf = 0;
+	if (a.size() >= 2){ //BEEP <waveform number>
+		wf = (int)std::get<Number>(e.evaluate(a[1]));
 	}
+	double p = 0;
+	if (a.size() >= 3){ //BEEP <waveform number>,<pitch>
+		p = std::get<Number>(e.evaluate(a[2]));
+	}
+	double v = 100;
+	if (a.size() >= 4){ //BEEP <waveform> <pitch> <volume>
+		v = std::get<Number>(e.evaluate(a[3]));
+		v = v / 127.0 * 100.0;
+	}
+	auto pan = 0;
+	if (a.size() >= 5){ //BEEP <waveform> <pitch> <volume> <panpot>
+		pan = pan + 1; //don't quite know how to handle this one yet
+	}
+	s.setBuffer(wav.at(wf));
+	s.setPitch(std::pow(2, p/4096.0));
+	s.setVolume(v);
 	s.play();
 }
 

@@ -127,3 +127,10 @@ struct Resources{
 	void load_default();
 };
 
+template <typename T>
+void load_default(T& resource, std::string path){
+	auto fs = get_filestream(path);
+	read_n(fs, resource.data, 48); //dummy read to skip header
+	read_n(fs, resource.data, CHR::SIZE);
+}
+
