@@ -97,8 +97,8 @@ int main()
 		char time[8+1]; //"hh:mm:ss\0";
 		//date[10]='\0';
 		//time[8]='\0';
-		strftime(date, 11, "%F", tm);
-		strftime(time, 9, "%T", tm);
+		strftime(date, 11, "%Y/%m/%d", tm);
+		strftime(time, 9, "%H:%M:%S", tm);
 		date[4] = '/';
 		date[7] = '/';
 		
