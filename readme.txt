@@ -47,7 +47,7 @@ To be finished later, currently trying to resolve issues with compatibility (lik
 WIP instructions:
 - Install MSYS, instructions at www.msys2.org.
 - Download/clone this repo, then create a build folder named "build/" in the root of the repo.
-- Install SFML 2.5.1, the location does not matter. (You do need to know where it is, however.)
+- Download SFML 2.5.1 here: https://www.sfml-dev.org/download/sfml/2.5.1/
 - Add the following option to the end of OFLAGS: -I<your SFML include path> Example: -IC:\SFML-2.5.1\include
 - Run make, you will get several errors. (currently being worked on)
 
@@ -75,10 +75,10 @@ KEYBOARD and INKEY$() are approximated by typing on the keyboard. Note that curr
 
 == Resources/Links ==
 
-- en.cppreference.com
+- https://en.cppreference.com
 - www.sfml-dev.org
-- stackoverflow.com
-- petitcomputer.fandom.com/wiki/Petit_Computer_Wiki
+- https://stackoverflow.com
+- https://petitcomputer.fandom.com/wiki/Petit_Computer_Wiki
 - https://micutil.com/ptcutilities/top_e.html
 - Whatever is linked in the source
 - And probably more that has been forgotten.
