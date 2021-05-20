@@ -11,20 +11,42 @@
 #include "Variables.h"
 
 #include <iostream>
+#include <fstream>
 #include <chrono>
 #include <ctime>
 
 int main()
 {
 	Evaluator e{};
+
+	Input i{e};
+	{
+		std::ifstream controls{"config/controls.txt"};
+		int code;
+		for (int b = 0; b < 12; ++b){
+			controls >> code;
+			i.code_to_button.insert(std::pair((sf::Keyboard::Key)code, 1 << b));
+		}
+		controls >> code;
+		i.sensitivity = code;
+		for (int s = 0; s < 2; s++){
+			controls >> code;
+			i.stick_to_button.insert(std::pair(code, 1 << (s*2)));
+		}
+		for (int b = 4; b < 12; ++b){
+			controls >> code;
+			i.joy_to_button.insert(std::pair(code, 1 << b));
+		}
+	}
 	
 	std::string prgname;
 	std::cout << "Enter a program name, file must be in 'programs/':" << std::endl;
-	std::cout << "Example: SAMPLE1.PTC" << std::endl;
+	std::cout << "Example: ENG1.PTC" << std::endl;
 	std::cin >> prgname;
 
     sf::RenderWindow window(sf::VideoMode(256, 384), "PTCEmukII");
 	window.setVerticalSyncEnabled(true);
+	//window.setJoystickThreshold(25.f);
 	
 	Resources r{};
 	r.load_program("programs/" + prgname);
@@ -33,7 +55,6 @@ int main()
 	auto tk = tokenize(r.prg);
 	
 	Program program(e, tk);
-	Input i{e};
 	Visual v{e, r, i};
 	Sound s{e};
 	//Console console(e, r.chr.at("BGF0U"));
@@ -56,22 +77,25 @@ int main()
 		sf::Event event;
 
     	sf::Keyboard::Key k = sf::Keyboard::Key::Unknown;
-		while (window.pollEvent(event))
+		while (window.isOpen() && window.pollEvent(event))
 		{
 			if (event.type == sf::Event::Closed){
-				window.close();
+				window.close();	
 				break;
 			}
 			if (event.type == sf::Event::KeyPressed){
 				k = event.key.code;
 			}
 			if (event.type == sf::Event::MouseButtonPressed){
-				mouse_x = event.mouseButton.x;
-				mouse_y = event.mouseButton.y - 192;
 				mouse_press = true;
 			}
 			if (event.type == sf::Event::MouseButtonReleased){
 				mouse_press = false;
+			}
+			if (mouse_press){
+				auto [x, y] = sf::Mouse::getPosition(window);
+				mouse_x = x;
+				mouse_y = y - 192;
 			}
 		}
 		if (!window.isOpen())
@@ -80,8 +104,20 @@ int main()
 		int b = 0;
 		for (const auto kp : i.code_to_button){
 			if (sf::Keyboard::isKeyPressed(kp.first)){
-				b+=kp.second;
+				b|=kp.second;
 			}
+		}
+		for (const auto jkp : i.joy_to_button){
+			if (sf::Joystick::isButtonPressed(0, jkp.first)){
+				b|=jkp.second;
+			}
+		}
+		for (auto jxp : i.stick_to_button){
+			auto pos = sf::Joystick::getAxisPosition(0, (sf::Joystick::Axis)jxp.first);
+			if (pos > i.sensitivity)
+				b|=2*jxp.second;
+			if (pos < -i.sensitivity)
+				b|=jxp.second;
 		}
 		
 		i.update(b, k);
@@ -114,6 +150,8 @@ int main()
 	
 		window.display();
 	}
+	
+
 
 	return 0;
 }

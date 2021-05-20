@@ -16,20 +16,10 @@ typedef std::pair<Key, int> kc;
 struct Input {
 	Evaluator& e;
 	
-	std::map<Key, int> code_to_button{
-		kc(Key::W, 1),
-		kc(Key::S, 2),
-		kc(Key::A, 4),
-		kc(Key::D, 8),
-		kc(Key::Right, 16),
-		kc(Key::Down, 32),
-		kc(Key::Up, 64),
-		kc(Key::Left, 128),
-		kc(Key::Q, 256),
-		kc(Key::Numpad1, 512),
-		kc(Key::Enter, 1024),
-		kc(Key::RShift, 2048),
-	};
+	std::map<Key, int> code_to_button;
+	std::map<int, int> joy_to_button;
+	std::map<int, int> stick_to_button;
+	float sensitivity = 50; 
 	
 	const std::map<Key, int> code_to_ptc{
 		kc(Key::Unknown, 0),
