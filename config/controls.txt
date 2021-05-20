@@ -1,12 +1,16 @@
-22 18 0 3 72 74 73 71 16 27 58 42 
+61 62 63 64
+22 18 0 3 72 74 73 71 16 76 58 42 
 50 1 0 1 0 2 3 5 6 11 10
 
 First line:
+sf::Key special values for (zoom1, zoom2, keybuton, keyboard)
+
+Second line:
 sf::Key values for default controls. 
 
-Second line: Controller button and stick values
+Third line: Controller button and stick values
 S X X Y Y Y Y Y Y Y Y
 S = Sensitivity of joystick, range (0,100)
-X = Joysick axis values; order is horizontal, vertical
+X = Joysick axis values; order is vertical, horizontal
 Y = Controller button values
 This default mapping is based on a Switch Pro controller, and is currently untested with other controllers and other machines.

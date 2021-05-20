@@ -71,6 +71,12 @@ You will be prompted to enter a filename when launching PTC-EmkII.
 - Enter = Start
 - RShift = Select
 
+Special keys:
+- Home: Disable/Enable keyboard
+- PageUp: Zoom x1
+- PageDown: Zoom x2
+- End: Disable/Enable keyboard buttons
+
 KEYBOARD and INKEY$() are approximated by typing on the keyboard. Note that currently, not all keys are mapped, so some symbols are currently unable to be typed (ex. $ or %)
 
 == Resources/Links ==

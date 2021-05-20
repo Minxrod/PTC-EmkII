@@ -14,15 +14,26 @@
 #include <fstream>
 #include <chrono>
 #include <ctime>
+#include <map>
+
+void zoom(sf::Window& w, int scale){
+	w.setSize(sf::Vector2u(256*scale, 384*scale));
+}
 
 int main()
 {
 	Evaluator e{};
-
+	
+	std::vector<sf::Keyboard::Key> special{};
+	
 	Input i{e};
 	{
 		std::ifstream controls{"config/controls.txt"};
 		int code;
+		for (int b = 0; b < 4; ++b){
+			controls >> code;
+			special.push_back((sf::Keyboard::Key)code);
+		}
 		for (int b = 0; b < 12; ++b){
 			controls >> code;
 			i.code_to_button.insert(std::pair((sf::Keyboard::Key)code, 1 << b));
@@ -69,6 +80,8 @@ int main()
 	//print("TOKENIZED:", tk);	
 	program.run();
 	
+	bool keybutton_enable = true;
+	bool keyboard_enable = true;
 	bool mouse_press = false;
 	int mouse_x = 0;
 	int mouse_y = 0;
@@ -84,7 +97,8 @@ int main()
 				break;
 			}
 			if (event.type == sf::Event::KeyPressed){
-				k = event.key.code;
+				if (keyboard_enable)
+					k = event.key.code;
 			}
 			if (event.type == sf::Event::MouseButtonPressed){
 				mouse_press = true;
@@ -100,24 +114,43 @@ int main()
 		}
 		if (!window.isOpen())
 			break;
+		//special buttons
+		if (sf::Keyboard::isKeyPressed(special[0])){
+			zoom(window, 1);
+		}
+		if (sf::Keyboard::isKeyPressed(special[1])){
+			zoom(window, 2);
+		}
+		if (sf::Keyboard::isKeyPressed(special[2])){
+			keybutton_enable = !keybutton_enable;
+		}
+		if (sf::Keyboard::isKeyPressed(special[3])){
+			keyboard_enable = !keyboard_enable;
+		}
+			
 		//update buttons
 		int b = 0;
-		for (const auto kp : i.code_to_button){
-			if (sf::Keyboard::isKeyPressed(kp.first)){
-				b|=kp.second;
-			}
-		}
+		//controller buttons are always enabled
 		for (const auto jkp : i.joy_to_button){
 			if (sf::Joystick::isButtonPressed(0, jkp.first)){
 				b|=jkp.second;
 			}
 		}
+		//controller sticks
 		for (auto jxp : i.stick_to_button){
 			auto pos = sf::Joystick::getAxisPosition(0, (sf::Joystick::Axis)jxp.first);
 			if (pos > i.sensitivity)
 				b|=2*jxp.second;
 			if (pos < -i.sensitivity)
 				b|=jxp.second;
+		}
+		//only use if turned on
+		if (keybutton_enable){
+			for (const auto kp : i.code_to_button){
+				if (sf::Keyboard::isKeyPressed(kp.first)){
+					b|=kp.second;
+				}
+			}
 		}
 		
 		i.update(b, k);
