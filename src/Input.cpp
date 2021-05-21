@@ -7,17 +7,30 @@ Input::Input(Evaluator& ev) : e{ev}, button_info{12, std::vector<int>{0,0,0}}{
 }
 
 void Input::update(int b, Key k){
+	old_buttons = (int)buttons;
 	buttons = b;
-	e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
-	//if keycode != (enter) and is in (valid ranges) add to inkey queue
-	std::lock_guard loc(inkeybuf_mutex);
-	auto c = '?';
-	if (code_to_ptc.count(k) != 0){
-		keycode = code_to_ptc.at(k);
-		c = kya.at(keycode);
+	{
+		std::lock_guard bloc(button_mutex);
+		for (int i = 0; i < 12; ++i){
+			if (buttons & (1 << i)){
+				++button_info[i][0];
+			} else {
+				button_info[i][0] = 0;	
+			}
+		}
 	}
-	if (c != kya.at(0))
-		inkeybuffer.push(kya.at(code_to_ptc.at(k)));
+	//if keycode != (enter) and is in (valid ranges) add to inkey queue
+	{
+		std::lock_guard loc(inkeybuf_mutex);
+		auto c = '?';
+		if (code_to_ptc.count(k) != 0){
+			keycode = code_to_ptc.at(k);
+			c = kya.at(keycode);
+		}
+		e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
+		if (c != kya.at(0))
+			inkeybuffer.push(kya.at(code_to_ptc.at(k)));
+	}
 }
 
 void Input::touch(bool t, int x, int y){
@@ -45,7 +58,8 @@ void Input::brepeat_(const Args& a){
 		repeat = std::get<Number>(e.evaluate(a[3]));
 	}
 	
-	std::lock_guard loc(button_mutex);
+	//locks should not be necessary here
+	//std::lock_guard loc(button_mutex);
 	button_info[id][1] = start;
 	button_info[id][2] = repeat;
 }
@@ -72,21 +86,38 @@ Var Input::button_(const Vals& v){
 			case 0:
 				return Var(buttons);
 			case 1:
-				//moment pressed
+				//moment pressed, repeat enabled
+				return btrig_(v);
 			case 2:
-				//moment pressed no repeat?
+				//moment pressed no repeat
+				return Var(buttons & ~old_buttons);
 			case 3:
-				//moment released?
-				return Var(buttons);
+				//moment released
+				return Var((buttons ^ old_buttons) & old_buttons);
 		}
 		return Var(Number(buttons));
 	} else {
-		return Var(Number(buttons));	
+		return Var(buttons);	
 	}
 }
 
 Var Input::btrig_(const Vals&){
-	return Var(Number(buttons));	
+	int b = 0;
+	//lock <maybe> not necessary? (only reads here, but button_info[x][0] may be modified elsewhere)
+	std::lock_guard loc{button_mutex};
+	for (int i = 0; i < 12; ++i){
+		int time = button_info[i][0];
+		int start = button_info[i][1];
+		int repeat = button_info[i][2];
+
+		b |= (time == 1)<<i;
+		if (repeat > 0){ //repeat=0 -> disabled
+			if (time >= start){ //repeat only applies past start time
+				b |= ((time - start) % (repeat+1) == 0)<<i;
+			}
+		}
+	}
+	return Var(b);
 }
 	
 std::map<Token, cmd_type> Input::get_cmds(){

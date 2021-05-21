@@ -1,6 +1,6 @@
 61 62 63 64
 22 18 0 3 72 74 73 71 16 76 58 42 
-50 1 0 1 0 2 3 5 6 11 10
+50 1 0 1 0 2 3 5 6 10 9
 
 First line:
 sf::Key special values for (zoom1, zoom2, keybuton, keyboard)

@@ -77,7 +77,7 @@ struct Input {
 		kc(Key::Enter, 60),
 		kc(Key::Space, 65),
 		kc(Key::Insert, 66),
-		kc(Key::Delete, 66),
+		kc(Key::Delete, 67),
 	};
 	
 	const std::string       kya{"??1234567890-+=\b$\"QWERTYUIOP@*()\t!ASDFGHJKL;:<>?'ZXCVBNM,./%\r???? ???"};
@@ -86,7 +86,8 @@ struct Input {
 	std::mutex button_mutex;
 	std::vector<std::vector<int>> button_info{};
 	
-	std::atomic_int buttons; //updates each frame
+	std::atomic_int old_buttons; //updates each frame
+	std::atomic_int buttons; //same as above
 	std::atomic_int keycode; //updates each frame, sysvar
 
 	//sysvars
