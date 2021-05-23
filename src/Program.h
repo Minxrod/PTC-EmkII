@@ -18,7 +18,7 @@ class Program{
 	
 	std::stack<std::vector<Token>::const_iterator> gosub_calls;
 	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>> for_calls;
-
+	
 	std::map<Token, cmd_type> commands;
 		
 	void if_(const Args&);

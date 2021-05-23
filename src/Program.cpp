@@ -106,34 +106,46 @@ void Program::run(){
 	t.detach();
 }
 
+bool for_continues(Number val, Number end, Number step){
+	bool is_valid = true;
+	if (step < 0){
+		if (val < end){
+			is_valid = false;
+		}
+	} else if (step > 0){
+		if (val > end){
+			is_valid = false;
+		}
+	} else { //same starting and ending values
+	}
+	return is_valid;
+}
+
 void Program::for_(const Args& a){
 	//FOR <initial> TO <value> [STEP <value>]
 	auto& init = a[1]; //initial
+	e.evaluate(init); //run init condition
+
 	auto eq = std::find(init.begin(), init.end(), "="_TO);
 	auto var = std::vector<Token>{init.begin(), eq}; //read until = to get var expression
 	
 	auto& end = a[3]; //end value
-	auto cond = std::vector<Token>{var};
-	cond.push_back("<="_TO);
-	cond.insert(cond.end(), end.begin(), end.end());
-	
-	//buiild <var>=<var>+<step> expression
-	auto step = std::vector<Token>{var};
-	step.push_back("="_TO);
-	step.insert(step.end(), var.begin(), var.end());
-	step.push_back("+"_TO);
+	Expr step;
 	if (a.size() == 6){
-		step.insert(step.end(), a[5].begin(), a[5].end());
+		step = a[5]; //step value
 	} else {
-		step.push_back(Token{"1", Type::Num}); //default step is 1
+		step = Expr{Token{"1", Type::Num}};
+	}	
+	
+	Number initial_i = std::get<Number>(e.evaluate(var));
+	Number final_i = std::get<Number>(e.evaluate(end));
+	Number step_i = std::get<Number>(e.evaluate(step));
+
+	if (for_continues(initial_i, final_i, step_i))
+		for_calls.push_back(std::make_tuple(var, current, end, step)); //needed for looping
+	else {
+		//skip to NEXT
 	}
-	
-//	print("init:", init);
-//	print("cond:", cond);
-//	print("step:", step);
-	
-	e.evaluate(init); //run init condition
-	for_calls.push_back(std::make_tuple(var, current, cond, step)); //needed for looping
 }
 
 void Program::next_(const Args& a){
@@ -146,15 +158,26 @@ void Program::next_(const Args& a){
 		itr = for_calls.end()-1;
 	}
 	
-	e.evaluate(std::get<3>(*itr)); //run step
-	auto res = e.evaluate(std::get<2>(*itr)); //check condition
-	if (std::abs(std::get<Number>(res)) < 0.000244140625){
-		//false: loop ends
-		for_calls.erase(itr); //remove from ""stack"" when loop ends
+	Expr next = std::get<0>(*itr);
+	next.push_back("="_TO);
+	next.insert(next.end(), (std::get<0>(*itr)).begin(), (std::get<0>(*itr)).end());
+	next.push_back("+"_TO);
+	next.insert(next.end(), (std::get<3>(*itr)).begin(), (std::get<3>(*itr)).end());
+	e.eval_no_save(next); //do the next step
+
+	Number step = std::get<Number>(e.evaluate(std::get<3>(*itr))); //step amount
+	Number end = std::get<Number>(e.evaluate(std::get<2>(*itr))); //end value
+	Number value = std::get<Number>(e.evaluate(std::get<0>(*itr))); //current value
+	
+	if (for_continues(value, end, step)){
+		current = std::get<1>(*itr);		
 	} else {
-		//true: loop continues
-		current = std::get<1>(*itr);
-	}
+		for_calls.erase(itr); //remove from ""stack"" when loop ends		
+	}	
+	
+
+	
+
 }
 
 void Program::wait_(const Args& a){
