@@ -48,6 +48,8 @@ class Console {
 public:
 	Console(Evaluator&, CHR&, Input&);
 	
+	void reset();
+	
 	void print(int, int, Var&, int);
 	
 	std::map<Token, cmd_type> get_cmds();

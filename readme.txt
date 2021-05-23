@@ -10,11 +10,11 @@ Please note that this is heavily a WIP and nowhere near finished, so don't expec
 The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Sample 1: Works.
 - Sample 2: Partially working, some keys are not mapped.
-- Sample 3: Partially working, same as Sample 2.
+- Sample 3: Mostly working, a few keys are not mapped.
 - Sample 4: Partially working, RND is currently unseeded and always returns the same values.
-- Sample 5: Works, same issues as Sample 2. No unmapped inputs are required, though.
-- Sample 6: Partially working, holding down the mouse does not seem to work and only the top screen is currently rendered.
-- Sample 7: Works, same issues as Sample 5.
+- Sample 5: Partially works, graphics are not accurate to original
+- Sample 6: Partially working, only the top screen is currently rendered. (No icon = no eraser)
+- Sample 7: Works.
 - Sample 8-12: Not working, require various unimplemented features.
 
 = Features =

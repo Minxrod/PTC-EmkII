@@ -9,7 +9,7 @@
 
 #include "Console.h"
 #include "Background.h"
-//#include "Sprites.h"
+#include "Sprites.h"
 #include "Graphics.h"
 #include "Panel.h"
 
@@ -29,7 +29,7 @@ struct Visual {
 	
 	Console c;
 	Background b;
-	//Sprites s;
+	Sprites s;
 	Graphics g;
 	Panel p;
 

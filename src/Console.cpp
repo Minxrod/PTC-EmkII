@@ -30,12 +30,18 @@ std::map<Token, op_func> Console::get_funcs(){
 }
 
 
-void Console::cls_([[maybe_unused]]const Args& a){
+void Console::cls_(const Args&){
 	*cur_x = 0;
 	*cur_y = 0;
 	std::fill(text.begin(), text.end(), 0);
 	std::fill(fg_color.begin(), fg_color.end(), cur_fg_color);
 	std::fill(bg_color.begin(), bg_color.end(), cur_bg_color);
+}
+
+void Console::reset(){
+	cur_fg_color = 0;
+	cur_bg_color = 0;
+	cls_({});
 }
 
 void Console::print_(const Args& a){

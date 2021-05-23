@@ -6,6 +6,7 @@ Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 	r{rs},
 	c{ev, r.chr.at("BGF0U"), i},
 	b{ev, r.scr},
+	s{ev},
 	g{ev, r.grp},
 	p{ev, r, i},
 	visible{true,true,true,true,true,true}
@@ -31,7 +32,11 @@ Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 	resource_tex[1].create(256, 64*4);
 	for (int i = 0; i <= 3; ++i)
 		resource_tex[1].update(r.chr.at("BGU"+std::to_string(i)+"U").get_array().data(), 256, 64, 0, i*64);
-	
+
+	resource_tex[2].create(256, 64*8);
+	for (int i = 0; i <= 7; ++i)
+		resource_tex[2].update(r.chr.at("SPU"+std::to_string(i)).get_array().data(), 256, 64, 0, i*64);
+
 	grp_tex.create(256,192);
 }
 
@@ -57,6 +62,7 @@ std::map<Token, cmd_type> Visual::get_cmds(){
 	
 	cmds.merge(c.get_cmds());
 	cmds.merge(b.get_cmds());
+	cmds.merge(s.get_cmds());
 	cmds.merge(g.get_cmds());
 	cmds.merge(p.get_cmds());
 	return cmds;
@@ -65,6 +71,7 @@ std::map<Token, cmd_type> Visual::get_cmds(){
 std::map<Token, op_func> Visual::get_funcs(){
 	auto funcs = c.get_funcs();
 	funcs.merge(b.get_funcs());
+	funcs.merge(s.get_funcs());
 	funcs.merge(g.get_funcs());
 	funcs.merge(p.get_funcs());
 	return funcs;
@@ -139,12 +146,14 @@ void Visual::acls_(const Args&){
 		visible[i] = true;
 	//ICONCLR
 	//COLOR 0:CLS
+	c.reset();
 	//GDRAWMD FALSE
 }
 
 void Visual::update(){
 	e.vars.write_sysvar("MAINCNTL", *maincntl+1);
 	//do interpolation here as well (bg, sp)
+	s.update();
 }
 
 //note: don't make this silly mistake
@@ -153,40 +162,44 @@ void Visual::draw(sf::RenderWindow& w){
 	//common
 	bgsp_shader.setUniform("colors", col_tex);
 	bgsp_shader.setUniform("texture", sf::Shader::CurrentTexture);
-	sf::RenderStates s;
-	s.shader = &bgsp_shader;
+	sf::RenderStates rs;
+	rs.shader = &bgsp_shader;
 	//grp
 	sf::Sprite grp;
 	grp_tex.update(g.draw().data());
 	grp.setTexture(grp_tex);
 	grp.setColor(sf::Color(0));
 	bgsp_shader.setUniform("colbank", 2.0f);
-	w.draw(grp, s);
+	w.draw(grp, rs);
 	//bg
 	bgsp_shader.setUniform("colbank", 0.0f);
-	s.texture = &resource_tex[1];
+	rs.texture = &resource_tex[1];
 	for (int l = 1; l >= 0; --l){
 		auto& bg = b.draw(0, l);
 		auto pos = bg.getPosition();
 		if (pos.x > 0){
 			bg.setPosition(pos.x - 64*8, pos.y);
-			w.draw(bg, s);
+			w.draw(bg, rs);
 		}
 		if (pos.y > 0){
 			bg.setPosition(pos.x, pos.y - 64*8);
-			w.draw(bg, s);
+			w.draw(bg, rs);
 		}
 		if (pos.x > 0 && pos.y > 0){
 			bg.setPosition(pos.x - 64*8, pos.y - 64*8);
-			w.draw(bg, s);
+			w.draw(bg, rs);
 		}
 		bg.setPosition(pos);
-		w.draw(bg, s);
+		w.draw(bg, rs);
 	}	
 	//console
-	s.texture = &resource_tex[0];
+	rs.texture = &resource_tex[0];
 	auto& con = c.draw();
 	bgsp_shader.setUniform("colbank", 0.0f);
-	w.draw(con, s);
-	
+	w.draw(con, rs);
+	//sprite
+	rs.texture = &resource_tex[2];
+	auto spr = s.draw(0,0);
+	bgsp_shader.setUniform("colbank", 1.0f);
+	w.draw(spr, rs);
 }
