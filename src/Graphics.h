@@ -15,7 +15,8 @@ class Graphics {
 	int screen;
 	int drawpage[2];
 	int displaypage[2];
-		
+	int prio[2];
+	
 	int xy_to_chr(int, int);
 	
 	void gcolor_(const Args&);
@@ -34,7 +35,7 @@ class Graphics {
 	
 	Var gspoit(const Vals&);
 	
-	std::array<unsigned char, WIDTH*HEIGHT*4> image;
+	std::array<std::array<unsigned char, WIDTH*HEIGHT*4>, 4> image;
 	
 public:
 	Graphics(Evaluator&, std::map<std::string, GRP>&);
@@ -42,5 +43,6 @@ public:
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	
-	std::array<unsigned char, WIDTH*HEIGHT*4>& draw();
+	int get_prio(int);
+	std::array<unsigned char, WIDTH*HEIGHT*4>& draw(int);
 };

@@ -4,8 +4,15 @@
 
 Graphics::Graphics(Evaluator& ev, std::map<std::string, GRP>& grps) : 
 	e{ev},
-	grp{grps}
-{}
+	grp{grps},
+	drawpage{0, 1},
+	displaypage{0, 1},
+	prio{3, 3}
+{
+	for (auto& i : image){
+		std::fill(i.begin(), i.end(), 0);
+	}
+}
 
 std::map<Token, cmd_type> Graphics::get_cmds(){
 	return std::map<Token, cmd_type>{
@@ -24,6 +31,24 @@ std::map<Token, op_func> Graphics::get_funcs(){
 	return std::map<Token, op_func>{};
 }
 
+int to_chr_coords(const int x, const int y){
+	int tx = x % 8;
+	int ty = y % 8;
+	int cx = (x / 8) % 8;
+	int cy = (y / 8) % 8;
+	int bx = x / 64;
+	int by = y / 64;
+	
+	return tx + 8 * ty + cx * 64 + cy * 512 + bx * 4096 + by * 4096*4;
+}
+
+void draw_pixel(std::array<unsigned char, 256*192*4>& i, std::vector<unsigned char>& g, const int x, const int y, const int c){
+	if (x >= 0 && y >= 0 && x < 256 && y < 192){
+		g.at(to_chr_coords(x,y)) = c;
+		i.at(4*(x+256*y)) = c;
+	}
+}
+
 void Graphics::gcolor_(const Args& a){
 	//GCOLOR color
 	gcolor = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
@@ -35,7 +60,11 @@ void Graphics::gcls_(const Args& a){
 	
 	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
 	
-	std::fill(g.begin(), g.end(), col);
+	for (int y = 0; y < HEIGHT; ++y){
+		for (int x = 0; x < WIDTH; ++x){
+			draw_pixel(image[drawpage[screen]], g, x, y, col);
+		}
+	}
 }
 
 void Graphics::gpage_(const Args& a){
@@ -49,22 +78,6 @@ void Graphics::gpage_(const Args& a){
 	}
 }
 
-int to_chr_coords(int x, int y){
-	int tx = x % 8;
-	int ty = y % 8;
-	int cx = (x / 8) % 8;
-	int cy = (y / 8) % 8;
-	int bx = x / 64;
-	int by = y / 64;
-	
-	return tx + 8 * ty + cx * 64 + cy * 512 + bx * 4096 + by * 4096*4;
-}
-
-void draw_pixel(std::vector<unsigned char>& g, const int x, const int y, const int c){
-	if (x > 0 && y > 0 && x < 256 && y < 192)
-		g.at(to_chr_coords(x,y)) = c;
-}
-
 void Graphics::gpset_(const Args& a){
 	//GPSET X,Y[,C]
 	auto col = a.size() == 3 ? gcolor : static_cast<int>(std::get<Number>(e.evaluate(a[3])));
@@ -73,15 +86,15 @@ void Graphics::gpset_(const Args& a){
 	
 	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
 	
-	draw_pixel(g,x,y,col);
+	draw_pixel(image[drawpage[screen]],g,x,y,col);
 }
 
-void draw_line(std::vector<unsigned char>& g, const int x1, const int y1, const int x2, const int y2, const int c){
+void draw_line(std::array<unsigned char, 256*192*4>& i, std::vector<unsigned char>& g, const int x1, const int y1, const int x2, const int y2, const int c){
 	if (x2==x1){
 		//vertical line
 		int dir_y = y2>y1 ? 1 : -1;
 		for (int y = y1; y != y2; y+=dir_y){
-			draw_pixel(g,x1,y,c);
+			draw_pixel(i,g,x1,y,c);
 		}
 	} else {
 		int dir_x = x2>x1 ? 1 : -1;
@@ -92,12 +105,15 @@ void draw_line(std::vector<unsigned char>& g, const int x1, const int y1, const 
 		for(int x = x1; x != x2; x += dir_x){
 			ystep += m;
 			int ystepdir = ystep>0 ? -1 : 1;
-			for (int yp = static_cast<int>(ystep); yp != 0; yp+=ystepdir){
-				draw_pixel(g,x,y,c);
-				y+=ystepdir;
-				ystep+=ystepdir;
+			if (ystep >= 1 || ystep <= -1){
+				for (int yp = static_cast<int>(ystep); yp != 0; yp+=ystepdir){
+					draw_pixel(i,g,x,y,c);
+					y+=ystepdir;
+					ystep+=ystepdir;
+				}
+			} else {
+				draw_pixel(i,g,x,y,c);
 			}
-		draw_pixel(g,x,y,c);
 		}	
 	}
 }
@@ -112,7 +128,7 @@ void Graphics::gline_(const Args& a){
 	
 	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
 
-	draw_line(g,x1,y1,x2,y2,col);
+	draw_line(image[drawpage[screen]],g,x1,y1,x2,y2,col);
 }
 
 void Graphics::gcircle_(const Args& a){
@@ -131,7 +147,7 @@ void Graphics::gcircle_(const Args& a){
 		int x2 = x + r * std::cos((i + 1) / detail * 6.283);
 		int y2 = y + r * std::sin((i + 1) / detail * 6.283);
 		
-		draw_line(g,x1,y1,x2,y2,col);
+		draw_line(image[drawpage[screen]],g,x1,y1,x2,y2,col);
 	}
 }
 
@@ -157,7 +173,7 @@ void Graphics::gbox_(const Args& a){
 	for (int x = bx; x <= ex; ++x){
 		for (int y = by; y <= ey; ++y){
 			if (x == bx || x == ex || y == by || y == ey){
-				draw_pixel(g,x,y,col);
+				draw_pixel(image[drawpage[screen]],g,x,y,col);
 			}
 		}
 	}
@@ -180,7 +196,7 @@ void Graphics::gfill_(const Args& a){
 
 	for (int x = bx; x <= ex; ++x){
 		for (int y = by; y <= ey; ++y){
-			draw_pixel(g,x,y,col);
+			draw_pixel(image[drawpage[screen]],g,x,y,col);
 		}
 	}
 }
@@ -201,15 +217,10 @@ void Graphics::gcopy_(const Args&){
 
 }
 
-std::array<unsigned char, Graphics::WIDTH*Graphics::HEIGHT*4>& Graphics::draw(){
-	std::fill(image.begin(), image.end(), 0);
-	auto& vec = grp.at("GRP"+std::to_string(drawpage[0])).data;
-	
-	for (int y = 0; y < HEIGHT; ++y){
-		for (int x = 0; x < WIDTH; ++x){
-			image[(x+WIDTH*y)*4] = vec[to_chr_coords(x,y)];
-		}
-	}
-	
-	return image;
+int Graphics::get_prio(int screen){
+	return prio[screen];
+}
+
+std::array<unsigned char, Graphics::WIDTH*Graphics::HEIGHT*4>& Graphics::draw(int screen){
+	return image[displaypage[screen]];
 }

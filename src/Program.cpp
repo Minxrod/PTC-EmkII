@@ -67,8 +67,8 @@ void Program::run_(){
 		auto chunks = split(instr);
 		auto instr_form = chunks[0][0]; //if chunks[0] is empty, we have other problems
 		
-		for (auto& chunk : chunks)
-			print("Instr:", chunk);
+		//for (auto& chunk : chunks)
+		//	print("Instr:", chunk);
 		
 /*		if (instr_form.type == Type::Rem){ //ignore it, this is the entire line
 		} else if (instr_form.type == Type::Label){ //ignore
@@ -173,11 +173,7 @@ void Program::next_(const Args& a){
 		current = std::get<1>(*itr);		
 	} else {
 		for_calls.erase(itr); //remove from ""stack"" when loop ends		
-	}	
-	
-
-	
-
+	}
 }
 
 void Program::wait_(const Args& a){
