@@ -20,7 +20,7 @@ std::map<Token, cmd_type> Sprites::get_cmds(){
 
 std::map<Token, op_func> Sprites::get_funcs(){
 	return std::map<Token, op_func>{
-	
+		std::pair<Token, op_func>("SPCHK"_TF, getfunc<Sprites>(this, &Sprites::spchk_)),
 	};
 }
 
@@ -169,16 +169,41 @@ void Sprites::spscale_(const Args& a){
 	}
 }
 
-void Sprites::spchk_(const Args&){}
+Var Sprites::spchk_(const Vals& v){
+	//SPCHK id
+	auto id = std::get<Number>(v.at(0));
+	auto& s = sprites[page][id];
+	
+	int result = (int)(s.pos.time > 0);
+	result |= (int)(s.angle.time > 0) << 1;
+	result |= (int)(s.scale.time > 0) << 2;
+	result |= (int)(s.anim.time > 0) << 3;
+	return Var((double)result);
+}
+
 void Sprites::spread_(const Args&){}
+
 void Sprites::spsetv_(const Args&){}
-void Sprites::spgetv_(const Args&){}
+
+Var Sprites::spgetv_(const Vals&){
+	return Var(0.0);
+}
 
 void Sprites::spcol_(const Args&){}
+
 void Sprites::spcolvec_(const Args&){}
-void Sprites::sphit_(const Args&){}
-void Sprites::sphitsp_(const Args&){}
-void Sprites::sphitrc_(const Args&){}
+
+Var Sprites::sphit_(const Vals&){
+	return Var(0.0);
+}
+
+Var Sprites::sphitsp_(const Vals&){
+	return Var(0.0);	
+}
+
+Var Sprites::sphitrc_(const Vals&){
+	return Var(0.0);
+}
 
 void Sprites::update(){
 	for (auto& sprpage : sprites){	

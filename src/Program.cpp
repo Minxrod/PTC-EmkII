@@ -24,6 +24,7 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens
 		cmd_map("CLEAR"_TC, getfunc(this, &Program::clear_)),
 		cmd_map("DIM"_TC, getfunc(this, &Program::dim_)),
 		cmd_map("READ"_TC, getfunc(this, &Program::read_)),
+		cmd_map("RESTORE"_TC, getfunc(this, &Program::restore_)),
 		cmd_map("DTREAD"_TC, getfunc(&eval, &Evaluator::dtread_)),
 		cmd_map("TMREAD"_TC, getfunc(&eval, &Evaluator::tmread_))
 	};
@@ -283,6 +284,22 @@ void Program::read_(const Args& a){
 		auto& name_exp = a[i];
 		
 		e.assign(name_exp, data_value);
+	}
+}
+
+void Program::restore_(const Args& a){
+	//RESTORE label
+	String lbl = std::get<String>(e.evaluate(a[1]));
+	
+	for (auto itr = tokens.begin(); itr != tokens.end(); itr++){
+		if (*itr == Token{lbl, Type::Label}){
+			if (itr == tokens.begin() || 
+			((itr-1)->type == Type::Newl)){
+				auto data_itr = std::find(itr, tokens.end(), "DATA"_TC);
+				data_current = data_itr+1;
+				break;
+			}
+		}
 	}
 }
 

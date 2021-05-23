@@ -25,7 +25,7 @@ std::map<Token, cmd_type> Console::get_cmds(){
 
 std::map<Token, op_func> Console::get_funcs(){
 	return std::map<Token, op_func>{
-		func_map("CHKCHR$"_TF, getfunc<Console>(this, &Console::chkchr_)),
+		func_map("CHKCHR"_TF, getfunc<Console>(this, &Console::chkchr_)),
 	};
 }
 
@@ -96,6 +96,8 @@ std::string printable(const Var& v){
 }
 
 void Console::print_str(std::string str){
+	if (str.find("tod") != std::string::npos)
+		throw std::runtime_error{"found tod"};
 	for (int i = 0; i < (int)str.size(); ++i){
 		char c = str[i];
 		text[*cur_x+WIDTH * *cur_y] = c;
@@ -232,8 +234,11 @@ void Console::color_(const Args& a){
 Var Console::chkchr_(const Vals& v){
 	auto x = (int)std::get<Number>(v.at(0));
 	auto y = (int)std::get<Number>(v.at(1));
-
-	return Var(String(""+(char)text[x+WIDTH*y]));
+	if (x < 0 || x > WIDTH || y < 0 || y > HEIGHT){
+		return Var(-1.0);
+	}
+	
+	return Var(Number((unsigned char)text[x+WIDTH*y]));
 }
 
 void Console::print(int x, int y, Var& v, int c){

@@ -20,16 +20,16 @@ class Sprites {
 	void spangle_(const Args&);
 	void spscale_(const Args&);
 	
-	void spchk_(const Args&);
+	Var spchk_(const Vals&);
 	void spread_(const Args&);
 	void spsetv_(const Args&);
-	void spgetv_(const Args&);
+	Var spgetv_(const Vals&);
 	
 	void spcol_(const Args&);
 	void spcolvec_(const Args&);
-	void sphit_(const Args&);
-	void sphitsp_(const Args&);
-	void sphitrc_(const Args&);
+	Var sphit_(const Vals&);
+	Var sphitsp_(const Vals&);
+	Var sphitrc_(const Vals&);
 	
 public:
 	Sprites(Evaluator&);

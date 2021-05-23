@@ -170,7 +170,7 @@ namespace ptc {
 	}
 
 	Var asc(const std::vector<Var>& vals){
-		return Var(Number(std::get<String>(vals.at(0))[0]));
+		return Var(Number((unsigned char)(std::get<String>(vals.at(0))[0])));
 	}
 
 	Var atan(const std::vector<Var>& vals){
@@ -214,11 +214,17 @@ namespace ptc {
 	}
 	
 	Var chr(const Vals& vals){
-		return Var(String(""+(char)std::get<Number>(vals.at(0))));
+		String s = "X";
+		s[0] = (char)std::get<Number>(vals.at(0));
+		return Var(s);
 	}
 	
 	Var floor(const Vals& vals){
 		return Var(std::floor(std::get<Number>(vals.at(0))));
+	}
+	
+	Var sgn(const Vals& vals){
+		return Var(std::get<Number>(vals.at(0)) > 0 ? 1.0 : (std::get<Number>(vals.at(0)) < 0 ? -1.0 : 0.0));
 	}
 	
 	Var str(const Vals& vals){
