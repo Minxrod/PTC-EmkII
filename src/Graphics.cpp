@@ -140,7 +140,7 @@ void Graphics::gcircle_(const Args& a){
 	
 	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
 	
-	const int detail = 32;
+	const double detail = 64;
 	for (int i = 0; i < detail; ++i){
 		int x1 = x + r * std::cos(i / detail * 6.283);
 		int y1 = y + r * std::sin(i / detail * 6.283);

@@ -165,77 +165,82 @@ void Visual::draw(sf::RenderWindow& w){
 	bgsp_shader.setUniform("texture", sf::Shader::CurrentTexture);
 	sf::RenderStates rs;
 	rs.shader = &bgsp_shader;
-	//grp
-	sf::Sprite grp;
-	grp_tex.update(g.draw(0).data());
-	grp.setTexture(grp_tex);
-	grp.setColor(sf::Color(0));
-	//grp prio=3
-	if (g.get_prio(0) == 3){
-		bgsp_shader.setUniform("colbank", 2.0f);
-		w.draw(grp, rs);
-	}
-	//sprites prio=3
-	rs.texture = &resource_tex[2];
-	auto spr = s.draw(0,3);
-	bgsp_shader.setUniform("colbank", 1.0f);
-	w.draw(spr, rs);
-	//bg
-	for (int l = 1; l >= 0; --l){
-		bgsp_shader.setUniform("colbank", 0.0f);
-		rs.texture = &resource_tex[1];
-		auto& bg = b.draw(0, l);
-		auto pos = bg.getPosition();
-		if (pos.x > 0){
-			bg.setPosition(pos.x - 64*8, pos.y);
-			w.draw(bg, rs);
+	//screens
+	for (int sc = 0; sc < 1; ++sc){
+		float col_l = 3.0f * sc;
+		int chr_l = 6 * sc;
+		//grp
+		sf::Sprite grp;
+		grp_tex.update(g.draw(sc).data());
+		grp.setTexture(grp_tex);
+		grp.setColor(sf::Color(0));
+		//grp prio=3
+		if (g.get_prio(sc) == 3){
+			bgsp_shader.setUniform("colbank", 2.0f + col_l);
+			w.draw(grp, rs);
 		}
-		if (pos.y > 0){
-			bg.setPosition(pos.x, pos.y - 64*8);
-			w.draw(bg, rs);
-		}
-		if (pos.x > 0 && pos.y > 0){
-			bg.setPosition(pos.x - 64*8, pos.y - 64*8);
-			w.draw(bg, rs);
-		}
-		bg.setPosition(pos);
-		w.draw(bg, rs);
-		//sprites prio=2, graphics prio=2
-		if (l == 1){
-			if (g.get_prio(0) == 2){
-				bgsp_shader.setUniform("colbank", 2.0f);
-				w.draw(grp, rs);
+		//sprites prio=3
+		rs.texture = &resource_tex[2 + chr_l];
+		auto spr = s.draw(sc,3);
+		bgsp_shader.setUniform("colbank", 1.0f + col_l);
+		w.draw(spr, rs);
+		//bg
+		for (int l = 1; l >= 0; --l){
+			bgsp_shader.setUniform("colbank", 0.0f + col_l);
+			rs.texture = &resource_tex[1];
+			auto& bg = b.draw(sc, l);
+			auto pos = bg.getPosition();
+			if (pos.x > 0){
+				bg.setPosition(pos.x - 64*8, pos.y);
+				w.draw(bg, rs);
 			}
+			if (pos.y > 0){
+				bg.setPosition(pos.x, pos.y - 64*8);
+				w.draw(bg, rs);
+			}
+			if (pos.x > 0 && pos.y > 0){
+				bg.setPosition(pos.x - 64*8, pos.y - 64*8);
+				w.draw(bg, rs);
+			}
+			bg.setPosition(pos);
+			w.draw(bg, rs);
+			//sprites prio=2, graphics prio=2
+			if (l == 1){
+				if (g.get_prio(sc) == 2){
+					bgsp_shader.setUniform("colbank", 2.0f + col_l);
+					w.draw(grp, rs);
+				}
 
-			rs.texture = &resource_tex[2];
-			spr = s.draw(0,2);
-			bgsp_shader.setUniform("colbank", 1.0f);
-			w.draw(spr, rs);
+				rs.texture = &resource_tex[2 + chr_l];
+				spr = s.draw(sc,2);
+				bgsp_shader.setUniform("colbank", 1.0f + col_l);
+				w.draw(spr, rs);
+			}
 		}
+		//grp prio=1
+		if (g.get_prio(sc) == 1){
+			bgsp_shader.setUniform("colbank", 2.0f + col_l);
+			w.draw(grp, rs);
+		}
+		//sprite prio=1
+		rs.texture = &resource_tex[2 + chr_l];
+		spr = s.draw(sc,1);
+		bgsp_shader.setUniform("colbank", 1.0f + col_l);
+		w.draw(spr, rs);
+		//console
+		rs.texture = &resource_tex[0 + chr_l];
+		auto& con = c.draw();
+		bgsp_shader.setUniform("colbank", 0.0f + col_l);
+		w.draw(con, rs);
+		//grp prio=1
+		if (g.get_prio(sc) == 0){
+			bgsp_shader.setUniform("colbank", 2.0f + col_l);
+			w.draw(grp, rs);
+		}
+		//sprite prio=0
+		rs.texture = &resource_tex[2 + chr_l];
+		spr = s.draw(sc,0);
+		bgsp_shader.setUniform("colbank", 1.0f + col_l);
+		w.draw(spr, rs);
 	}
-	//grp prio=1
-	if (g.get_prio(0) == 1){
-		bgsp_shader.setUniform("colbank", 2.0f);
-		w.draw(grp, rs);
-	}
-	//sprite prio=1
-	rs.texture = &resource_tex[2];
-	spr = s.draw(0,1);
-	bgsp_shader.setUniform("colbank", 1.0f);
-	w.draw(spr, rs);
-	//console
-	rs.texture = &resource_tex[0];
-	auto& con = c.draw();
-	bgsp_shader.setUniform("colbank", 0.0f);
-	w.draw(con, rs);
-	//grp prio=1
-	if (g.get_prio(0) == 0){
-		bgsp_shader.setUniform("colbank", 2.0f);
-		w.draw(grp, rs);
-	}
-	//sprite prio=0
-	rs.texture = &resource_tex[2];
-	spr = s.draw(0,0);
-	bgsp_shader.setUniform("colbank", 1.0f);
-	w.draw(spr, rs);
 }
