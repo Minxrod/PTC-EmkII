@@ -21,6 +21,25 @@ void translate_xy(double& x, double& y, const double& dx, const double& dy){
 	y += dy;
 }
 
+/*bool is_hit(SpriteInfo& a, SpriteInfo& b){
+	if (!a.active || !b.active)
+		return false; //can't hit inactive sprites..
+	
+	double w = a.w * a.scale.s;
+	double h = a.h * a.scale.s;
+
+	double ax1 = -a.scale.s * a.home_x;
+	double ay1 = -a.scale.s * a.home_y;
+	double ax2 = -a.scale.s * a.home_x + w;
+	double ay2 = -a.scale.s * a.home_y;
+	double ax3 = -a.scale.s * a.home_x + w;
+	double ay3 = -a.scale.s * a.home_y + h;
+	double ax4 = -a.scale.s * a.home_x;
+	double ay4 = -a.scale.s * a.home_y + h;
+	
+	
+}*/
+
 void SpriteArray::add_sprite(const SpriteInfo& s){	
 	//Vertex order:
 	//1--2
@@ -96,5 +115,6 @@ void SpriteArray::add_sprite(const SpriteInfo& s){
 }
 
 void SpriteArray::draw(sf::RenderTarget& r, sf::RenderStates s) const{
+	s.transform *= getTransform();
 	r.draw(va, s);
 }

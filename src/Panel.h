@@ -3,6 +3,8 @@
 #include "Vars.h"
 #include "Evaluator.h"
 #include "Console.h"
+#include "Background.h"
+#include "Sprites.h"
 
 #include <array>
 
@@ -12,10 +14,15 @@ class Panel {
 	
 	Evaluator& e;
 	Console c;
-	//Background b;
-	//Sprites s;
+	TileMap panel_bg;
+	TileMap func_keys;
+	std::vector<std::string> func_text;
+	std::vector<SpriteInfo> keys;
+	SpriteArray key_sp;
 	
 	int pnltype; //OFF PNL KYA KYM KYK
+	
+	void update_keytext();
 	
 	void pnltype_(const Args&);
 	void pnlstr_(const Args&);
@@ -24,13 +31,14 @@ class Panel {
 	void iconclr_(const Args&);
 	Var iconchk_(const Vals&);
 	
-	std::array<unsigned char, WIDTH*HEIGHT*4> image;
-	
 public:
 	Panel(Evaluator&, Resources&, Input& i);
 	
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	
-	std::array<unsigned char, WIDTH*HEIGHT*4>& draw();
+	TileMap& draw_panel();
+	SpriteArray draw_keyboard();
+	TileMap& draw_funckeys();
+//	void draw(sf::RenderWindow&, sf::RenderStates&);
 };

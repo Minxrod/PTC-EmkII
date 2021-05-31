@@ -9,7 +9,7 @@ struct SpriteInfo {
 	int chr, pal;
 	int w, h;
 	int prio;
-	bool flip_x, flip_y;
+	bool flip_x = false, flip_y = false;
 
 	double home_x, home_y;
 	
@@ -45,6 +45,8 @@ struct SpriteInfo {
 	
 	double vars[8];
 };
+
+//bool is_hit(SpriteInfo&, SpriteInfo&);
 
 class SpriteArray : public sf::Drawable, public sf::Transformable {
 	sf::VertexArray va{sf::Quads, 0};

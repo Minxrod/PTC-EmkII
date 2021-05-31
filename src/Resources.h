@@ -112,7 +112,7 @@ struct Resources{
 	std::vector<std::string> scr_resources{
 		"SCU0U", "SCU1U", "SCU0L", "SCU1L"
 	};
-	
+
 	//should contain all required resources
 	Header prg_info;
 	PRG prg;

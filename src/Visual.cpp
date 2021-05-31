@@ -24,19 +24,28 @@ Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 	col_tex.create(256,6);
 	regen_col();
 	//create all CHR resource textures
+	std::vector<std::string> type{"BGF", "BGU", "SPU", "SPS", "SPD", "BGD"};
+	std::vector<int> banks{1, 4, 8, 2, 4, 2};
+	
 	resource_tex = std::vector<sf::Texture>{12, sf::Texture{}};
 	
-	resource_tex[0].create(256, 64);
-	resource_tex[0].update(r.chr.at("BGF0U").get_array().data());
+	for (int i = 0; i < (int)resource_tex.size(); ++i){
+		resource_tex[i].create(256, 64*(i != 10 ? banks[i%6] : 8));
+		if (i == 8 || i == 4){
+			continue;
+		}
+		std::string screen = ((i>=6)?"L":"U");
+		if (i == 2 || i == 10){
+			screen = "";
+		}
+		
+		for (int b = 0; b < banks[i%6]; ++b)
+			resource_tex[i].update(r.chr.at(type[i%6]+std::to_string(b)+screen).get_array().data(), 256, 64, 0, b*64);
+	}
+	//append SPK to SPD
+	for (int b = 4; b < 8; ++b)
+		resource_tex[10].update(r.chr.at("SPK"+std::to_string(b-4)).get_array().data(), 256, 64, 0, b*64);
 	
-	resource_tex[1].create(256, 64*4);
-	for (int i = 0; i <= 3; ++i)
-		resource_tex[1].update(r.chr.at("BGU"+std::to_string(i)+"U").get_array().data(), 256, 64, 0, i*64);
-
-	resource_tex[2].create(256, 64*8);
-	for (int i = 0; i <= 7; ++i)
-		resource_tex[2].update(r.chr.at("SPU"+std::to_string(i)).get_array().data(), 256, 64, 0, i*64);
-
 	grp_tex.create(256,192);
 }
 
@@ -166,7 +175,7 @@ void Visual::draw(sf::RenderWindow& w){
 	sf::RenderStates rs;
 	rs.shader = &bgsp_shader;
 	//screens
-	for (int sc = 0; sc < 1; ++sc){
+	for (int sc = 0; sc < 2; ++sc){
 		float col_l = 3.0f * sc;
 		int chr_l = 6 * sc;
 		//grp
@@ -228,10 +237,12 @@ void Visual::draw(sf::RenderWindow& w){
 		bgsp_shader.setUniform("colbank", 1.0f + col_l);
 		w.draw(spr, rs);
 		//console
-		rs.texture = &resource_tex[0 + chr_l];
-		auto& con = c.draw();
-		bgsp_shader.setUniform("colbank", 0.0f + col_l);
-		w.draw(con, rs);
+		if (sc == 0){
+			rs.texture = &resource_tex[0 + chr_l];
+			auto& con = c.draw();
+			bgsp_shader.setUniform("colbank", 0.0f + col_l);
+			w.draw(con, rs);
+		}
 		//grp prio=1
 		if (g.get_prio(sc) == 0){
 			bgsp_shader.setUniform("colbank", 2.0f + col_l);
@@ -243,4 +254,18 @@ void Visual::draw(sf::RenderWindow& w){
 		bgsp_shader.setUniform("colbank", 1.0f + col_l);
 		w.draw(spr, rs);
 	}
+	auto& pnl = p.draw_panel();
+	bgsp_shader.setUniform("colbank", 3.0f);
+	rs.texture = &resource_tex[11];
+	w.draw(pnl, rs);
+	
+	auto keysp = p.draw_keyboard();
+	bgsp_shader.setUniform("colbank", 1.0f + 3.0f);
+	rs.texture = &resource_tex[10];
+	w.draw(keysp, rs);
+	
+	rs.texture = &resource_tex[6];
+	auto& con = p.draw_funckeys();
+	bgsp_shader.setUniform("colbank", 0.0f + 3.0f);
+	w.draw(con, rs);
 }
