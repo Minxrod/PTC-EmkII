@@ -35,7 +35,7 @@ struct SpriteInfo {
 		double dx, dy;
 		double x, y, w, h;
 		bool scale_adjust;
-		int hitmask;
+		int mask = 0xff;
 	} hit;
 	
 	struct {
@@ -46,7 +46,25 @@ struct SpriteInfo {
 	double vars[8];
 };
 
-//bool is_hit(SpriteInfo&, SpriteInfo&);
+struct vec {
+	double x, y;
+	
+	double dot(const vec& other){
+		return x * other.x + y * other.y;
+	}
+	
+	vec add(const vec& other){
+		return vec{x + other.x, y + other.y};
+	}
+	
+	vec sub(const vec& other){
+		return vec{x - other.x, y - other.y};
+	}
+};
+
+//vec normal(const SpriteInfo&);
+
+bool is_hit(SpriteInfo&, SpriteInfo&);
 
 class SpriteArray : public sf::Drawable, public sf::Transformable {
 	sf::VertexArray va{sf::Quads, 0};

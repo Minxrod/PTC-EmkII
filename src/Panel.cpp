@@ -15,7 +15,6 @@ SpriteInfo create_key(int x, int y, int c){
 	k.h = 32;
 	k.hit.w = 16;
 	k.hit.h = 24;
-	
 	return k;
 }
 
@@ -25,7 +24,6 @@ SpriteInfo create_big_key(int x, int y, int c, int hw = 24){
 	k.h = 32;
 	k.hit.w = hw;
 	k.hit.h = 24;
-	
 	return k;
 }
 
@@ -35,7 +33,6 @@ SpriteInfo create_small_key(int x, int y, int c){
 	k.h = 16;
 	k.hit.w = 16;
 	k.hit.h = 16;
-	
 	return k;
 }
 
