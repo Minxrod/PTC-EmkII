@@ -58,8 +58,10 @@ Evaluator::Evaluator(){
 		func_map{"SGN"_TF, ptc::sgn},
 		//func_map{"SQR"_TF, ptc::sqr},
 		func_map{"STR$"_TF, ptc::str},
-		//func_map{"SUBST$"_TF, ptc::subst},
+		func_map{"SUBST$"_TF, ptc::subst},
 		func_map{"VAL"_TF, ptc::val},
+		func_map{"INSTR"_TF, ptc::instr},
+		
 	};
 }
 
@@ -332,7 +334,6 @@ void Evaluator::assign(const Expr& exp, Token t){
 	calculate(p);
 }
 
-
 Var Evaluator::call_op(const Token& op, std::stack<Var>& values){
 //	int op_val = op.text.at(0);
 //	if (op.text.size() > 1)
@@ -404,7 +405,7 @@ Var Evaluator::calculate(const std::vector<Token>& rpn_expression, bool do_array
 					//needs to handle needing args for array creation otherwise
 					//might have array ACCESS as part of args, so must have len_args be empty.
 					vars.create_arr(t.text+"[]", args);
-					values.push(Var(1)); //this result should be ignored, but 1 will indicate success.
+					values.push(Var(1.0)); //this result should be ignored, but 1 will indicate success.
 					break;
 				} else {
 					//ptr to array element

@@ -81,23 +81,26 @@ Var Input::inkey_(const Vals&){
 }
 
 Var Input::button_(const Vals& v){
+	double b0 = static_cast<double>(buttons);
+	double b2 = static_cast<double>(buttons & ~old_buttons);
+	double b3 = static_cast<double>((buttons ^ old_buttons) & old_buttons);
 	if (v.size() == 1){
 		switch (static_cast<int>(std::get<Number>(v.at(0)))){
 			case 0:
-				return Var(buttons);
+				return Var(b0);
 			case 1:
 				//moment pressed, repeat enabled
 				return btrig_(v);
 			case 2:
 				//moment pressed no repeat
-				return Var(buttons & ~old_buttons);
+				return Var(b2);
 			case 3:
 				//moment released
-				return Var((buttons ^ old_buttons) & old_buttons);
+				return Var(b3);
 		}
-		return Var(Number(buttons));
+		return Var(b0);
 	} else {
-		return Var(buttons);	
+		return Var(b0);	
 	}
 }
 
@@ -117,7 +120,7 @@ Var Input::btrig_(const Vals&){
 			}
 		}
 	}
-	return Var(b);
+	return Var(Number(b));
 }
 	
 std::map<Token, cmd_type> Input::get_cmds(){

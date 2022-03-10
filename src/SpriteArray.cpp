@@ -170,6 +170,8 @@ void SpriteArray::add_sprite(const SpriteInfo& s){
 	double xc = x1;
 	double yc = y1;
 	int chr = 4*s.chr;
+	
+	int va_new_start = va.getVertexCount();
 	for (int ty = 0; ty < s.h/8 ; ++ty){
 		for (int tx = 0; tx < s.w/8; ++tx){
 			va.append(sf::Vertex(sf::Vector2f(xc, yc), c, chr_texCoords2(chr,0,0)));
@@ -182,6 +184,14 @@ void SpriteArray::add_sprite(const SpriteInfo& s){
 		}
 		translate_xy(xc, yc, -s.w/8*xcstep_tx, -s.w/8*ycstep_tx);
 		translate_xy(xc, yc, xcstep_ty, ycstep_ty);
+	}
+	
+	va_index.insert({s.id, {va_new_start , va.getVertexCount()}});
+}
+
+void SpriteArray::update_sprite_xy(const SpriteInfo& s, int xofs, int yofs){
+	for (int i = va_index[s.id].first; i < va_index[s.id].second; ++i){
+		va[i].position += sf::Vector2f(xofs, yofs);
 	}
 }
 

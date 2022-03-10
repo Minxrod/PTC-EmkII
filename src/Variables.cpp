@@ -49,9 +49,9 @@ void create_var(std::string name, std::map<std::string, Var>& vars, std::vector<
 			}
 		} else {
 			if (args.size() == 2){
-				vars.insert(std::pair<std::string, Var>(name, Var(Array2(dimen1,Array1(dimen2,SimpleVar(0))))));
+				vars.insert(std::pair<std::string, Var>(name, Var(Array2(dimen1,Array1(dimen2,SimpleVar(0.0))))));
 			} else {
-				vars.insert(std::pair<std::string, Var>(name, Var(Array1(dimen1,SimpleVar(0)))));		
+				vars.insert(std::pair<std::string, Var>(name, Var(Array1(dimen1,SimpleVar(0.0)))));
 			}
 		}
 	} else {

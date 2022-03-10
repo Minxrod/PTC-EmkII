@@ -190,11 +190,11 @@ namespace ptc {
 	}
 	
 	Var rnd(const std::vector<Var>& vals){
-		return Var(std::rand() % (int)std::get<Number>(vals.at(0)));
+		return Var((double)(std::rand() % (int)std::get<Number>(vals.at(0))));
 	}
 	
 	Var len(const Vals& vals){
-		return Var(std::get<String>(vals.at(0)).size());
+		return Var((double)std::get<String>(vals.at(0)).size());
 	}
 	
 	Var left(const Vals& vals){
@@ -210,7 +210,7 @@ namespace ptc {
 	}
 	
 	Var val(const Vals& vals){
-		return Var(std::stoi(std::get<String>(vals.at(0))));
+		return Var((double)std::stoi(std::get<String>(vals.at(0))));
 	}
 	
 	Var chr(const Vals& vals){
@@ -235,6 +235,28 @@ namespace ptc {
 		}
 		if (str.back() == '.')
 			str = str.substr(0, str.size()-1);	
+		return Var(str);
+	}
+	
+	Var instr(const Vals& vals){
+		std::string str = std::get<String>(vals.at(0));
+		std::string substr = std::get<String>(vals.at(1));
+		
+		auto res = str.find(substr);
+		if (res == std::string::npos){
+			return Var(-1.0);
+		} else {
+			return Number(res);
+		}
+	}
+	
+	Var subst(const Vals& vals){
+		std::string str = std::get<String>(vals.at(0));
+		int start = std::get<Number>(vals.at(1));
+		int num = std::get<Number>(vals.at(2));
+		std::string newstr = std::get<String>(vals.at(3));
+		
+		str.replace(start, num, newstr);
 		return Var(str);
 	}
 	

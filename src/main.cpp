@@ -20,19 +20,7 @@ void zoom(sf::Window& w, int scale){
 	w.setSize(sf::Vector2u(256*scale, 384*scale));
 }
 
-int main()
-{
-	SpriteInfo s1{};
-	s1.active = true;
-	s1.pos.x = 0;
-	s1.pos.y = 0;
-	s1.hit.w = 16;
-	s1.hit.h = 16;
-	
-	SpriteInfo s2{s1};
-	
-	std::cout << is_hit(s1, s2);
-	
+int main(){	
 	Evaluator e{};
 	
 	std::vector<sf::Keyboard::Key> special{};
@@ -166,6 +154,7 @@ int main()
 		
 		i.update(b, k);
 		i.touch(mouse_press, mouse_x, mouse_y);
+		v.p.touch_keys(mouse_press, mouse_x, mouse_y);
 		
 		//begin chunk to be moved
 		//todo: move to somewhere else (likely Program)

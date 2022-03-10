@@ -81,7 +81,7 @@ struct Input {
 	};
 	
 	const std::string       kya{"??1234567890-+=\b$\"QWERTYUIOP@*()\t!ASDFGHJKL;:<>?'ZXCVBNM,./%\r???? ???"};
-	const std::string shift_kya{"....#..&.^\\~..|...qwertyuiop`.[]\t.asdfghjkl..{}..zxcvbnm..?_\r.... ..."};
+	const std::string shift_kya{"....#..&.^\\~..|\b..qwertyuiop`.[]\t.asdfghjkl..{}..zxcvbnm..?_\r.... ..."};
 	
 	std::mutex button_mutex;
 	std::vector<std::vector<int>> button_info{};

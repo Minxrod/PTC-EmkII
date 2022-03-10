@@ -4,7 +4,7 @@
 #include "Evaluator.h"
 #include "Console.h"
 #include "Background.h"
-#include "Sprites.h"
+#include "PanelKeyboard.h"
 
 #include <array>
 
@@ -15,10 +15,11 @@ class Panel {
 	Evaluator& e;
 	Console c;
 	TileMap panel_bg;
-	TileMap func_keys;
-	std::vector<std::string> func_text;
-	std::vector<SpriteInfo> keys;
-	SpriteArray key_sp;
+//	TileMap func_keys;
+//	std::vector<std::string> func_text;
+//	std::vector<SpriteInfo> keys;
+//	SpriteArray key_sp;
+	PanelKeyboard keyboard;
 	
 	int pnltype; //OFF PNL KYA KYM KYK
 	
@@ -37,8 +38,10 @@ public:
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	
+	void touch_keys(bool, int, int);
+	
 	TileMap& draw_panel();
-	SpriteArray draw_keyboard();
+	SpriteArray& draw_keyboard();
 	TileMap& draw_funckeys();
 //	void draw(sf::RenderWindow&, sf::RenderStates&);
 };

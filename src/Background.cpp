@@ -194,7 +194,7 @@ void Background::bgcopy_(const Args&){
 Var Background::bgchk_(const Vals& v){
 	int layer = static_cast<int>(std::get<Number>(v.at(0)));
 	
-	return Var(bg_info[2*page+layer].time > 0);
+	return Number(bg_info[2*page+layer].time > 0);
 }
 
 TileMap& Background::draw(int screen, int layer){

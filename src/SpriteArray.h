@@ -11,12 +11,12 @@ struct SpriteInfo {
 	int prio;
 	bool flip_x = false, flip_y = false;
 
-	double home_x, home_y;
+	double home_x = 0, home_y = 0;
 	
 	struct {
-		double x, y;
+		double x = 0, y = 0;
 		double dx,dy;
-		int time;
+		int time = 0;
 	} pos;
 	
 	struct {
@@ -68,11 +68,13 @@ bool is_hit(SpriteInfo&, SpriteInfo&);
 
 class SpriteArray : public sf::Drawable, public sf::Transformable {
 	sf::VertexArray va{sf::Quads, 0};
+	std::map<int, std::pair<int, int>> va_index; //id:[start_index, end_index)
 	
 public:
 	SpriteArray();
 	
 	void add_sprite(const SpriteInfo&);
+	void update_sprite_xy(const SpriteInfo&, int, int);
 	
 	void draw(sf::RenderTarget&, sf::RenderStates) const;
 };

@@ -334,6 +334,11 @@ void Program::dim_(const Args& a){
 	}
 }
 
+void Program::swap_(const Args& a){
+	//SWAP var1, var2
+	auto tmp = e.evaluate(a[1]); //Var type	
+	
+}
 
 std::vector<Token> tokenize(PRG& prg){
 	return tokenize(prg.data.data(), prg.data.size());

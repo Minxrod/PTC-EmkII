@@ -38,6 +38,7 @@ class Program{
 
 	void clear_(const Args&);
 	void dim_(const Args&);
+	void swap_(const Args&);
 	
 	//actual program runner
 	void run_();
