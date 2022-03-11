@@ -6,7 +6,7 @@ Input::Input(Evaluator& ev) : e{ev}, button_info{12, std::vector<int>{0,0,0}}{
 	
 }
 
-void Input::update(int b, Key k){
+void Input::update(int b){
 	old_buttons = (int)buttons;
 	buttons = b;
 	{
@@ -20,7 +20,7 @@ void Input::update(int b, Key k){
 		}
 	}
 	//if keycode != (enter) and is in (valid ranges) add to inkey queue
-	{
+	/*{
 		std::lock_guard loc(inkeybuf_mutex);
 		auto c = '?';
 		if (code_to_ptc.count(k) != 0){
@@ -30,7 +30,13 @@ void Input::update(int b, Key k){
 		e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
 		if (c != kya.at(0))
 			inkeybuffer.push(kya.at(code_to_ptc.at(k)));
-	}
+	}*/
+}
+
+int Input::keyboard_to_keycode(Key k){
+	if (code_to_ptc.count(k) != 0)
+		return code_to_ptc.at(k);
+	return 0; //invalid key...
 }
 
 void Input::touch(bool t, int x, int y){
@@ -47,6 +53,19 @@ void Input::touch(bool t, int x, int y){
 	e.vars.write_sysvar("TCHY", static_cast<double>(tchy));
 	e.vars.write_sysvar("TCHTIME", static_cast<double>(tchtime));
 	e.vars.write_sysvar("TCHST", tchst ? 1.0 : 0.0);
+}
+
+void Input::touch_key(int keycode){
+	{
+		std::lock_guard loc(inkeybuf_mutex);
+		auto c = '?';
+		if (keycode != 0){
+			c = kya.at(keycode);
+		}
+		e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
+		if (c != kya.at(0))
+			inkeybuffer.push(kya.at(keycode));
+	}
 }
 	
 void Input::brepeat_(const Args& a){

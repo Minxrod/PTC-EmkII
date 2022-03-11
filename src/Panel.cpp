@@ -118,3 +118,17 @@ TileMap& Panel::draw_funckeys(){
 	return func_keys;
 }
 
+int Panel::get_last_keycode(){
+	return keyboard.get_last_keycode();
+}
+
+std::pair<int,int> Panel::get_last_xy(){
+	return keyboard.get_last_xy();
+}
+
+std::pair<int,int> Panel::get_keycode_xy(int keycode){
+	return keyboard.get_keycode_xy(keycode);
+}
+
+
+

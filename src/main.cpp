@@ -82,6 +82,7 @@ int main(){
 	bool keybutton_enable = true;
 	bool keyboard_enable = true;
 	bool mouse_press = false;
+	int mouse_time = 0;
 	int mouse_x = 0;
 	int mouse_y = 0;
     while (window.isOpen())
@@ -105,12 +106,17 @@ int main(){
 			if (event.type == sf::Event::MouseButtonReleased){
 				mouse_press = false;
 			}
-			if (mouse_press){
-				auto [x, y] = sf::Mouse::getPosition(window);
-				mouse_x = x;
-				mouse_y = y - 192;
-			}
 		}
+		//Update mouse info
+		if (mouse_press){
+			auto [x, y] = sf::Mouse::getPosition(window);
+			mouse_x = x;
+			mouse_y = y - 192;
+			++mouse_time;
+		} else {
+			mouse_time = 0;
+		}
+		
 		if (!window.isOpen())
 			break;
 		//special buttons
@@ -152,9 +158,26 @@ int main(){
 			}
 		}
 		
-		i.update(b, k);
-		i.touch(mouse_press, mouse_x, mouse_y);
-		v.p.touch_keys(mouse_press, mouse_x, mouse_y);
+		std::cout << mouse_time << std::endl;
+		i.update(b); //only buttons now
+		if (mouse_press){
+			//"touchscreen" input
+			i.touch(mouse_press, mouse_x, mouse_y);
+			v.p.touch_keys(mouse_time==1, mouse_x, mouse_y);
+			i.touch_key(v.p.get_last_keycode());
+		} else if (k != sf::Keyboard::Key::Unknown){
+			//Simluate touchscreen tap by physical keyboard presses
+			int keycode = i.keyboard_to_keycode(k);
+			if (keycode != 0){
+				auto [x,y] = v.p.get_keycode_xy(keycode);
+				
+				i.touch(true, x, y);
+				v.p.touch_keys(true, x, y);
+				i.touch_key(keycode);
+			}
+		} else {
+			v.p.touch_keys(false, -1, -1);
+		}
 		
 		//begin chunk to be moved
 		//todo: move to somewhere else (likely Program)

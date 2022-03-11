@@ -54,17 +54,20 @@ PanelKeyboard::PanelKeyboard() :
 		int y = 6*8;
 		int ch = 384;
 		const int xofs[] = {3,0,3,4};
-		const char* str[] = {"1234567890-+=", "$\"QWERTYUIOP@*()", "!ASDFGHJKL;:<>", "'ZXCVBNM,./%"};
+//		const char* str[] = {"1234567890-+=", "$\"QWERTYUIOP@*()", "!ASDFGHJKL;:<>", "'ZXCVBNM,./%"};
 		int o = 0;
+		int keycode = 2;
 		for (int w : {13, 16, 14, 12}){
 			for (int x = 0; x < w; ++x){
 				auto k = create_key(16*x+8*xofs[o],y,ch);
 				ch += 2;
-				k.id = str[o][x];
+				k.id = keycode;
 				
 				keys.push_back(k);
 				key_sp.add_sprite(k);
+				++keycode;
 			}
+			++keycode; //it's amazing this works lol
 			y += 3*8;
 			++o;
 		}
@@ -74,9 +77,10 @@ PanelKeyboard::PanelKeyboard() :
 		int x[]{0, 232, 0, 0, 224};
 		int y[]{48, 48, 96, 120, 120};
 		int ch[]{280, 276, 284, 296, 300};
+		int keycodes[]{1, 15, 32, 47, 60};
 		for (int i = 0; i < 5; ++i){
 			auto k = create_big_key(x[i],y[i],ch[i],i>=3 ? 32 : 24);
-			k.id = 300 + i;
+			k.id = keycodes[i];
 			
 			keys.push_back(k);
 			key_sp.add_sprite(k);
@@ -86,9 +90,10 @@ PanelKeyboard::PanelKeyboard() :
 	{
 		int x[]{0, 24, 40, 56, 200, 216, 240, 240};
 		int ch[]{313, 508, 509, 510, 309, 310, 311, 315};
+		int keycodes[]{61, 62, 63, 64, 66, 67, 68, 310};
 		for (int i = 0; i < 8; ++i){
 			auto k = create_small_key(x[i],i==7 ? 0 : 144, ch[i]);
-			k.id = 310 + i;
+			k.id = keycodes[i];
 			
 			keys.push_back(k);
 			key_sp.add_sprite(k);
@@ -101,20 +106,20 @@ PanelKeyboard::PanelKeyboard() :
 		space_l.h = 16;
 		space_l.hit.w = 32;
 		space_l.hit.h = 16;
-		space_l.id = 320;
+		space_l.id = SPACE_KEY_MIN;
 		keys.push_back(space_l);
 		key_sp.add_sprite(space_l);
 		space.push_back(&keys.back());
 		
 		for (int i = 0; i < 4; ++i){
 			auto space_m = create_small_key(112 + 16*i, 144, 495);
-			space_m.id = 321 + i;
+			space_m.id = SPACE_KEY_MIN + i + 1;
 			keys.push_back(space_m);
 			key_sp.add_sprite(space_m);
 			space.push_back(&keys.back());
 		}
 		auto space_r = create_small_key(176,144,494);
-		space_r.id = 325;
+		space_r.id = SPACE_KEY_MAX;
 		keys.push_back(space_r);
 		key_sp.add_sprite(space_r);
 		space.push_back(&keys.back());
@@ -213,6 +218,7 @@ void PanelKeyboard::update_key(SpriteInfo& key, int dir){
 	}
 }
 
+//Note: updates graphics AND stores info about key pressed
 void PanelKeyboard::touch_keys(bool t, int x, int y){
 	if (last_pressed)
 		update_key(*last_pressed, -1);
@@ -261,4 +267,31 @@ TileMap& PanelKeyboard::draw_funckeys(){
 //	else //off
 //		func_keys.setPosition(0,192+256);
 	return func_keys;
+}
+
+std::pair<int, int> PanelKeyboard::get_keycode_xy(int keycode){
+	if (keycode == 65)
+		keycode = SPACE_KEY_MIN + 2;
+	for (SpriteInfo& key : keys){
+		if (key.id == keycode)
+			return std::pair<int,int>{key.pos.x+key.w/2, key.pos.y+key.h/2};
+	}
+	throw std::runtime_error{"oops, keycode doesn't exist"};
+}
+
+int PanelKeyboard::get_last_keycode(){
+	if (!last_pressed)
+		return 0;
+	auto k = last_pressed->id;
+	if (k < 69)
+		return k;
+	if (SPACE_KEY_MIN <= k && k <= SPACE_KEY_MAX)
+		return 65; //space keycode
+	return 0;
+}
+
+std::pair<int, int> PanelKeyboard::get_last_xy(){
+	if (!last_pressed)
+		return std::pair<int,int>(0,0);	
+	return std::pair<int,int>{last_pressed->pos.x, last_pressed->pos.y};
 }

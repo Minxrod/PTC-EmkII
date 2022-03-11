@@ -98,12 +98,7 @@ struct Input {
 	
 	std::mutex inkeybuf_mutex;
 	std::queue<char> inkeybuffer; //syncs to keycode unless a function key is pressed, which adds a string to the buffer (and has keycode = 0.)
-	
-	Input(Evaluator&);
-	
-	void update(int, Key);
-	void touch(bool, int, int);
-	
+		
 	char inkey_internal();
 	
 	void brepeat_(const Args&);
@@ -111,7 +106,15 @@ struct Input {
 	Var button_(const Vals&);
 	Var btrig_(const Vals&);
 	
-public:
+public:	
+	Input(Evaluator&);
+	
+	void update(int);
+	void touch(bool, int, int);
+	void touch_key(int keycode);
+	
+	int keyboard_to_keycode(Key);
+	
 	std::map<Token, cmd_type> get_cmds();
-	std::map<Token, op_func> get_funcs(); 	
+	std::map<Token, op_func> get_funcs();
 };

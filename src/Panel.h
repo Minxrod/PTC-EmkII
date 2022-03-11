@@ -44,4 +44,7 @@ public:
 	SpriteArray& draw_keyboard();
 	TileMap& draw_funckeys();
 //	void draw(sf::RenderWindow&, sf::RenderStates&);
+	int get_last_keycode();
+	std::pair<int,int> get_last_xy();
+	std::pair<int,int> get_keycode_xy(int keycode);
 };
