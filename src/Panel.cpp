@@ -86,36 +86,6 @@ Var Panel::iconchk_(const Vals&){
 
 void Panel::touch_keys(bool t, int x, int y){
 	keyboard.touch_keys(t,x,y);
-//	if (!t)
-//		return;
-//	//press keyboard keys
-//	SpriteInfo touch_sprite{};
-//	touch_sprite.active = true;
-//	touch_sprite.w = 1;
-//	touch_sprite.h = 1;
-//	touch_sprite.pos.x = x;
-//	touch_sprite.pos.y = y;
-//	touch_sprite.hit.x = 0;
-//	touch_sprite.hit.y = 0;
-//	touch_sprite.hit.w = 2;
-//	touch_sprite.hit.h = 2;
-//	for (SpriteInfo& key : keys){
-////		if (key.id == 320 || is_hit(touch_sprite, key))
-////			std::cout << key.pos.x << "," << key.pos.y << "," << is_hit(touch_sprite, key) << std::endl;
-//		
-//		if (is_hit(touch_sprite, key)){
-//			if (SPACE_KEY_MIN <= key.id && key.id <= SPACE_KEY_MAX){
-////				for (SpriteInfo& key : keys){
-//					
-////				}
-//			} else {
-//				//regular single sprite key
-//				key_sp.update_sprite_xy(key, 1, 1);
-//			}
-//			return;
-//		}
-//	}
-//	std::cout << x << "," << y << std::endl;
 }
 
 TileMap& Panel::draw_panel(){

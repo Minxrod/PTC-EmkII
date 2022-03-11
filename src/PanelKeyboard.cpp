@@ -3,6 +3,8 @@
 const int SPACE_KEY_MIN = 320;
 const int SPACE_KEY_MAX = 325;
 
+const int FUNC_KEY_START = 330;
+
 SpriteInfo key_same(int x, int y, int c){
 	SpriteInfo k;
 	k.active = true;
@@ -44,6 +46,8 @@ PanelKeyboard::PanelKeyboard() :
 	func_keys{32, 1},
 	func_text{"FILES","LOAD\"","SAVE\"","CONT","RUN"},
 	keys{},
+	space{}, run{}, edit{}, func{},
+	last_pressed{nullptr},
 	key_sp{}
 {
 	{
@@ -100,32 +104,39 @@ PanelKeyboard::PanelKeyboard() :
 		space_l.id = 320;
 		keys.push_back(space_l);
 		key_sp.add_sprite(space_l);
-
+		space.push_back(&keys.back());
+		
 		for (int i = 0; i < 4; ++i){
 			auto space_m = create_small_key(112 + 16*i, 144, 495);
 			space_m.id = 321 + i;
 			keys.push_back(space_m);
 			key_sp.add_sprite(space_m);
+			space.push_back(&keys.back());
 		}
 		auto space_r = create_small_key(176,144,494);
 		space_r.id = 325;
 		keys.push_back(space_r);
 		key_sp.add_sprite(space_r);
+		space.push_back(&keys.back());
 	}
 	//function keys (FILES, LOAD", etc.)
 	{
 		for (int f = 0; f < 5; f++){
 			auto func_l = create_small_key(f*48, 0, 505 - f);
-			func_l.id = 330 + f * 2;
+			func_l.id = FUNC_KEY_START + f * 2;
 			auto func_r = key_same(f*48 + 16, 0, 499);
 			func_r.w = 32;
 			func_r.h = 16;
-			func_r.id = 330 + f * 2 + 1;
+			func_r.id = FUNC_KEY_START + f * 2 + 1;
+
+			func.push_back(std::vector<SpriteInfo*>{});
 			
 			keys.push_back(func_l);
 			key_sp.add_sprite(func_l);
+			func.back().push_back(&keys.back());
 			keys.push_back(func_r);
 			key_sp.add_sprite(func_r);
+			func.back().push_back(&keys.back());
 		}
 	}
 	//system keys(?) (RUN/EDIT, HELP)
@@ -145,9 +156,13 @@ PanelKeyboard::PanelKeyboard() :
 
 		keys.push_back(help);
 		keys.push_back(run_stop_l);
+		run.push_back(&keys.back());
 		keys.push_back(run_stop_r);
+		run.push_back(&keys.back());
 		keys.push_back(edit_l);
+		edit.push_back(&keys.back());
 		keys.push_back(edit_r);
+		edit.push_back(&keys.back());
 		key_sp.add_sprite(help);
 		key_sp.add_sprite(run_stop_l);
 		key_sp.add_sprite(run_stop_r);
@@ -174,7 +189,35 @@ void PanelKeyboard::update_keytext(){
 	}
 }
 
+void PanelKeyboard::update_key(SpriteInfo& key, int dir){
+	if (SPACE_KEY_MIN <= key.id && key.id <= SPACE_KEY_MAX){
+		for (auto* space_spr : space){
+			key_sp.update_sprite_xy(*space_spr, dir, dir);
+		}
+	} else if (FUNC_KEY_START <= key.id && key.id < FUNC_KEY_START + 10) {
+		int func_pressed = (key.id - FUNC_KEY_START) / 2;
+		for (auto* func_spr : func[func_pressed]){
+			key_sp.update_sprite_xy(*func_spr, dir, dir);
+		}
+	} else if (341 == key.id || 342 == key.id) {
+		for (auto* run_spr : run){
+			key_sp.update_sprite_xy(*run_spr, dir, dir);
+		}
+	} else if (343 == key.id || 344 == key.id) {
+		for (auto* edit_spr : edit){
+			key_sp.update_sprite_xy(*edit_spr, dir, dir);
+		}
+	} else {
+		//regular single sprite key
+		key_sp.update_sprite_xy(key, dir, dir);
+	}
+}
+
 void PanelKeyboard::touch_keys(bool t, int x, int y){
+	if (last_pressed)
+		update_key(*last_pressed, -1);
+	last_pressed = nullptr;
+	
 	if (!t)
 		return;
 	//press keyboard keys
@@ -188,23 +231,14 @@ void PanelKeyboard::touch_keys(bool t, int x, int y){
 	touch_sprite.hit.y = 0;
 	touch_sprite.hit.w = 2;
 	touch_sprite.hit.h = 2;
+	
 	for (SpriteInfo& key : keys){
-//		if (key.id == 320 || is_hit(touch_sprite, key))
-//			std::cout << key.pos.x << "," << key.pos.y << "," << is_hit(touch_sprite, key) << std::endl;
-		
 		if (is_hit(touch_sprite, key)){
-			if (SPACE_KEY_MIN <= key.id && key.id <= SPACE_KEY_MAX){
-//				for (SpriteInfo& key : keys){
-					
-//				}
-			} else {
-				//regular single sprite key
-				key_sp.update_sprite_xy(key, 1, 1);
-			}
+			update_key(key, 1);			
+			last_pressed = &key;
 			return;
 		}
 	}
-	std::cout << x << "," << y << std::endl;
 }
 
 SpriteArray& PanelKeyboard::draw_keyboard(){
