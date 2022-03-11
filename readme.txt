@@ -12,20 +12,25 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Sample 2: Partially working, some keys are not mapped.
 - Sample 3: Mostly working, a few keys are not mapped.
 - Sample 4: Partially working, RND is currently unseeded and always returns the same values.
-- Sample 5: Partially works, graphics are not accurate to original
+- Sample 5: Partially works, graphics are not completely accurate to original
 - Sample 6: Partially working, only the top screen is currently rendered. (No icon = no eraser)
 - Sample 7: Works.
 - Sample 8-12: Not working, require various unimplemented features.
+- Game 1: Works, but no music (unimplemented).
+- Game 2: Partially works, no music or animation yet (unimplemented). Might contain undiscovered bugs
+- Game 3: Works, sometimes? Runs slowly compared to original, needs more testing.
+- Game 4: Not working, requires unimplemented features.
+- Game 5: Not working, requires unimplemented features.
 
 = Features =
 - Console: Almost everything on the console should be working, issues only with INPUT and LINPUT.
 - Background: Basic operations should work, BGREAD and BGCOPY are not finished.
-- Sprites: Does not exist yet.
+- Sprites: Partial support; some visual elements are working, no collision implemented yet.
 - Graphics: Some basic operations should work, very unfinished.
-- Panel: Does not exist yet, nowhere near completion (likely will be built off of background and sprite support)
+- Panel: In progress.
 - Files: Only default graphics are currently loaded.
 - Sound: Beeps work aside from panpot, BGM is not implemented yet.
-- Input: Partial keyboard, WASD/Arrow controls.
+- Input: Buttons and keyboard work, experimental controller support. Controls can be changed from config/controls.txt, though it's not yet convenient.
 
 == Building ==
 
@@ -56,6 +61,20 @@ WIP instructions:
 = Setup =
 
 You will need the default graphics (CHR+COL) files. These are resources such as SPU0, BGD1, COL0, etc. and can be obtained from a copy of PTC easily. Place these files, named as "resource.PTC" (ex. SPU0.PTC) in the folder resources/graphics/.
+
+The panel/keyboard currently requires several files to be extracted from a copy of Petit Computer. Eventually, these will be replaced with a recreation. To extract these files from your Petit Computer rom, use Tinke. (https://github.com/pleonex/tinke/).
+
+The files required are:
+-pnlKEY.NSCR
+-pnlPANEL.NSCR 
+-partsSPDK.NCGR
+-makeALPHA_SHIFT.NCGR
+-makeKANA.NCGR
+-makeKANA_SHIFT.NCGR
+-makeKIGOU.NCGR
+-makeKIGOU_SHIFT.NCGR
+
+These files should be placed in resources/ui/. (If the folder does not already exist, just create it.)
 
 For sounds to work, you will need sound files named beepXXX.wav, where X is a 3 digit waveform number. These files should be placed in resources/sounds/sfx/. These are somewhat more involved to obtain; a guide for recording sounds will be finished later.
 
