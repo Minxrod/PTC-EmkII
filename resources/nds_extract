@@ -1,0 +1,64 @@
+#!/bin/bash
+
+# https://stackoverflow.com/questions/3915040/how-to-obtain-the-absolute-path-of-a-file-via-shell-bash-zsh-sh
+get_abs_filename() {
+  # $1 : relative filename
+  echo "$(cd "$(dirname "$1")" && pwd)/$(basename "$1")"
+}
+
+# ndstool extraction path
+EXTRACT_PATH="extract/"
+# temporary file
+TEMP_NDS="TEMP_ptc.nds"
+# sdatxtract extraction path
+TEMP_PATH="TEMP_ptc/"
+
+# this is so sdatxtract has a simpler path
+# (there is almost certainly a better way to do this)
+nds_path="$(find . -name "*.nds")"
+echo "Found .nds file: $nds_path"
+echo "Copying to temporary file $TEMP_NDS"
+cp "$nds_path" "$TEMP_NDS"
+
+echo "Extracting graphics resources..."
+./tools/ndstool -x -d "$EXTRACT_PATH" "$TEMP_NDS"
+echo "Extracting sound resources..."
+./tools/sdatxtract "$TEMP_NDS"
+
+echo "Moving graphics resources..."
+mv "$EXTRACT_PATH/pnl"*.NSCR"" "ui/"
+mv "$EXTRACT_PATH/"*.NCGR"" "ui/"
+mv "$EXTRACT_PATH/"*.NCLR"" "ui/"
+
+echo "Extracting NCGR to .PTC"
+python3 tools/ncgr_to_ptc.py "ui/BGU.NCGR" "BGU"
+python3 tools/ncgr_to_ptc.py "ui/BGD.NCGR" "BGD"
+python3 tools/ncgr_to_ptc.py "ui/BGF.NCGR" "BGF"
+python3 tools/ncgr_to_ptc.py "ui/partsSPU.NCGR" "SPU"
+python3 tools/ncgr_to_ptc.py "ui/partsSPS.NCGR" "SPS"
+python3 tools/ncgr_to_ptc.py "ui/partsSPDK.NCGR" "SPD"
+
+echo "Extracting NCLR to .PTC"
+python3 tools/nclr_to_ptc.py "ui/defBGSP.NCLR" "COL0"
+python3 tools/nclr_to_ptc.py "ui/defBGSP.NCLR" "COL1"
+python3 tools/nclr_to_ptc.py "ui/GRP.NCLR" "COL2"
+
+echo "Moving extracted PTC..."
+mv BGU*.PTC "graphics/"
+mv BGD*.PTC "graphics/"
+mv BGF*.PTC "graphics/"
+mv SPU*.PTC "graphics/"
+mv SPS*.PTC "graphics/"
+mv SPD*.PTC "graphics/"
+mv COL*.PTC "graphics/"
+
+echo "Moving sound resources..."
+mv "$TEMP_PATH/0/bank/"*.sbnk"" "sounds/"
+mv "$TEMP_PATH/0/sequence/"*.sseq"" "sounds/"
+mv "$TEMP_PATH/0/wave/"*.swar"" "sounds/"
+
+echo "Removing temporary file"
+rm "TEMP_ptc.nds"
+echo "Removing extraction directories"
+rm -r "$TEMP_PATH"
+rm -r "$EXTRACT_PATH"

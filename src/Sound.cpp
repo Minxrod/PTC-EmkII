@@ -3,7 +3,7 @@
 #include <cmath>
 
 Sound::Sound(Evaluator& ev) : e{ev}{
-	for (auto i = 0; i < 264; i++){
+/*	for (auto i = 0; i < 264; i++){
 		sf::SoundBuffer buf;
 		std::string name = "resources/sounds/sfx/beep"+std::to_string(i/100)+std::to_string((i/10)%10)+std::to_string(i%10)+".wav";
 		if (buf.loadFromFile(name)){
@@ -11,7 +11,7 @@ Sound::Sound(Evaluator& ev) : e{ev}{
 		} else {
 			throw std::runtime_error{"error loading file: " + name};
 		}
-	}
+	}*/
 	
 	sfx = std::vector<sf::Sound>(16, sf::Sound{});
 }
@@ -24,8 +24,8 @@ sf::Sound& Sound::get_available_sound(){
 	return sfx.at(15);
 }
 
-void Sound::beep_(const Args& a){
-	auto& s = get_available_sound();
+void Sound::beep_(const Args& ){
+/*	auto& s = get_available_sound();
 	int wf = 0;
 	if (a.size() >= 2){ //BEEP <waveform number>
 		wf = (int)std::get<Number>(e.evaluate(a[1]));
@@ -46,7 +46,7 @@ void Sound::beep_(const Args& a){
 	s.setBuffer(wav.at(wf));
 	s.setPitch(std::pow(2, p/4096.0));
 	s.setVolume(v);
-	s.play();
+	s.play();*/
 }
 
 void Sound::bgmplay_(const Args&){

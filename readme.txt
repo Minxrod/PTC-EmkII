@@ -2,7 +2,7 @@ PTC Interpreter, attempt two!
 
 == Description ==
 
-This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC program on PC. The end goal is to support all commands and functions that are usable from programs - DIRECT mode is not currently planned to be supported. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLREAD bug/crash will not work the same.
+This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC programs on PC. The end goal is to support all commands and functions that are usable from programs - DIRECT mode is not currently planned to be supported. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLREAD bug/crash will not work the same.
 
 Please note that this is heavily a WIP and nowhere near finished, so don't expect anything to work.
 
@@ -25,11 +25,11 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 = Features =
 - Console: Almost everything on the console should be working, issues only with INPUT and LINPUT.
 - Background: Basic operations should work, BGREAD and BGCOPY are not finished.
-- Sprites: Partial support; some visual elements are working, no collision implemented yet.
+- Sprites: Partial support; several visual elements are working.
 - Graphics: Some basic operations should work, very unfinished.
-- Panel: In progress.
+- Panel: In progress, does not yet support ICON commands.
 - Files: Only default graphics are currently loaded.
-- Sound: Beeps work aside from panpot, BGM is not implemented yet.
+- Sound: In progress, but has some differences from the original.
 - Input: Buttons and keyboard work, experimental controller support. Controls can be changed from config/controls.txt, though it's not yet convenient.
 
 == Building ==
@@ -45,40 +45,19 @@ $ cd PTC-EmkII
 $ mkdir build/
 $ make
 
-= Windows = 
-
-To be finished later, currently trying to resolve issues with compatibility (likely will require several small changes to source). 
-
-WIP instructions:
-- Install MSYS, instructions at www.msys2.org.
-- Download/clone this repo, then create a build folder named "build/" in the root of the repo.
-- Download SFML 2.5.1 here: https://www.sfml-dev.org/download/sfml/2.5.1/
-- Add the following option to the end of OFLAGS: -I<your SFML include path> Example: -IC:\SFML-2.5.1\include
-- Run make, you will get several errors. (currently being worked on)
-
 == Instructions == 
 
 = Setup =
 
-You will need the default graphics (CHR+COL) files. These are resources such as SPU0, BGD1, COL0, etc. and can be obtained from a copy of PTC easily. Place these files, named as "resource.PTC" (ex. SPU0.PTC) in the folder resources/graphics/.
+Place a PTC .nds file in the resources/ directory, then run
 
-The panel/keyboard currently requires several files to be extracted from a copy of Petit Computer. Eventually, these will be replaced with a recreation. To extract these files from your Petit Computer rom, use Tinke. (https://github.com/pleonex/tinke/).
+$ cd resources/
+$ ./nds_extract
 
-The files required are:
--pnlKEY.NSCR
--pnlPANEL.NSCR 
--partsSPDK.NCGR
--makeALPHA_SHIFT.NCGR
--makeKANA.NCGR
--makeKANA_SHIFT.NCGR
--makeKIGOU.NCGR
--makeKIGOU_SHIFT.NCGR
+This should automatically extract all required graphics and sound resources to the correct locations. Note that if you put more than one .nds in the resources directory, it will not work.
+This has only been tested on Debian 11. It is currently UNTESTED on other machines; I do not know if the copy of ndstool or sdatxtract provided will work. If it does not, see the Tools link below and compile/download the binaries yourself, and replace the copies in resources/tools/.
 
-These files should be placed in resources/ui/. (If the folder does not already exist, just create it.)
-
-For sounds to work, you will need sound files named beepXXX.wav, where X is a 3 digit waveform number. These files should be placed in resources/sounds/sfx/. These are somewhat more involved to obtain; a guide for recording sounds will be finished later.
-
-Put any PTC files you want to run/load in the programs/ folder.
+Put any PTC files you want to run or load in the programs/ folder. This includes resources, such as CHR or GRP files.
 You will be prompted to enter a filename when launching PTC-EmkII.
 
 = Controls: =
@@ -97,6 +76,10 @@ Special keys:
 - End: Disable/Enable keyboard buttons
 
 KEYBOARD and INKEY$() are approximated by typing on the keyboard. Note that currently, not all keys are mapped, so some symbols are currently unable to be typed (ex. $ or %)
+
+== Tools used ==
+- https://github.com/Oreo639/sdatxtract
+- https://github.com/devkitPro/ndstool
 
 == Resources/Links ==
 
