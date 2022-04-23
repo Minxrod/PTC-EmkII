@@ -20,6 +20,11 @@ echo "Found .nds file: $nds_path"
 echo "Copying to temporary file $TEMP_NDS"
 cp "$nds_path" "$TEMP_NDS"
 
+echo "Creating directories..."
+mkdir "ui/"
+mkdir "graphics/"
+mkdir "sounds/"
+
 echo "Extracting graphics resources..."
 ./tools/ndstool -x -d "$EXTRACT_PATH" "$TEMP_NDS"
 echo "Extracting sound resources..."
