@@ -107,13 +107,16 @@ void Variables::create_arr(std::string name, std::vector<Var> args){
 //Yes:      FUNCNO TCHX TCHY TCHST TCHTIME MAINCNTL MAINCNTH KEYBOARD TIME$ DATE$ 
 
 void Variables::clear_(){
-	for (auto& v : vars){
-		if (sysvars.find(" "+v.first+" ") == std::string::npos){
+	auto iter = vars.begin();
+	while (iter != vars.end()){
+		if (sysvars.find(" "+iter->first+" ") == std::string::npos){
 			//erase if not sysvar
-			vars.erase(v.first);
+			iter = vars.erase(iter);
+		} else {
+			//Can't erase sysvars since some other stuff holds pointers to the internal data
+			//(Also, sysvars don't get erased by CLEAR anyway)
+			iter++;
 		}
-		//Can't erase sysvars since some other stuff holds pointers to the internal data
-		//(Also, sysvars don't get erased by CLEAR anyway)
 	}
 }
 
