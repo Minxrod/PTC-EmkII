@@ -258,9 +258,15 @@ Var Sprites::sphit_(const Vals& v){
 			break;
 		}
 	}
-	if (i == 100)
+	if (i == 100){
 		return Var(0.0);
-	return Var(1.0);
+	} else {
+		e.vars.write_sysvar("SPHITNO", (double)i);
+		return Var(1.0);
+//		e.vars.write_sysvar("SPHITX", i); //not clear yet what these should be...
+//		e.vars.write_sysvar("SPHITY", i);
+//		e.vars.write_sysvar("SPHITT", i);
+	}
 }
 
 Var Sprites::sphitsp_(const Vals& v){
@@ -270,6 +276,7 @@ Var Sprites::sphitsp_(const Vals& v){
 	auto id2 = std::get<Number>(v.at(1));
 	auto& s2 = sprites[page][id2];
 	
+	//TODO: This apparently affects SPHITX,SPHITY,SPHITT, but not SPHITNO?
 	return Var((double)is_hit(s1, s2));
 }
 
