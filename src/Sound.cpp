@@ -96,8 +96,17 @@ void Sound::bgmplay_(const Args& a){
 	//TODO: Implement MML, maybe?
 }
 
-void Sound::bgmstop_(const Args&){
-	
+void Sound::bgmstop_(const Args& a){
+	int track = 0;
+	if (a.size() == 2){
+		//BGMSTOP <track>
+		track = (int)std::get<Number>(e.evaluate(a[1]));
+	} 
+	bgm.at(track)->stop();
+	//if (a.size() == 3){
+	//BGMSTOP <track> <fadetime>
+	//TODO: implement this correctly
+	//}
 }
 
 Var Sound::bgmchk_(const Vals& v){
