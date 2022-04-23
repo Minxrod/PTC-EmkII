@@ -13,7 +13,8 @@ Sound::Sound(Evaluator& ev) : e{ev}{
 		}
 	}*/
 	
-	sfx.resize(16);
+	sfx.resize(SFX_COUNT);
+	bgm.resize(BGM_TRACK_COUNT);
 	
 	swar.open("resources/sounds/SWAR_0.swar");
 	sbnk.open("resources/sounds/SBNK_0.sbnk");
@@ -55,24 +56,60 @@ void Sound::beep_(const Args& a){
 	}
 	if (sfx[i])
 		sfx[i]->stop();
-	sfx[i] = std::make_unique<SSEQStream>(swar, sbnk, sseq[wf+30]);
+	sfx[i] = std::make_unique<SSEQStream>(swar, sbnk, sseq[wf+SEQ_SFX_OFFSET]);
 	auto& s = *sfx[i];
 	s.setPitch(std::pow(2, p/4096.0));
 	s.setVolume(v);
 	s.play();
 }
 
-void Sound::bgmplay_(const Args&){
-	//do nothing because I haven't figured out how to handle bgm yet
+void Sound::bgmplay_(const Args& a){
+	auto arg1 = e.evaluate(a[1]); // there should always be at least one argument
+	if (std::holds_alternative<Number>(arg1)){
+		// BGMPLAY [track] <song> [volume]
+		int track = 0;
+		int song;
+		double volume = 100.0; // assumed default?
+		
+		if (a.size() == 2){ 
+			// BGMPLAY <song>
+			song = std::get<Number>(arg1);
+		} else if (a.size() >= 3){ 
+			// BGMPLAY <track> <song>
+			track = std::get<Number>(arg1);
+			song = std::get<Number>(e.evaluate(a[2]));
+		}
+		if (a.size() == 4){
+			// BGMPLAY <track> <song> <volume>
+			volume = std::get<Number>(e.evaluate(a[3])) / 127.0 * 100.0;
+		} else if (a.size() > 4){
+			throw std::runtime_error{"BGMPLAY too many args"};
+		}
+		
+		if (bgm.at(track))
+			bgm.at(track)->stop();
+		bgm.at(track) = std::make_unique<SSEQStream>(swar, sbnk, sseq[song]);
+		auto& music = *bgm.at(track);
+		music.setVolume(volume);
+		music.play();
+	}
+	//TODO: Implement MML, maybe?
 }
 
 void Sound::bgmstop_(const Args&){
-	//do nothing because all bgm is already stopped if it never starts
+	
 }
 
-Var Sound::bgmchk_(const Vals&){
-	//return whether sound is playing (always false because sound is not implemented yet)
-	return Var(0.0);
+Var Sound::bgmchk_(const Vals& v){
+	int track = 0;
+	if (v.size() == 1){
+		track = (int)std::get<Number>(v.at(0));
+	}
+	
+	if (!bgm.at(track))
+		return Var(0.0); // no song loaded -> not playing
+	// song is loaded: is it still playing?
+	return Var(static_cast<double>(bgm.at(track)->getStatus() == sf::SoundSource::Status::Stopped));
 }
 
 std::map<Token, cmd_type> Sound::get_cmds(){

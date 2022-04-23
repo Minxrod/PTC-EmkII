@@ -11,6 +11,11 @@
 #include "Evaluator.h"
 
 class Sound {
+	const static int BGM_TRACK_COUNT = 8;
+	const static int SFX_COUNT = 16;
+	const static int SEQ_SFX_OFFSET = 30;
+	
+	
 	Evaluator& e;
 	
 	const std::string resource_path{"resources/sounds/"};
@@ -23,7 +28,7 @@ class Sound {
 	SBNK sbnk;
 	std::vector<SSEQ> sseq;
 	
-	std::unique_ptr<SSEQStream> bgm;
+	std::vector<std::unique_ptr<SSEQStream>> bgm;
 	std::vector<std::unique_ptr<SSEQStream>> sfx;
 	
 	int get_available_sound();
