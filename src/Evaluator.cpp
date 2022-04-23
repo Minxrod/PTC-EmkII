@@ -148,7 +148,9 @@ PrioToken conv_prio(const Token& t, int& n){
 				p.prio = INTERNAL_ENDLIST;
 		}
 	}
-		
+	if (p.type == Type::Rem){
+		p.prio = COMMENT;
+	}
 	return p;
 }
 
@@ -253,7 +255,7 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 	std::vector<std::vector<Token>> subseq{};
 	
 	auto itr = tokens.begin();
-	//print("NO_PARENS", tokens);
+//	print("NO_PARENS", tokens);
 	
 	while (max_prio >= 0){
 		itr = tokens.begin();
@@ -265,7 +267,7 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 				//have RPN subsequence
 				subseq.push_back(r_n);
 				itr = tokens.begin();
-//				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);			
+//				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);
 			} else {
 				itr++;
 			}

@@ -102,7 +102,8 @@ void Sound::bgmstop_(const Args& a){
 		//BGMSTOP <track>
 		track = (int)std::get<Number>(e.evaluate(a[1]));
 	} 
-	bgm.at(track)->stop();
+	if (bgm.at(track))
+		bgm.at(track)->stop();
 	//if (a.size() == 3){
 	//BGMSTOP <track> <fadetime>
 	//TODO: implement this correctly

@@ -11,6 +11,7 @@
 //values don't really matter, just need to be negative and unique
 const int INTERNAL_ENDLIST = -999;
 const int INTERNAL_SUBEXP = -888;
+const int COMMENT = -77;
 const int INTERNAL_PAREN = -24;
 
 std::vector<PrioToken> conv_tokens(const std::vector<Token>&);

@@ -17,6 +17,7 @@ std::map<Token, cmd_type> Sprites::get_cmds(){
 		std::pair("SPSCALE"_TC, getfunc(this, &Sprites::spscale_)),
 		std::pair("SPCOL"_TC, getfunc(this, &Sprites::spcol_)),
 		std::pair("SPCOLVEC"_TC, getfunc(this, &Sprites::spcolvec_)),
+		std::pair("SPSETV"_TC, getfunc(this, &Sprites::spsetv_)),
 	};
 }
 
@@ -25,6 +26,7 @@ std::map<Token, op_func> Sprites::get_funcs(){
 		std::pair<Token, op_func>("SPCHK"_TF, getfunc<Sprites>(this, &Sprites::spchk_)),
 		std::pair<Token, op_func>("SPHIT"_TF, getfunc<Sprites>(this, &Sprites::sphit_)),
 		std::pair<Token, op_func>("SPHITSP"_TF, getfunc<Sprites>(this, &Sprites::sphitsp_)),
+		std::pair<Token, op_func>("SPGETV"_TF, getfunc<Sprites>(this, &Sprites::spgetv_)),
 	};
 }
 
@@ -131,7 +133,9 @@ void Sprites::spanim_(const Args& a){
 	auto& s = sprites[page][id];
 	auto chrs = std::get<Number>(e.evaluate(a[2]));
 	auto frames = std::get<Number>(e.evaluate(a[3]));
-	auto loop = std::get<Number>(e.evaluate(a[4]));
+	auto loop = 0;
+	if (a.size() >= 5)
+		loop = std::get<Number>(e.evaluate(a[4]));
 	
 	s.anim.chr = chrs;
 	s.anim.frames = frames;
@@ -191,10 +195,25 @@ Var Sprites::spchk_(const Vals& v){
 
 void Sprites::spread_(const Args&){}
 
-void Sprites::spsetv_(const Args&){}
+void Sprites::spsetv_(const Args& a){
+	// SPSETV id var value
+	auto id = std::get<Number>(e.evaluate(a[1]));
+	auto& s = sprites[page][id];
+	
+	int var = std::get<Number>(e.evaluate(a[2]));
+	auto value = std::get<Number>(e.evaluate(a[3]));
+	
+	s.vars[var] = value;
+}
 
-Var Sprites::spgetv_(const Vals&){
-	return Var(0.0);
+Var Sprites::spgetv_(const Vals& v){
+	// SPGETV(id, var)
+	auto id = std::get<Number>(v[0]);
+	auto& s = sprites[page][id];
+	
+	int var = std::get<Number>(v[1]);
+
+	return s.vars[var];
 }
 
 void Sprites::spcol_(const Args& a){

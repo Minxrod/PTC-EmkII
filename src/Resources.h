@@ -26,6 +26,10 @@ struct CHR{
 		return (x%2==0) ? (ch & 0x0f) : ((ch & 0xf0) >> 4);
 	};
 	
+	void set_pixel(int c, int x, int y, int col){
+		data[32*c+x/2+4*y] |= (x%2==0) ? col : (col << 4);
+	}
+	
 	std::vector<unsigned char> get_array(){
 		std::vector<unsigned char> array(256*8*8*4, 0);
 		

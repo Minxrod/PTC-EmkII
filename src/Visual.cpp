@@ -61,8 +61,8 @@ std::map<Token, cmd_type> Visual::get_cmds(){
 		cmd_map{"VISIBLE"_TC, getfunc(this, &Visual::visible_)},
 		cmd_map{"VSYNC"_TC, getfunc(this, &Visual::vsync_)},
 		cmd_map("CHRINIT"_TC, getfunc(this, &Visual::chrinit_)),
-//		cmd_map("CHRSET"_TC, getfunc(this, &Visual::chrset_)),
-//		cmd_map("CHRREAD"_TC, getfunc(this, &Visual::chrread_)),
+		cmd_map("CHRSET"_TC, getfunc(this, &Visual::chrset_)),
+		cmd_map("CHRREAD"_TC, getfunc(this, &Visual::chrread_)),
 		cmd_map("COLINIT"_TC, getfunc(this, &Visual::colinit_)),
 //		cmd_map("COLSET"_TC, getfunc(this, &Visual::colset_)),
 //		cmd_map("COLREAD"_TC, getfunc(this, &Visual::colread_)),
@@ -107,19 +107,50 @@ void Visual::chrinit_(const Args& a){
 		res += "0"; //CHRINIT "BGU" initializes BGU0 apparently
 	}
 	if (res.size() == 4){
-		res += "U"; //default resources are upper screen
+		if (res.substr(0,3) != "SPU" && res.substr(0,3) != "SPD")
+			res += "U"; //default resources are upper screen
 	}
 	std::string path = "resources/graphics/"+res.substr(0,4)+".PTC";
 	load_default(r.chr.at(res), path);
 	//needs to regen textures
 }
 
-void Visual::chrset_(const Args&){
+void Visual::chrset_(const Args& a){
+	auto resource_type = std::get<String>(e.evaluate(a[1]));
+	int chr_id = std::get<Number>(e.evaluate(a[2]));
+	auto& chr_resource = r.chr.at(resource_type);
+	std::string chr_data = std::get<String>(e.evaluate(a[3]));
 	
+	for (int y = 0; y < 8; ++y){
+		for (int x = 0; x < 8; ++x){
+			auto d = chr_data[x+8*y];
+			d = d - (d > '9' ? ('A' - '9' + 1) : 0) - '0';
+			chr_resource.set_pixel(chr_id, x, y, d);
+		}
+	}
 }
 
-void Visual::chrread_(const Args&){
+void Visual::chrread_(const Args& a){
+	auto a_ = a[1]; //copy so args are not modified
+	//remove parens
+	a_.erase(a_.begin());
+	a_.erase(a_.end()-1);
 	
+	auto args = split(a_);
+	
+	auto resource_type = std::get<String>(e.evaluate(args[0]));
+	int chr_id = std::get<Number>(e.evaluate(args[1]));
+	auto& chr_resource = r.chr.at(resource_type);
+	
+	const char* digits = "0123456789ABCDEF";
+	std::string chr_data{};
+	for (int y = 0; y < 8; ++y){
+		for (int x = 0; x < 8; ++x){
+			chr_data += digits[chr_resource.get_pixel(chr_id, x, y)];
+		}
+	}
+	
+	e.assign(a[2], Token{chr_data, Type::Str});
 }
 
 void Visual::colinit_(const Args& a){
