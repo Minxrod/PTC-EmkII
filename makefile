@@ -4,12 +4,14 @@
 
 SOURCE = src/
 BUILD = build/
+LIB = lib/
+INCLUDE = include/
 
 CXX = g++
-OFLAGS = -std=c++17 -Wall -Werror -Wpedantic -Wextra -MMD
+OFLAGS = -std=c++17 -Wall -Werror -Wpedantic -Wextra -MMD -I$(INCLUDE) -L$(LIB) -Wl,-rpath,./lib
 
 # https://stackoverflow.com/questions/24096807/dso-missing-from-command-line
-CXXFLAGS = $(OFLAGS) -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -lpthread
+CXXFLAGS = $(OFLAGS) -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -lpthread -lSSEQPlayer
 OBJECTS = main.o Evaluator.o Vars.o Variables.o Resources.o FileLoader.o Console.o Program.o Visual.o Input.o Sound.o Graphics.o Panel.o TileMap.o Background.o Sprites.o SpriteArray.o PanelKeyboard.o
 
 objs = $(OBJECTS:%=$(BUILD)%)
@@ -20,11 +22,8 @@ ptc: $(objs)
 $(BUILD)main.o: $(SOURCE)main.cpp
 	$(CXX) $(CXXFLAGS) -g -c $< -o $@
 
-$(BUILD)%.o: $(SOURCE)%.cpp 
+$(BUILD)%.o: $(SOURCE)%.cpp
 	$(CXX) $(OFLAGS) -g -c $< -o $@
-
-tests: $(objs)
-	$(CXX) -g -o ptc_tests tests.o $(objs) $(CXXFLAGS)
 
 .PHONY: clean
 clean:

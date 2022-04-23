@@ -13,19 +13,29 @@ Sound::Sound(Evaluator& ev) : e{ev}{
 		}
 	}*/
 	
-	sfx = std::vector<sf::Sound>(16, sf::Sound{});
-}
-
-sf::Sound& Sound::get_available_sound(){
-	for (auto& s : sfx){
-		if (s.getStatus() == sf::SoundSource::Status::Stopped)
-			return s;
+	sfx.resize(16);
+	
+	swar.open("resources/sounds/SWAR_0.swar");
+	sbnk.open("resources/sounds/SBNK_0.sbnk");
+	
+	for (auto i = 0; i < 294; ++i){
+		sseq.emplace_back();
+		sseq.back().open("resources/sounds/SSEQ_"+std::to_string(i)+".sseq");
 	}
-	return sfx.at(15);
 }
 
-void Sound::beep_(const Args& ){
-/*	auto& s = get_available_sound();
+int Sound::get_available_sound(){
+	int i = 0;
+	for (auto& s : sfx){
+		if (!s || s->getStatus() == sf::SoundSource::Status::Stopped)
+			return i;
+		++i;
+	}
+	return 15;
+}
+
+void Sound::beep_(const Args& a){
+	auto i = get_available_sound();
 	int wf = 0;
 	if (a.size() >= 2){ //BEEP <waveform number>
 		wf = (int)std::get<Number>(e.evaluate(a[1]));
@@ -39,14 +49,17 @@ void Sound::beep_(const Args& ){
 		v = std::get<Number>(e.evaluate(a[3]));
 		v = v / 127.0 * 100.0;
 	}
-	auto pan = 0;
+//	auto pan = 0;
 	if (a.size() >= 5){ //BEEP <waveform> <pitch> <volume> <panpot>
-		pan = pan + 1; //don't quite know how to handle this one yet
+//		pan = pan + 1; //don't quite know how to handle this one yet
 	}
-	s.setBuffer(wav.at(wf));
+	if (sfx[i])
+		sfx[i]->stop();
+	sfx[i] = std::make_unique<SSEQStream>(swar, sbnk, sseq[wf+30]);
+	auto& s = *sfx[i];
 	s.setPitch(std::pow(2, p/4096.0));
 	s.setVolume(v);
-	s.play();*/
+	s.play();
 }
 
 void Sound::bgmplay_(const Args&){

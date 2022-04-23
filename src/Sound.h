@@ -1,9 +1,11 @@
 #pragma once
 
 #include <SFML/Audio.hpp>
+#include <SSEQStream.h>
 
 #include <map>
 #include <vector>
+#include <memory>
 
 #include "Vars.h"
 #include "Evaluator.h"
@@ -13,11 +15,18 @@ class Sound {
 	
 	const std::string resource_path{"resources/sounds/"};
 
-	std::vector<sf::SoundBuffer> wav;
-	std::vector<sf::Sound> sfx;
-	std::vector<sf::Music> bgm;
+//	std::vector<sf::SoundBuffer> wav;
+//	std::vector<sf::Sound> sfx;
+//	std::vector<sf::Music> bgm;
 	
-	sf::Sound& get_available_sound();
+	SWAR swar;
+	SBNK sbnk;
+	std::vector<SSEQ> sseq;
+	
+	std::unique_ptr<SSEQStream> bgm;
+	std::vector<std::unique_ptr<SSEQStream>> sfx;
+	
+	int get_available_sound();
 	
 	void beep_(const Args&);
 
