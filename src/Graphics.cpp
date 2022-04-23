@@ -217,6 +217,21 @@ void Graphics::gcopy_(const Args&){
 
 }
 
+void Graphics::reset(){
+	//GDRAWMD FALSE:GCLS (all):GCOLOR 0'(all GRP)
+	gdrawmd = false;
+	gcolor = 0;
+	// Following clears all GRP
+	for (int i = 0; i < 4; ++i){
+		auto& g = grp.at("GRP"+std::to_string(i)).data;
+		for (int y = 0; y < HEIGHT; ++y){
+			for (int x = 0; x < WIDTH; ++x){
+				draw_pixel(image[i], g, x, y, gcolor);
+			}
+		}
+	}
+}
+
 int Graphics::get_prio(int screen){
 	return prio[screen];
 }

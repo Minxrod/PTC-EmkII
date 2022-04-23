@@ -157,7 +157,7 @@ void Visual::acls_(const Args&){
 	//COLOR 0:CLS
 	c.reset();
 	//GDRAWMD FALSE:GCLS (all):GCOLOR 0'(all GRP)
-	//g.reset();
+	g.reset();
 }
 
 void Visual::update(){
