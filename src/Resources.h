@@ -65,7 +65,41 @@ struct SCR{
 struct COL{
 	static const int SIZE = 256*2;
 	
+	COL() = default;
+	
 	std::vector<unsigned char> data;
+	
+	int RGB_to_COL(int r, int g, int b){
+		int r5 = r >> 3;
+		int g5 = g >> 3;
+		int b5 = b >> 3;
+		int col = (b5 << 10) + (g5 << 5) + r5;
+		return col;
+	}
+	
+	void set_col(int i, int r, int g, int b){
+		int col = RGB_to_COL(r,g,b);
+		data[2*i] = col & 0x00ff;
+		data[2*i+1] = (col & 0xff00) >> 8;
+	}
+	
+	int get_col_r(int i){
+		int col = (data[2*i] << 8) + data[2*i+1];
+		std::cout << ((col & 0x1F00) >> 5) << ",";
+		return (col & 0x1F00) >> 5;
+	}
+	
+	int get_col_g(int i){
+		int col = (data[2*i] << 8) + data[2*i+1];
+		std::cout << (((col & 0xE000) >> 10) | ((col & 0x0003) << 6)) << ",";
+		return ((col & 0xE000) >> 10) | ((col & 0x0003) << 6);
+	}
+		
+	int get_col_b(int i){
+		int col = (data[2*i] << 8) + data[2*i+1];
+		std::cout << ((col & 0x007C) << 1) << " ";
+		return (col & 0x007C) << 1;
+	}
 	
 	std::vector<unsigned char> COL_to_RGBA(){
 		std::vector<unsigned char> cols;

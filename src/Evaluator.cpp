@@ -48,12 +48,12 @@ Evaluator::Evaluator(){
 		func_map{"RAD"_TF, ptc::rad},
 		//func_map{"EXP"_TF, ptc::exp},
 		func_map{"FLOOR"_TF, ptc::floor},
-		//func_map{"HEX$"_TF, ptc::hex},
+		func_map{"HEX$"_TF, ptc::hex},
 		func_map{"LEN"_TF, ptc::len},	
 		func_map{"LEFT$"_TF, ptc::left},
 		func_map{"RIGHT$"_TF, ptc::right},
 		func_map{"MID$"_TF, ptc::mid},
-		//func_map{"POW"_TF, ptc::pow},
+		func_map{"POW"_TF, ptc::pow},
 		func_map{"RND"_TF, ptc::rnd},
 		func_map{"SGN"_TF, ptc::sgn},
 		//func_map{"SQR"_TF, ptc::sqr},
@@ -298,8 +298,15 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 }
 
 Var convert_to_value(const Token& t){
-	if (t.type == Type::Num)
+	if (t.type == Type::Num){
+		if (t.text.size() >= 2){
+			if (t.text[1] == 'H')
+				return Var((double)std::stoi(t.text.substr(2), nullptr, 16));
+			else if (t.text[1] == 'B')
+				return Var((double)std::stoi(t.text.substr(2), nullptr, 2));
+			}
 		return Var{std::stod(t.text)};
+	}
 	if (t.type == Type::Str)
 		return Var{t.text};
 	if (t.type == Type::Label)
@@ -471,6 +478,8 @@ std::vector<std::vector<Token>> split(const std::vector<Token>& expression){
 
 const std::regex string{ R"("[^]*("|\r))" };
 const std::regex number{ R"([0-9]*\.?[0-9]*)" };
+const std::regex hex{ R"(\&H[0-9A-Fa-f]*)" }; //does not allow decimal points
+const std::regex binary{ R"(\&B[01]*)" }; //does not allow decimal points
 const std::regex separator{ R"([:\r])" };
 const std::regex variable{ R"([A-Z_][A-Z0-9_]*\$?)" };
 const std::regex label{ R"(\@[A-Z0-9_]+)" };
@@ -561,6 +570,18 @@ std::vector<Token> tokenize(unsigned char* data, int size){
 		else if ((c >= '0' && c <= '9') || c == '.') //numbers
 		{
 			loop_while_regex(number, Type::Num);
+		}
+		else if (c == '&'){
+			cur += c;
+			char_pos++;
+			c = data[char_pos] <= 'z' && data[char_pos] >= 'a' ?
+				data[char_pos] - 'a' + 'A' : //make all capitals
+				data[char_pos];
+			cur += c;
+			char_pos++;
+			if (c == 'H' || c == 'B'){
+				loop_while_regex(c == 'H' ? hex : binary, Type::Num);
+			}
 		}
 		else if ((c <= 'Z' && c >= 'A') || (c <= 'z' && c >= 'a') || c == '_')
 		{

@@ -1,13 +1,17 @@
 #include "Visual.h"
 #include "Vars.h"
 
+const float COL_BG = 0.1;
+const float COL_SP = 1.1;
+const float COL_GRP = 2.1;
+
 Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 	e{ev},
 	r{rs},
 	c{ev, r.chr.at("BGF0U"), i},
 	b{ev, r.scr},
 	s{ev},
-	g{ev, r.grp},
+	g{ev, r.grp, r, this},
 	p{ev, r, i},
 	visible{true,true,true,true,true,true}
 {
@@ -130,6 +134,7 @@ void Visual::chrset_(const Args& a){
 	auto& chr_resource = r.chr.at(resource_type);
 	std::string chr_data = std::get<String>(e.evaluate(a[3]));
 	
+//	std::cout << chr_data.size() << ":" << chr_data << "\n";
 	for (int y = 0; y < 8; ++y){
 		for (int x = 0; x < 8; ++x){
 			auto d = chr_data[x+8*y];
@@ -210,6 +215,8 @@ void Visual::update(){
 //note: don't make this silly mistake
 //https://en.sfml-dev.org/forums/index.php?topic=13526.0
 void Visual::draw(sf::RenderWindow& w){
+	
+	
 	//common
 	bgsp_shader.setUniform("colors", col_tex);
 	bgsp_shader.setUniform("texture", sf::Shader::CurrentTexture);
@@ -226,17 +233,17 @@ void Visual::draw(sf::RenderWindow& w){
 		grp.setColor(sf::Color(0));
 		//grp prio=3
 		if (g.get_prio(sc) == 3){
-			bgsp_shader.setUniform("colbank", 2.0f + col_l);
+			bgsp_shader.setUniform("colbank", COL_GRP + col_l);
 			w.draw(grp, rs);
 		}
 		//sprites prio=3
 		rs.texture = &resource_tex[2 + chr_l];
 		auto spr = s.draw(sc,3);
-		bgsp_shader.setUniform("colbank", 1.0f + col_l);
+		bgsp_shader.setUniform("colbank", COL_SP + col_l);
 		w.draw(spr, rs);
 		//bg
 		for (int l = 1; l >= 0; --l){
-			bgsp_shader.setUniform("colbank", 0.0f + col_l);
+			bgsp_shader.setUniform("colbank", COL_BG + col_l);
 			rs.texture = &resource_tex[1];
 			auto& bg = b.draw(sc, l);
 			auto pos = bg.getPosition();
@@ -257,56 +264,56 @@ void Visual::draw(sf::RenderWindow& w){
 			//sprites prio=2, graphics prio=2
 			if (l == 1){
 				if (g.get_prio(sc) == 2){
-					bgsp_shader.setUniform("colbank", 2.0f + col_l);
+					bgsp_shader.setUniform("colbank", COL_GRP + col_l);
 					w.draw(grp, rs);
 				}
 
 				rs.texture = &resource_tex[2 + chr_l];
 				spr = s.draw(sc,2);
-				bgsp_shader.setUniform("colbank", 1.0f + col_l);
+				bgsp_shader.setUniform("colbank", COL_SP + col_l);
 				w.draw(spr, rs);
 			}
 		}
 		//grp prio=1
 		if (g.get_prio(sc) == 1){
-			bgsp_shader.setUniform("colbank", 2.0f + col_l);
+			bgsp_shader.setUniform("colbank", COL_GRP + col_l);
 			w.draw(grp, rs);
 		}
 		//sprite prio=1
 		rs.texture = &resource_tex[2 + chr_l];
 		spr = s.draw(sc,1);
-		bgsp_shader.setUniform("colbank", 1.0f + col_l);
+		bgsp_shader.setUniform("colbank", COL_SP + col_l);
 		w.draw(spr, rs);
 		//console
 		if (sc == 0){
 			rs.texture = &resource_tex[0 + chr_l];
 			auto& con = c.draw();
-			bgsp_shader.setUniform("colbank", 0.0f + col_l);
+			bgsp_shader.setUniform("colbank", COL_BG + col_l);
 			w.draw(con, rs);
 		}
-		//grp prio=1
+		//grp prio=0
 		if (g.get_prio(sc) == 0){
-			bgsp_shader.setUniform("colbank", 2.0f + col_l);
+			bgsp_shader.setUniform("colbank", COL_GRP + col_l);
 			w.draw(grp, rs);
 		}
 		//sprite prio=0
 		rs.texture = &resource_tex[2 + chr_l];
 		spr = s.draw(sc,0);
-		bgsp_shader.setUniform("colbank", 1.0f + col_l);
+		bgsp_shader.setUniform("colbank", COL_SP + col_l);
 		w.draw(spr, rs);
 	}
 	auto& pnl = p.draw_panel();
-	bgsp_shader.setUniform("colbank", 3.0f);
+	bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
 	rs.texture = &resource_tex[11];
 	w.draw(pnl, rs);
 	
 	auto keysp = p.draw_keyboard();
-	bgsp_shader.setUniform("colbank", 1.0f + 3.0f);
+	bgsp_shader.setUniform("colbank", COL_SP + 3.0f);
 	rs.texture = &resource_tex[10];
 	w.draw(keysp, rs);
 	
 	rs.texture = &resource_tex[6];
 	auto& con = p.draw_funckeys();
-	bgsp_shader.setUniform("colbank", 0.0f + 3.0f);
+	bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
 	w.draw(con, rs);
 }

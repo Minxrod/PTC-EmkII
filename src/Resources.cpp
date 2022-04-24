@@ -39,7 +39,7 @@ void Resources::load_default(){
 	
 	for (auto c : col_resources){
 		auto fs = get_filestream("resources/graphics/"+c.substr(0,4)+".PTC");
-		col.insert(std::pair(c, COL()));
+		col.insert({c, COL()});
 		read_n(fs, col.at(c).data, 48); //dummy read to skip header
 		read_n(fs, col.at(c).data, COL::SIZE);
 	}

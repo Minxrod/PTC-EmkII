@@ -1,9 +1,12 @@
 #include "Graphics.h"
+#include "Visual.h"
 
 #include <cmath>
 
-Graphics::Graphics(Evaluator& ev, std::map<std::string, GRP>& grps) : 
+Graphics::Graphics(Evaluator& ev, std::map<std::string, GRP>& grps, Resources& res, Visual* vis) : 
 	e{ev},
+	r{res},
+	v{vis},
 	grp{grps},
 	drawpage{0, 1},
 	displaypage{0, 1},
@@ -24,11 +27,15 @@ std::map<Token, cmd_type> Graphics::get_cmds(){
 		std::pair<Token, cmd_type>("GBOX"_TC, getfunc(this, &Graphics::gbox_)),
 		std::pair<Token, cmd_type>("GFILL"_TC, getfunc(this, &Graphics::gfill_)),
 		std::pair<Token, cmd_type>("GCIRCLE"_TC, getfunc(this, &Graphics::gcircle_)),
+		std::pair<Token, cmd_type>("GDRAWMD"_TC, getfunc(this, &Graphics::gdrawmd_)),
+		std::pair<Token, cmd_type>("GPUTCHR"_TC, getfunc(this, &Graphics::gputchr_)),
 	};
 }
 
 std::map<Token, op_func> Graphics::get_funcs(){
-	return std::map<Token, op_func>{};
+	return std::map<Token, op_func>{
+		std::pair<Token, op_func>("GSPOIT"_TF, getfunc(this, &Graphics::gspoit_)),
+	};
 }
 
 int to_chr_coords(const int x, const int y){
@@ -42,10 +49,15 @@ int to_chr_coords(const int x, const int y){
 	return tx + 8 * ty + cx * 64 + cy * 512 + bx * 4096 + by * 4096*4;
 }
 
-void draw_pixel(std::array<unsigned char, 256*192*4>& i, std::vector<unsigned char>& g, const int x, const int y, const int c){
+void Graphics::draw_pixel(std::array<unsigned char, 256*192*4>& i, std::vector<unsigned char>& g, const int x, const int y, const int c){
 	if (x >= 0 && y >= 0 && x < 256 && y < 192){
-		g.at(to_chr_coords(x,y)) = c;
-		i.at(4*(x+256*y)) = c;
+		if (gdrawmd){ //XOR drawing on or off
+			g.at(to_chr_coords(x,y)) ^= c;
+			i.at(4*(x+256*y)) ^= c;
+		} else {
+			g.at(to_chr_coords(x,y)) = c;
+			i.at(4*(x+256*y)) = c;
+		}
 	}
 }
 
@@ -89,7 +101,7 @@ void Graphics::gpset_(const Args& a){
 	draw_pixel(image[drawpage[screen]],g,x,y,col);
 }
 
-void draw_line(std::array<unsigned char, 256*192*4>& i, std::vector<unsigned char>& g, const int x1, const int y1, const int x2, const int y2, const int c){
+void Graphics::draw_line(std::array<unsigned char, 256*192*4>& i, std::vector<unsigned char>& g, const int x1, const int y1, const int x2, const int y2, const int c){
 	if (x2==x1){
 		//vertical line
 		int dir_y = y2>y1 ? 1 : -1;
@@ -201,12 +213,43 @@ void Graphics::gfill_(const Args& a){
 	}
 }
 
-void Graphics::gputchr_(const Args&){
-
+void Graphics::gputchr_(const Args& a){
+	// GPUTCHR x y bank chr pal scale
+	int x = std::get<Number>(e.evaluate(a[1]));
+	int y = std::get<Number>(e.evaluate(a[2]));
+	auto bank = std::get<String>(e.evaluate(a[3]));
+	int chr = std::get<Number>(e.evaluate(a[4]));
+	int pal = std::get<Number>(e.evaluate(a[5]));
+	int scale = std::get<Number>(e.evaluate(a[6]));
+	if (scale != 1 && scale != 2 && scale != 4 && scale != 8){
+		throw std::runtime_error{"GPUTCHR invalid scale! (Must be in [1,2,4,8])"};
+	}
+	
+	for (int i = pal * 16; i < pal * 16 + 16; ++i){
+		auto& col2 = r.col.at(screen ? "COL2L" : "COL2U");
+		auto& other = r.col.at(std::string(bank[0] == 'B' ? "COL0" : "COL1") + (screen ? "L" : "U"));
+		col2.set_col(i, other.get_col_r(i), other.get_col_g(i), other.get_col_b(i));
+	}
+	v->regen_col();
+	
+	auto& chr_bank = r.chr.at(bank);
+	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
+	
+	for (int px = 0; px < 8; ++px){
+		for (int py = 0; py < 8; ++py){
+			auto chr_c = chr_bank.get_pixel(chr, px, py);
+			for (int sx = 0; sx < scale; ++sx){
+				for (int sy = 0; sy < scale; ++sy){
+					draw_pixel(image[drawpage[screen]],g,x+px*scale+sx,y+py*scale+sy,chr_c ? chr_c + pal * 16 : 0);
+				}
+			}
+		}
+	}
 }
 
-void Graphics::gdrawmd_(const Args&){
-
+void Graphics::gdrawmd_(const Args& a){
+	//GDRAWMD <status>
+	gdrawmd = std::get<Number>(e.evaluate(a[1]));
 }
 
 void Graphics::gprio_(const Args&){
@@ -215,6 +258,15 @@ void Graphics::gprio_(const Args&){
 
 void Graphics::gcopy_(const Args&){
 
+}
+
+Var Graphics::gspoit_(const Vals& v){
+	int x = std::get<Number>(v.at(0));
+	int y = std::get<Number>(v.at(1));
+	
+//	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
+	
+	return Var(static_cast<Number>(image[drawpage[screen]].at(4*(x+256*y))));
 }
 
 void Graphics::reset(){

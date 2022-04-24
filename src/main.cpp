@@ -76,7 +76,7 @@ int main(){
 	program.add_cmds(i.get_cmds());
 	program.add_cmds(s.get_cmds());
 			
-	//print("TOKENIZED:", tk);	
+	print("TOKENIZED:", tk);	
 	program.run();
 	
 	bool keybutton_enable = true;

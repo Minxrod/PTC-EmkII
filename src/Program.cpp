@@ -67,8 +67,9 @@ void Program::run_(){
 		auto chunks = split(instr);
 		auto instr_form = chunks[0][0]; //if chunks[0] is empty, we have other problems
 		
-		//for (auto& chunk : chunks)
-		//	print("Instr:", chunk);
+		//std::cout << std::distance(tokens.begin(), current);
+//		for (auto& chunk : chunks)
+//			print("Instr:", chunk);
 		
 /*		if (instr_form.type == Type::Rem){ //ignore it, this is the entire line
 		} else if (instr_form.type == Type::Label){ //ignore
@@ -145,6 +146,17 @@ void Program::for_(const Args& a){
 		for_calls.push_back(std::make_tuple(var, current, end, step)); //needed for looping
 	else {
 		//skip to NEXT
+		bool has_next = false;
+		do {
+			auto instr = next_instruction();
+			while (!instr.size() || !(instr[0] == "NEXT"_TC)){
+				instr = next_instruction();
+			}
+			// have found a next...
+			auto chunks = split(instr);
+			if (chunks.size() == 1 || var == chunks[1])
+				has_next = true;
+		} while (!has_next);
 	}
 }
 
@@ -172,7 +184,7 @@ void Program::next_(const Args& a){
 	if (for_continues(value, end, step)){
 		current = std::get<1>(*itr);		
 	} else {
-		for_calls.erase(itr); //remove from ""stack"" when loop ends		
+		for_calls.erase(itr); //remove from ""stack"" when loop ends
 	}
 }
 
@@ -246,6 +258,7 @@ void Program::goto_(const Args& a){
 	//GOTO <string expression>
 	std::string lbl = std::get<String>(e.evaluate(a[1]));
 	goto_label(lbl);
+	//std::cout << "GOTO @" << lbl << std::endl;
 }
 
 void Program::gosub_(const Args& a){
@@ -254,11 +267,13 @@ void Program::gosub_(const Args& a){
 
 	gosub_calls.push(current);	
 	goto_label(lbl);
+	//std::cout << "GOSUB @" << lbl << std::endl;
 }
 
 void Program::return_(const Args& ){
 	current = gosub_calls.top();
 	gosub_calls.pop();
+	//std::cout << "RETURN" << std::endl;
 }
 
 void Program::on_(const Args& a){
@@ -270,6 +285,7 @@ void Program::on_(const Args& a){
 		gosub_calls.push(current);
 	}
 	goto_label(lbl);
+	//std::cout << "ON " << lbl << std::endl;
 }
 
 void Program::data_(const Args&){

@@ -9,18 +9,22 @@ Please note that this is heavily a WIP and nowhere near finished, so don't expec
 = Support =
 The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Sample 1: Works.
-- Sample 2: Partially working, some keys are not mapped.
-- Sample 3: Mostly working, a few keys are not mapped.
-- Sample 4: Partially working, RND is currently unseeded and always returns the same values.
-- Sample 5: Partially works, graphics are not completely accurate to original
-- Sample 6: Partially working, only the top screen is currently rendered. (No icon = no eraser)
+- Sample 2: Works, but does not handle invalid input.
+- Sample 3: Works.
+- Sample 4: Partially works, RND is currently unseeded and always returns the same values.
+- Sample 5: Partially works, values/graphics are off by a small amount?
+- Sample 6: Partially works, only the top screen is currently rendered. (No icon = no eraser)
 - Sample 7: Works.
-- Sample 8-12: Not working, require various unimplemented features.
-- Game 1: Works, but no music (unimplemented).
-- Game 2: Partially works, no music or animation yet (unimplemented). Might contain undiscovered bugs
+- Sample 8: Partially works, SWAP, SORT, RSORT unimplemented
+- Sample 9: Mostly does not work.
+- Sample 10: Mostly does not work.
+- Sample 11: Does not work.
+- Sample 12: Does not work.
+- Game 1: Works.
+- Game 2: Works, but input feels slow.
 - Game 3: Works, sometimes? Runs slowly compared to original, needs more testing.
-- Game 4: Not working, requires unimplemented features.
-- Game 5: Not working, requires unimplemented features.
+- Game 4: Works, for some reason the menu doesn't quite work?
+- Game 5: Works.
 
 = Features =
 - Console: Almost everything on the console should be working, issues only with INPUT and LINPUT.
@@ -78,6 +82,7 @@ Special keys:
 KEYBOARD and INKEY$() are approximated by typing on the keyboard. Note that currently, not all keys are mapped, so some symbols are currently unable to be typed (ex. $ or %)
 
 == Tools used ==
+
 - https://github.com/Oreo639/sdatxtract
 - https://github.com/devkitPro/ndstool
 

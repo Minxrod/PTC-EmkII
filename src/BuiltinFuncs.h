@@ -260,4 +260,34 @@ namespace ptc {
 		return Var(str);
 	}
 	
+	Var hex(const Vals& vals){
+		int num = std::get<Number>(vals.at(0));
+		int digits = 0;
+		if (vals.size() == 2){
+			digits = std::get<Number>(vals.at(1));
+			if (digits > 5 || digits < 1)
+				throw std::runtime_error{"Out of range (HEX$)"};
+		}
+		
+		std::string digit_str{"0123456789ABCDEF"};
+		std::string result{};
+		if (num == 0)
+			result = "0";
+		while (num != 0){
+			result = digit_str[num & 0x0f] + result;
+			num >>= 4;
+		}
+		if (digits && (int)result.size() > digits)
+			throw std::runtime_error{"Illegal function call (HEX$)"};
+		if (digits)
+			result = "00000" + result;
+		return result.substr(digits,5);
+	}
+	
+	Var pow(const Vals& vals){
+		int base = std::get<Number>(vals.at(0));
+		int exponent = std::get<Number>(vals.at(1));
+		
+		return Var(std::pow(base, exponent));
+	}
 }

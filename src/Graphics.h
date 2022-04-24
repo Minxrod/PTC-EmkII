@@ -2,16 +2,19 @@
 
 #include "Vars.h"
 #include "Resources.h"
+class Visual;
 
 class Graphics {
 	const static int WIDTH = 256;
 	const static int HEIGHT = 192;	
 	
 	Evaluator& e;
+	Resources& r;
+	Visual* v;
 	std::map<std::string, GRP>& grp;
 	
 	unsigned char gcolor;
-	bool gdrawmd;
+	bool gdrawmd = false;
 	int screen;
 	int drawpage[2];
 	int displaypage[2];
@@ -33,12 +36,15 @@ class Graphics {
 	void gprio_(const Args&);
 	void gcopy_(const Args&);
 	
-	Var gspoit(const Vals&);
+	Var gspoit_(const Vals&);
+	
+	void draw_pixel(std::array<unsigned char, 256*192*4>& i, std::vector<unsigned char>& g, const int x, const int y, const int c);
+	void draw_line(std::array<unsigned char, 256*192*4>& i, std::vector<unsigned char>& g, const int x1, const int y1, const int x2, const int y2, const int c);
 	
 	std::array<std::array<unsigned char, WIDTH*HEIGHT*4>, 4> image;
 	
 public:
-	Graphics(Evaluator&, std::map<std::string, GRP>&);
+	Graphics(Evaluator&, std::map<std::string, GRP>&, Resources&, Visual*);
 	
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();

@@ -171,11 +171,6 @@ void SpriteArray::add_sprite(const SpriteInfo& s){
 	double yc = y1;
 	int chr = 4*s.chr;
 	
-	// 0 1 4 5
-	// 2 3 6 7
-	// 8 9 c d
-	// a b e f
-	
 	int va_new_start = va.getVertexCount();
 	for (int ty = 0; ty < s.h/8 ; ++ty){
 		for (int tx = 0; tx < s.w/8; ++tx){
