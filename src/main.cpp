@@ -55,7 +55,8 @@ int main(){
 	std::cin >> prgname;
 
     sf::RenderWindow window(sf::VideoMode(256, 384), "PTCEmukII");
-	window.setVerticalSyncEnabled(true);
+	window.setFramerateLimit(60);
+//	window.setVerticalSyncEnabled(true);
 	//window.setJoystickThreshold(25.f);
 	
 	Resources r{};

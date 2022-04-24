@@ -137,12 +137,19 @@ namespace ptc {
 
 	Var bor(const std::vector<Var>& vals){
 		auto [n1, n2] = get_nums(vals);
-			
+		
 		return Var(Number{static_cast<double>(static_cast<int>(n1) | static_cast<int>(n2))});
 	}
 
 	Var bnot(const std::vector<Var>& vals){		
 		return Var(Number{static_cast<double>(~static_cast<int>(std::get<Number>(vals.at(0))))});
+	}
+	
+	Var bxor(const std::vector<Var>& vals){
+		auto [n1, n2] = get_nums(vals);
+
+		std::cout << n1 << " XOR " << n2;			
+		return Var(Number{static_cast<double>(static_cast<int>(n1) ^ static_cast<int>(n2))});
 	}
 
 	Var sin(const std::vector<Var>& vals){

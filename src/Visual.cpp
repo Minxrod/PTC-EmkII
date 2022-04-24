@@ -204,6 +204,7 @@ void Visual::acls_(const Args&){
 	c.reset();
 	//GDRAWMD FALSE:GCLS (all):GCOLOR 0'(all GRP)
 	g.reset();
+	//TODO: rest of ACLS
 }
 
 void Visual::update(){
@@ -215,8 +216,6 @@ void Visual::update(){
 //note: don't make this silly mistake
 //https://en.sfml-dev.org/forums/index.php?topic=13526.0
 void Visual::draw(sf::RenderWindow& w){
-	
-	
 	//common
 	bgsp_shader.setUniform("colors", col_tex);
 	bgsp_shader.setUniform("texture", sf::Shader::CurrentTexture);

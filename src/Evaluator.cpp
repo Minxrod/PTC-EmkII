@@ -33,6 +33,7 @@ Evaluator::Evaluator(){
 		op_map{"OR"_TO, ptc::bor},
 		op_map{"AND"_TO, ptc::band},
 		op_map{"NOT"_TO, ptc::bnot},
+		op_map{"XOR"_TO, ptc::bxor},
 	};
 	
 	functions = std::map{
@@ -124,7 +125,7 @@ PrioToken conv_prio(const Token& t, int& n){
 	if (p.type == Type::Op || p.type == Type::Arr || p.type == Type::Func){ //if it's not an op, don't change prio
 		if (p.text == ","){
 			p.prio += 1;
-		} else if (p.text == "AND" || p.text == "OR"){
+		} else if (p.text == "AND" || p.text == "OR" || p.text == "XOR"){
 			p.prio += 2;
 		} else if (p.text == "==" || p.text == "!=" || p.text == "<" ||
 				p.text == ">" || p.text == "<=" || p.text == ">="){
@@ -491,7 +492,7 @@ const std::string commands{" ACLS APPEND BEEP BGCLIP BGCLR BGCOPY BGFILL BGMCLEA
 
 const std::string functions{" ABS ASC ATAN BGCHK BGMCHK BGMGETV BTRIG BUTTON CHKCHR CHR$ COS DEG EXP FLOOR GSPOIT HEX$ ICONCHK INKEY$ INSTR LEFT$ LEN LOG MID$ PI POW RAD RIGHT$ RND SGN SIN SPCHK SPGETV SPHIT SPHITRC SPHITSP SQR STR$ SUBST$ TAN VAL "};
 
-const std::string operations{" AND NOT OR ! - + - * / = == >= <= < > != % ( ) [ ] , ; "};
+const std::string operations{" XOR AND NOT OR ! - + - * / = == >= <= < > != % ( ) [ ] , ; "};
 
 std::vector<Token> tokenize(unsigned char* data, int size){
 	int char_pos = 0;
