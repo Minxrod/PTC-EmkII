@@ -27,6 +27,7 @@ struct CHR{
 	};
 	
 	void set_pixel(int c, int x, int y, int col){
+		data[32*c+x/2+4*y] &= (x%2==0) ? 0xf0 : 0x0f;
 		data[32*c+x/2+4*y] |= (x%2==0) ? col : (col << 4);
 	}
 	

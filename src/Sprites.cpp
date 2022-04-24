@@ -147,7 +147,7 @@ void Sprites::spangle_(const Args& a){
 	//SPANGLE id angle [time] [direction]
 	auto id = std::get<Number>(e.evaluate(a[1]));
 	auto& s = sprites[page][id];
-	auto ang = std::get<Number>(e.evaluate(a[2]));
+	auto ang = -std::get<Number>(e.evaluate(a[2]));
 	if (a.size() >= 4){
 		auto time = std::get<Number>(e.evaluate(a[3]));
 		if (a.size() == 5){

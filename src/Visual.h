@@ -58,7 +58,7 @@ struct Visual {
 	void acls_(const Args&);
 	
 	void regen_col();
-	void regen_chr();
+	void regen_chr(std::string type);
 	
 public:
 	Visual(Evaluator&, Resources&, Input&);

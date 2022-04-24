@@ -158,7 +158,6 @@ int main(){
 			}
 		}
 		
-		std::cout << mouse_time << std::endl;
 		i.update(b); //only buttons now
 		if (mouse_press){
 			//"touchscreen" input

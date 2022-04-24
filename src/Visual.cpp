@@ -49,6 +49,14 @@ Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 	grp_tex.create(256,192);
 }
 
+void Visual::regen_chr(std::string type){
+	int chr_bank = type[3] - '0';
+	std::vector<std::string> types{"BGF", "BGU", "SPU", "SPS", "SPD", "BGD"};
+	int tex_num = std::distance(types.begin(), std::find(types.begin(), types.end(), type.substr(0,3)));
+	int screen = (type.size() > 4 && type[4]=='L') ? 6 : 0;
+	resource_tex[tex_num + screen].update(r.chr.at(type).get_array().data(), 256, 64, 0, chr_bank*64);
+}
+
 void Visual::regen_col(){
 	for (int i = 0; i < 6; ++i){
 		std::string cr = "COL" + std::to_string(i%3) + (i/3>0 ? "L" : "U");
@@ -113,6 +121,7 @@ void Visual::chrinit_(const Args& a){
 	std::string path = "resources/graphics/"+res.substr(0,4)+".PTC";
 	load_default(r.chr.at(res), path);
 	//needs to regen textures
+	regen_chr(res);
 }
 
 void Visual::chrset_(const Args& a){
@@ -124,10 +133,11 @@ void Visual::chrset_(const Args& a){
 	for (int y = 0; y < 8; ++y){
 		for (int x = 0; x < 8; ++x){
 			auto d = chr_data[x+8*y];
-			d = d - (d > '9' ? ('A' - '9' + 1) : 0) - '0';
+			d = d - (d > '9' ? ('A' - '9' - 1) : 0) - '0';
 			chr_resource.set_pixel(chr_id, x, y, d);
 		}
 	}
+	regen_chr(resource_type);
 }
 
 void Visual::chrread_(const Args& a){

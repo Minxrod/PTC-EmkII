@@ -150,8 +150,8 @@ void SpriteArray::add_sprite(const SpriteInfo& s){
 	rotate_xy(x4,y4,a);
 
 	//move rotated+scaled to correct location
-	double x = s.pos.x - s.scale.s * s.home_x;
-	double y = s.pos.y - s.scale.s * s.home_y;
+	double x = s.pos.x; 
+	double y = s.pos.y; 
 	translate_xy(x1,y1,x,y);
 	translate_xy(x2,y2,x,y);
 	translate_xy(x3,y3,x,y);
@@ -170,6 +170,11 @@ void SpriteArray::add_sprite(const SpriteInfo& s){
 	double xc = x1;
 	double yc = y1;
 	int chr = 4*s.chr;
+	
+	// 0 1 4 5
+	// 2 3 6 7
+	// 8 9 c d
+	// a b e f
 	
 	int va_new_start = va.getVertexCount();
 	for (int ty = 0; ty < s.h/8 ; ++ty){
