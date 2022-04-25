@@ -23,7 +23,7 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Game 1: Works.
 - Game 2: Works, but input feels slow.
 - Game 3: Works, sometimes? Runs slowly compared to original, needs more testing.
-- Game 4: Works, for some reason the menu doesn't quite work?
+- Game 4: Works.
 - Game 5: Works.
 
 = Features =
@@ -69,14 +69,14 @@ You will be prompted to enter a filename when launching PTC-EmkII.
 - WASD = dpad
 - Arrow Keys = ABXY
 - Q = L
-- Numpad1 = R
+- E = R
 - Enter = Start
 - RShift = Select
 
 Special keys:
 - Home: Disable/Enable keyboard
-- PageUp: Zoom x1
-- PageDown: Zoom x2
+- Numpad1: Zoom x1
+- Numpad2: Zoom x2
 - End: Disable/Enable keyboard buttons
 
 KEYBOARD and INKEY$() are approximated by typing on the keyboard. Note that currently, not all keys are mapped, so some symbols are currently unable to be typed (ex. $ or %)

@@ -39,8 +39,12 @@ struct SpriteInfo {
 	} hit;
 	
 	struct {
-		int chr, frames, time;
-		int loop;
+		int chrs = 1;
+		int frames_per_chr;
+		int loop = 0;
+		bool loop_forever = false;
+		int current_frame;
+		int current_chr;
 	} anim;
 	
 	double vars[8];

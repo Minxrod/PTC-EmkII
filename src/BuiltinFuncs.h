@@ -184,7 +184,8 @@ namespace ptc {
 		if (vals.size() == 1){
 			return Var(Number(std::atan(std::get<Number>(vals.at(0)))));
 		} else {
-			return Var(Number(std::atan(std::get<Number>(vals.at(0))/std::get<Number>(vals.at(1)))));
+			Number x = std::get<Number>(vals.at(1));
+			return Var(Number((x > 0 ? 0 : PI) + std::atan(std::get<Number>(vals.at(0))/x)));
 		}
 	}
 

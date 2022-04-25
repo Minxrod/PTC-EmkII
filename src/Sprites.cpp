@@ -137,10 +137,12 @@ void Sprites::spanim_(const Args& a){
 	if (a.size() >= 5)
 		loop = std::get<Number>(e.evaluate(a[4]));
 	
-	s.anim.chr = chrs;
-	s.anim.frames = frames;
+	s.anim.chrs = chrs;
+	s.anim.frames_per_chr = frames;
 	s.anim.loop = loop;
-	s.anim.time = frames;
+	s.anim.current_frame = 0;
+	s.anim.current_chr = s.chr;
+	s.anim.loop_forever = loop == 0;
 }
 
 void Sprites::spangle_(const Args& a){
@@ -189,7 +191,7 @@ Var Sprites::spchk_(const Vals& v){
 	int result = (int)(s.pos.time > 0);
 	result |= (int)(s.angle.time > 0) << 1;
 	result |= (int)(s.scale.time > 0) << 2;
-	result |= (int)(s.anim.time > 0) << 3;
+	result |= (int)(s.anim.loop_forever || s.anim.loop > 0) << 3;
 	return Var((double)result);
 }
 
@@ -300,6 +302,25 @@ void Sprites::update(){
 					s.pos.x += s.pos.dx;
 					s.pos.y += s.pos.dy;
 					s.pos.time--;
+				}
+				if (s.anim.loop_forever || s.anim.loop > 0){
+					s.anim.current_frame++;
+					
+					if (s.anim.current_frame == s.anim.frames_per_chr){ //single frame end
+						s.anim.current_frame = 0;
+						int chr_step = std::max(s.w * s.h / 256, 1);
+						s.anim.current_chr += chr_step;
+						
+						if ((s.anim.current_chr - s.chr) / chr_step == s.anim.chrs){ //loop complete
+							s.anim.current_chr = s.chr;
+							if (!s.anim.loop_forever)
+								s.anim.loop--;
+							if (!s.anim.loop_forever && s.anim.loop == 0){ //all loops complete
+								s.chr = s.anim.current_chr; //no more animation; frame remains last frame
+							}
+//								s.anim.current_chr = s.chr; //reset loop,
+						}
+					}
 				}
 			}
 		}

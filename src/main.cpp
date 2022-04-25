@@ -55,6 +55,7 @@ int main(){
 	std::cin >> prgname;
 
     sf::RenderWindow window(sf::VideoMode(256, 384), "PTCEmukII");
+	// https://en.sfml-dev.org/forums/index.php?topic=20033.0 ????
 	window.setFramerateLimit(60);
 //	window.setVerticalSyncEnabled(true);
 	//window.setJoystickThreshold(25.f);
@@ -76,7 +77,7 @@ int main(){
 	program.add_cmds(v.get_cmds());
 	program.add_cmds(i.get_cmds());
 	program.add_cmds(s.get_cmds());
-			
+	
 	print("TOKENIZED:", tk);	
 	program.run();
 	
