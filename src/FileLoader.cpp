@@ -27,11 +27,23 @@ std::ifstream get_filestream(std::string file){
 	std::ifstream ifs{file, std::ios::binary | std::ios::in};
 	if (!ifs)
 		throw std::runtime_error{file};
-	
 	return ifs;
 }
+
+std::ofstream write_filestream(std::string file){
+	std::ofstream ofs{file, std::ios::binary | std::ios::out};
+	if (!ofs)
+		throw std::runtime_error{file};
+	return ofs;
+}
+
 
 void read_n(std::ifstream& ifs, std::vector<unsigned char>& data, int n){
 	data.resize(n);
 	ifs.read(reinterpret_cast<char*>(data.data()), n);
+}
+
+void write_n(std::ofstream& ofs, std::vector<unsigned char>& data){
+	int n = data.size();
+	ofs.write(reinterpret_cast<char*>(data.data()), n);
 }

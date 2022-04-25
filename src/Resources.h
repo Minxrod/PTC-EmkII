@@ -85,19 +85,16 @@ struct COL{
 	
 	int get_col_r(int i){
 		int col = (data[2*i] << 8) + data[2*i+1];
-		std::cout << ((col & 0x1F00) >> 5) << ",";
 		return (col & 0x1F00) >> 5;
 	}
 	
 	int get_col_g(int i){
 		int col = (data[2*i] << 8) + data[2*i+1];
-		std::cout << (((col & 0xE000) >> 10) | ((col & 0x0003) << 6)) << ",";
 		return ((col & 0xE000) >> 10) | ((col & 0x0003) << 6);
 	}
 		
 	int get_col_b(int i){
 		int col = (data[2*i] << 8) + data[2*i+1];
-		std::cout << ((col & 0x007C) << 1) << " ";
 		return (col & 0x007C) << 1;
 	}
 	
@@ -164,6 +161,11 @@ struct Resources{
 	Resources() = default;
 	void load_program(std::string name);
 	void load_default();
+	
+	void load(std::string type, std::string filename);
+	void save(std::string type);
+	
+	std::string normalize_type(std::string type);
 };
 
 template <typename T>

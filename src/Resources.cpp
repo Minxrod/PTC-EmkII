@@ -66,3 +66,46 @@ void Resources::load_default(){
 	read_n(keyfs, scr.at("KEY").data, 2*32*24);
 }
 
+std::string Resources::normalize_type(std::string type){
+	if (type.size()==3){
+		type += "0U"; //assumed
+	}
+	if (type.size()==4){
+		if(type[3] == 'L' || type[3] == 'U'){
+			return type.substr(0,3) + "0" + type[3];
+		}
+		auto t = type.substr(0,3);
+		if (t == "BGF" || t == "BGU" || t == "BGD")
+			type += "U";
+		else if (t == "SPS")
+			type += "L";
+	}
+	return type;
+}
+
+void Resources::load(std::string type, std::string filename){
+	if (std::find(chr_resources.begin(), chr_resources.end(), type) != chr_resources.end()){
+		auto fs = get_filestream("programs/"+filename+".PTC");
+		read_n(fs, chr.at(type).data, 48); //dummy read to skip header
+		read_n(fs, chr.at(type).data, CHR::SIZE);		
+	} else if (std::find(col_resources.begin(), col_resources.end(), type) != col_resources.end()){
+		auto fs = get_filestream("programs/"+filename+".PTC");
+		read_n(fs, col.at(type).data, 48); //dummy read to skip header
+		read_n(fs, col.at(type).data, COL::SIZE);		
+	} else if (std::find(grp_resources.begin(), grp_resources.end(), type) != grp_resources.end()){
+		auto fs = get_filestream("programs/"+filename+".PTC");
+		read_n(fs, grp.at(type).data, 48); //dummy read to skip header
+		read_n(fs, grp.at(type).data, GRP::SIZE);		
+	} else if (std::find(scr_resources.begin(), scr_resources.end(), type) != scr_resources.end()){
+		auto fs = get_filestream("programs/"+filename+".PTC");
+		read_n(fs, scr.at(type).data, 48); //dummy read to skip header
+		read_n(fs, scr.at(type).data, SCR::SIZE);		
+	} else if (type == "MEM"){
+		// must do something else for this one
+	}
+}
+
+void Resources::save(std::string ){
+	
+}
+

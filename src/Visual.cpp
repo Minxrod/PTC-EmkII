@@ -79,6 +79,8 @@ std::map<Token, cmd_type> Visual::get_cmds(){
 //		cmd_map("COLSET"_TC, getfunc(this, &Visual::colset_)),
 //		cmd_map("COLREAD"_TC, getfunc(this, &Visual::colread_)),
 		cmd_map("ACLS"_TC, getfunc(this, &Visual::acls_)),
+		cmd_map("LOAD"_TC, getfunc(this, &Visual::load_)),
+//		cmd_map("SAVE"_TC, getfunc(this, &Visual::save_)),
 	};
 	
 	cmds.merge(c.get_cmds());
@@ -206,6 +208,26 @@ void Visual::acls_(const Args&){
 	g.reset();
 	//TODO: rest of ACLS
 }
+
+void Visual::load_(const Args& a){
+	// LOAD <filename> [dialog]
+	auto info = std::get<String>(e.evaluate(a[1]));
+	auto type = info.substr(0,info.find(":"));
+	auto name = info.substr(info.find(":")+1);
+	
+	type = r.normalize_type(type);
+	r.load(type, name);
+	if (std::find(r.chr_resources.begin(), r.chr_resources.end(), type) != r.chr_resources.end()){
+		regen_chr(type);
+	} else if (std::find(r.col_resources.begin(), r.col_resources.end(), type) != r.col_resources.end()) {
+		regen_col();
+	}
+}
+
+void Visual::save_(const Args& ){
+	
+}
+
 
 void Visual::update(){
 	e.vars.write_sysvar("MAINCNTL", *maincntl+1);

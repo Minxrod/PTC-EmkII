@@ -78,7 +78,7 @@ void Input::brepeat_(const Args& a){
 	}
 	
 	//locks should not be necessary here
-	//std::lock_guard loc(button_mutex);
+	std::lock_guard loc(button_mutex);
 	button_info[id][1] = start;
 	button_info[id][2] = repeat;
 }
@@ -117,7 +117,7 @@ Var Input::button_(const Vals& v){
 				//moment released
 				return Var(b3);
 		}
-		return Var(b0);
+		throw std::runtime_error{"Type doesn't exist BUTTON"};
 	} else {
 		return Var(b0);	
 	}
@@ -134,11 +134,13 @@ Var Input::btrig_(const Vals&){
 
 		b |= (time == 1)<<i;
 		if (repeat > 0){ //repeat=0 -> disabled
-			if (time >= start){ //repeat only applies past start time
+			if (time > start){ //repeat only applies past start time
 				b |= ((time - start) % (repeat+1) == 0)<<i;
 			}
 		}
+		std::cout << time << " " << start << " " << repeat << "\n";
 	}
+	std::cout << b << std::endl;
 	return Var(Number(b));
 }
 	

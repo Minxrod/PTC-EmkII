@@ -225,6 +225,8 @@ void Graphics::gputchr_(const Args& a){
 		throw std::runtime_error{"GPUTCHR invalid scale! (Must be in [1,2,4,8])"};
 	}
 	
+	bank = r.normalize_type(bank);
+	
 	for (int i = pal * 16; i < pal * 16 + 16; ++i){
 		auto& col2 = r.col.at(screen ? "COL2L" : "COL2U");
 		auto& other = r.col.at(std::string(bank[0] == 'B' ? "COL0" : "COL1") + (screen ? "L" : "U"));
