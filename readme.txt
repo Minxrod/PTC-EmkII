@@ -21,8 +21,8 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Sample 11: Does not work.
 - Sample 12: Does not work.
 - Game 1: Works.
-- Game 2: Works, but input feels slow.
-- Game 3: Works, sometimes? Runs slowly compared to original, needs more testing.
+- Game 2: Works, but input is slightly off (occasional double-inputs).
+- Game 3: Works? Not very tested.
 - Game 4: Works.
 - Game 5: Works.
 

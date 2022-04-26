@@ -127,9 +127,9 @@ PanelKeyboard::PanelKeyboard() :
 	//function keys (FILES, LOAD", etc.)
 	{
 		for (int f = 0; f < 5; f++){
-			auto func_l = create_small_key(f*48, 0, 505 - f);
+			auto func_l = create_small_key(f*48, -1, 505 - f);
 			func_l.id = FUNC_KEY_START + f * 2;
-			auto func_r = key_same(f*48 + 16, 0, 499);
+			auto func_r = key_same(f*48 + 16, -1, 499);
 			func_r.w = 32;
 			func_r.h = 16;
 			func_r.id = FUNC_KEY_START + f * 2 + 1;

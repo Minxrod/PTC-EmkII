@@ -63,8 +63,14 @@ void Input::touch_key(int keycode){
 			c = kya.at(keycode);
 		}
 		e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
-		if (c != kya.at(0))
-			inkeybuffer.push(kya.at(keycode));
+		if (c != kya.at(0)){
+			if (c != '\t') {
+				inkeybuffer.push(kya.at(keycode));
+			} else {
+				for (int i = 0; i < (int)*std::get<Number*>(e.vars.get_var_ptr("TABSTEP")); ++i)
+					inkeybuffer.push(' ');
+			}
+		}
 	}
 }
 	
@@ -138,7 +144,6 @@ Var Input::btrig_(const Vals&){
 				b |= ((time - start) % (repeat+1) == 0)<<i;
 			}
 		}
-		std::cout << time << " " << start << " " << repeat << "\n";
 	}
 	std::cout << b << std::endl;
 	return Var(Number(b));

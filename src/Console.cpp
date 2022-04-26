@@ -67,7 +67,7 @@ void Console::print_(const Args& a){
 				old_end = sub_end+1;
 			} while (sub_end != exp.end());
 			//at end of expression, needs to tab
-			if (i == (int)a.size()-1 && !sub_exp.empty())
+			if ((*cur_x == 31 && !sub_exp.empty()) || (i == (int)a.size()-1 && !sub_exp.empty()))
 				newline();
 		}
 		if (i != (int)a.size()-1){
@@ -82,7 +82,7 @@ std::string printable(const Var& v){
 		str = std::to_string(std::get<Number>(v));
 		//some assumptions: to_string outputs a number of form [aaaaa]a.bbbbbb
 		//currently, the type Number = double, so this works reliably.
-		str = str.substr(0, str.find(".")+3);
+		str = str.substr(0, str.find(".")+4);
 		while (str.back() == '0'){
 			str = str.substr(0, str.size()-1);
 		}
@@ -96,8 +96,8 @@ std::string printable(const Var& v){
 }
 
 void Console::print_str(std::string str){
-	if (str.find("tod") != std::string::npos)
-		throw std::runtime_error{"found tod"};
+//	if (str.find("tod") != std::string::npos)
+//		throw std::runtime_error{"found tod"};
 	for (int i = 0; i < (int)str.size(); ++i){
 		char c = str[i];
 		text[*cur_x+WIDTH * *cur_y] = c;
