@@ -4,6 +4,9 @@
 #include <cmath>
 #include <random>
 
+std::random_device rd{};
+std::minstd_rand random_lcg{std::uniform_int_distribution<unsigned int>(0,524287)(rd)};
+
 namespace ptc {
 	
 	template <typename T>
@@ -198,7 +201,7 @@ namespace ptc {
 	}
 	
 	Var rnd(const std::vector<Var>& vals){
-		return Var((double)(std::rand() % (int)std::get<Number>(vals.at(0))));
+		return Var((double)(random_lcg() % (int)std::get<Number>(vals.at(0))));
 	}
 	
 	Var len(const Vals& vals){

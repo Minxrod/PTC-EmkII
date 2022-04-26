@@ -11,7 +11,7 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Sample 1: Works.
 - Sample 2: Works, but does not handle invalid input.
 - Sample 3: Works.
-- Sample 4: Partially works, RND is currently unseeded and always returns the same values.
+- Sample 4: Works.
 - Sample 5: Partially works, values/graphics are off by a small amount?
 - Sample 6: Partially works, only the top screen is currently rendered. (No icon = no eraser)
 - Sample 7: Works.
@@ -29,7 +29,7 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 = Features =
 - Console: Almost everything on the console should be working, issues only with INPUT and LINPUT.
 - Background: Basic operations should work, BGREAD and BGCOPY are not finished.
-- Sprites: Partial support; several visual elements are working.
+- Sprites: Pretty good support; probably missing some more unusual features.
 - Graphics: Some basic operations should work, very unfinished.
 - Panel: In progress, does not yet support ICON commands.
 - Files: Only default graphics are currently loaded.
