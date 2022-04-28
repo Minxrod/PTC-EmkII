@@ -13,7 +13,7 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Sample 3: Works.
 - Sample 4: Works.
 - Sample 5: Partially works, values/graphics are off by a small amount?
-- Sample 6: Partially works, only the top screen is currently rendered. (No icon = no eraser)
+- Sample 6: Partially works, but suffers slowdown the more notes are played. (Also, no ICON = no eraser)
 - Sample 7: Works.
 - Sample 8: Partially works, SWAP, SORT, RSORT unimplemented
 - Sample 9: Mostly does not work.
