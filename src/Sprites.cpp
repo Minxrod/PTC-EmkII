@@ -65,6 +65,12 @@ void Sprites::spset_(const Args& a){
 	s.hit.y = 0;
 	s.hit.w = s.w;
 	s.hit.h = s.h;
+	s.pos.time = 0;
+	s.anim.current_frame = 0;
+	s.anim.loop_forever = false;
+	s.anim.loop = 0;
+	s.scale.time = 0;
+	s.angle.time = 0;
 }
 
 void Sprites::spclr_(const Args& a){
@@ -101,7 +107,7 @@ void Sprites::spofs_(const Args& a){
 	} else {
 		s.pos.x = std::get<Number>(e.evaluate(a[2]));
 		s.pos.y = std::get<Number>(e.evaluate(a[3]));
-		//may reset time? needs testing
+		s.pos.time = 0;
 	}
 }
 
