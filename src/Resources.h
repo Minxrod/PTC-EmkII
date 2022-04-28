@@ -52,7 +52,11 @@ struct MEM{
 	static const int SIZE = 256*2;
 	
 	std::vector<unsigned char> data;
+	std::vector<unsigned char> data_enc;
 	
+	std::map<int, int> encode;
+	
+	void generate_encoding();
 	std::string get_mem();
 };
 

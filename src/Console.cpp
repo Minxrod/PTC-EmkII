@@ -66,10 +66,15 @@ void Console::print_(const Args& a){
 				print_(res);
 				old_end = sub_end+1;
 			} while (sub_end != exp.end());
-			//at end of expression, needs to tab
-			if ((*cur_x == 31 && !sub_exp.empty()) || (i == (int)a.size()-1 && !sub_exp.empty()))
-				newline();
+			//if in last column and not followed by semicolon || last expression not followed by semicolon
+			bool has_semicolon = sub_exp.empty();
+			if ((*cur_x == 31 && !has_semicolon) || (i == (int)a.size()-1 && !has_semicolon)){
+//				if (!(*cur_x == 0 && i == (int)a.size()-1)) // previous print ended with newline, don't need another
+				// just kidding, that only happens for the OK at the end of the program...
+					newline();
+			}
 		}
+		//at end of expression, needs to tab
 		if (i != (int)a.size()-1){
 			tab();
 		}

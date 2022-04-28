@@ -221,6 +221,8 @@ void Visual::load_(const Args& a){
 		regen_chr(type);
 	} else if (std::find(r.col_resources.begin(), r.col_resources.end(), type) != r.col_resources.end()) {
 		regen_col();
+	} else if (type == "MEM"){
+		*std::get<String*>(e.vars.get_var_ptr("MEM$")) = r.mem.get_mem();
 	}
 }
 

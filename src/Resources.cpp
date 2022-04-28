@@ -13,6 +13,26 @@
 #include "Evaluator.h"
 #include "FileLoader.h"
 
+std::string MEM::get_mem(){
+	std::string mem{};
+	for (int i = 0; i < MEM::SIZE; i+=2){
+		int value = data[i] + (data[i+1]<<8);
+		if (encode[value])
+			mem += (char)encode[value];
+		else
+			break;
+	}
+	return mem;
+}
+
+// requires data_enc to be loaded before using
+void MEM::generate_encoding(){
+	for (int i = 0; i < MEM::SIZE; i+=2){
+		int value = data_enc[i] + (data_enc[i+1]<<8);
+		encode[value] = i/2;
+	}
+}
+
 void Resources::load_program(std::string name){
 	auto fs = get_filestream(name);
 	read_n(fs, prg_info.data, 60);
@@ -64,9 +84,17 @@ void Resources::load_default(){
 	auto keyfs = get_filestream("resources/ui/pnlKEY.NSCR");
 	read_n(keyfs, scr.at("KEY").data, 36); //dummy read to skip header
 	read_n(keyfs, scr.at("KEY").data, 2*32*24);
+	
+	auto memfs = get_filestream("resources/misc/MCHRENC.PTC");
+	read_n(memfs, mem.data_enc, 48);
+	read_n(memfs, mem.data_enc, MEM::SIZE);
+	mem.generate_encoding();
 }
 
 std::string Resources::normalize_type(std::string type){
+	if (type == "MEM")
+		return type;
+	
 	if (type.size()==3){
 		type += "0U"; //assumed
 	}
@@ -101,7 +129,9 @@ void Resources::load(std::string type, std::string filename){
 		read_n(fs, scr.at(type).data, 48); //dummy read to skip header
 		read_n(fs, scr.at(type).data, SCR::SIZE);		
 	} else if (type == "MEM"){
-		// must do something else for this one
+		auto fs = get_filestream("programs/"+filename+".PTC");
+		read_n(fs, mem.data, 48); //dummy read to skip header
+		read_n(fs, mem.data, MEM::SIZE);
 	}
 }
 
