@@ -270,11 +270,12 @@ void Visual::draw(sf::RenderWindow& w){
 			rs.texture = &resource_tex[1];
 			auto& bg = b.draw(sc, l);
 			auto pos = bg.getPosition();
+			pos.y += 192*sc;
 			if (pos.x > 0){
 				bg.setPosition(pos.x - 64*8, pos.y);
 				w.draw(bg, rs);
 			}
-			if (pos.y > 0){
+			if (pos.y > 192*sc){
 				bg.setPosition(pos.x, pos.y - 64*8);
 				w.draw(bg, rs);
 			}
@@ -290,7 +291,7 @@ void Visual::draw(sf::RenderWindow& w){
 					bgsp_shader.setUniform("colbank", COL_GRP + col_l);
 					w.draw(grp, rs);
 				}
-
+				
 				rs.texture = &resource_tex[2 + chr_l];
 				spr = s.draw(sc,2);
 				bgsp_shader.setUniform("colbank", COL_SP + col_l);
@@ -313,6 +314,12 @@ void Visual::draw(sf::RenderWindow& w){
 			auto& con = c.draw();
 			bgsp_shader.setUniform("colbank", COL_BG + col_l);
 			w.draw(con, rs);
+		} else {
+			rs.texture = &resource_tex[0 + chr_l];
+			auto& con = p.get_console().draw();
+			con.setPosition(sf::Vector2f{0,192});
+			bgsp_shader.setUniform("colbank", COL_BG + col_l);
+			w.draw(con, rs);
 		}
 		//grp prio=0
 		if (g.get_prio(sc) == 0){
@@ -325,18 +332,21 @@ void Visual::draw(sf::RenderWindow& w){
 		bgsp_shader.setUniform("colbank", COL_SP + col_l);
 		w.draw(spr, rs);
 	}
-	auto& pnl = p.draw_panel();
-	bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
-	rs.texture = &resource_tex[11];
-	w.draw(pnl, rs);
 	
-	auto keysp = p.draw_keyboard();
-	bgsp_shader.setUniform("colbank", COL_SP + 3.0f);
-	rs.texture = &resource_tex[10];
-	w.draw(keysp, rs);
-	
-	rs.texture = &resource_tex[6];
-	auto& con = p.draw_funckeys();
-	bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
-	w.draw(con, rs);
+	if (p.panel_on()){
+		auto& pnl = p.draw_panel();
+		bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
+		rs.texture = &resource_tex[11];
+		w.draw(pnl, rs);
+		
+		auto keysp = p.draw_keyboard();
+		bgsp_shader.setUniform("colbank", COL_SP + 3.0f);
+		rs.texture = &resource_tex[10];
+		w.draw(keysp, rs);
+		
+		rs.texture = &resource_tex[6];
+		auto& con = p.draw_funckeys();
+		bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
+		w.draw(con, rs);
+	}
 }

@@ -40,6 +40,8 @@ int Input::keyboard_to_keycode(Key k){
 }
 
 void Input::touch(bool t, int x, int y){
+	if (x < 0 || x > 255 || y < 0 || y > 191)
+		t = false; // do not allow out of bounds input
 	if (t)
 		++tchtime;
 	else

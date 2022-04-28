@@ -43,6 +43,9 @@ public:
 	TileMap& draw_panel();
 	SpriteArray& draw_keyboard();
 	TileMap& draw_funckeys();
+	bool panel_on() { return pnltype; }
+	Console& get_console() { return c; }
+	
 //	void draw(sf::RenderWindow&, sf::RenderStates&);
 	int get_last_keycode();
 	std::pair<int,int> get_last_xy();
