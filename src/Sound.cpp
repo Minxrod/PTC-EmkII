@@ -13,11 +13,18 @@ Sound::Sound(Evaluator& ev) : e{ev}{
 		}
 	}*/
 	
-	sfx.resize(SFX_COUNT);
-	bgm.resize(BGM_TRACK_COUNT);
-	
 	swar.open("resources/sounds/SWAR_0.swar");
 	sbnk.open("resources/sounds/SBNK_0.sbnk");
+	
+	sfx.resize(SFX_COUNT);
+	bgm.resize(BGM_TRACK_COUNT);
+	for (auto& s : sfx){
+		s = std::make_unique<SSEQStream>(swar, sbnk);
+	}
+	
+	for (auto& b : bgm){
+		b = std::make_unique<SSEQStream>(swar, sbnk);
+	}
 	
 	for (auto i = 0; i < 294; ++i){
 		sseq.emplace_back();
@@ -54,9 +61,7 @@ void Sound::beep_(const Args& a){
 	if (a.size() >= 5){ //BEEP <waveform> <pitch> <volume> <panpot>
 //		pan = pan + 1; //don't quite know how to handle this one yet
 	}
-	if (sfx[i])
-		sfx[i]->stop();
-	sfx[i] = std::make_unique<SSEQStream>(swar, sbnk, sseq[wf+SEQ_SFX_OFFSET]);
+	sfx[i]->set_sseq(&sseq[wf+SEQ_SFX_OFFSET]);
 	auto& s = *sfx[i];
 	s.setPitch(std::pow(2, p/4096.0));
 	s.setVolume(v);
@@ -86,9 +91,7 @@ void Sound::bgmplay_(const Args& a){
 			throw std::runtime_error{"BGMPLAY too many args"};
 		}
 		
-		if (bgm.at(track))
-			bgm.at(track)->stop();
-		bgm.at(track) = std::make_unique<SSEQStream>(swar, sbnk, sseq[song]);
+		bgm.at(track)->set_sseq(&sseq[song]);
 		auto& music = *bgm.at(track);
 		music.setVolume(volume);
 		music.play();

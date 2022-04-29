@@ -55,7 +55,11 @@ void Program::call_cmd(Token instr, const Args& chunks){
 	commands.at(instr)(chunks);
 }
 
+#include <valgrind/callgrind.h>
+
 void Program::run_(){
+	CALLGRIND_START_INSTRUMENTATION;
+	CALLGRIND_TOGGLE_COLLECT;
 	current = tokens.cbegin();
 	std::cout << "\nbegin run\n" << std::endl;
 	
@@ -100,6 +104,9 @@ void Program::run_(){
 	
 	commands.at("OK"_TC)({});
 	std::cout << "Program end" << std::endl;
+	
+	CALLGRIND_TOGGLE_COLLECT;
+	CALLGRIND_STOP_INSTRUMENTATION;
 }
 
 void Program::run(){
@@ -175,7 +182,7 @@ void Program::next_(const Args& a){
 	next.insert(next.end(), (std::get<0>(*itr)).begin(), (std::get<0>(*itr)).end());
 	next.push_back("+"_TO);
 	next.insert(next.end(), (std::get<3>(*itr)).begin(), (std::get<3>(*itr)).end());
-	e.eval_no_save(next); //do the next step
+	e.evaluate(next); //do the next step
 
 	Number step = std::get<Number>(e.evaluate(std::get<3>(*itr))); //step amount
 	Number end = std::get<Number>(e.evaluate(std::get<2>(*itr))); //end value
