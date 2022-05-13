@@ -51,6 +51,8 @@ struct CHR{
 struct MEM{
 	static const int SIZE = 256*2;
 	
+	int actual_size = 0;
+	
 	std::vector<unsigned char> data;
 	std::vector<unsigned char> data_enc;
 	
@@ -58,6 +60,7 @@ struct MEM{
 	
 	void generate_encoding();
 	std::string get_mem();
+	void set_mem(std::string);
 };
 
 struct SCR{
@@ -167,7 +170,7 @@ struct Resources{
 	void load_default();
 	
 	void load(std::string type, std::string filename);
-	void save(std::string type);
+	void save(std::string type, std::string filename);
 	
 	std::string normalize_type(std::string type);
 };

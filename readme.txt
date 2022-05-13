@@ -92,6 +92,13 @@ KEYBOARD and INKEY$() are approximated by typing on the keyboard. Note that curr
 - https://github.com/Oreo639/sdatxtract
 - https://github.com/devkitPro/ndstool
 
+Licenses for these are located in resources/tools/ along with the binaries.
+
+== Libraries used ==
+
+- https://create.stephan-brumme.com/hash-library/ (under zlib license)
+- www.sfml-dev.org (under zlib license)
+
 == Resources/Links ==
 
 - https://en.cppreference.com

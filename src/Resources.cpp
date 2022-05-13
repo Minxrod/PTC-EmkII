@@ -19,10 +19,22 @@ std::string MEM::get_mem(){
 		int value = data[i] + (data[i+1]<<8);
 		if (encode[value])
 			mem += (char)encode[value];
-		else
+		else {
+			actual_size = i/2; //TODO: check if file size matches actual string size 
 			break;
+		}
 	}
 	return mem;
+}
+
+void MEM::set_mem(std::string mem){
+	actual_size = mem.size();
+	data.resize(MEM::SIZE);
+	std::fill(data.begin(), data.end(), 0);
+	for (int i = 0; i < (int)mem.size(); ++i){
+		data[2*i] = data_enc[2*mem[i]];
+		data[2*i+1] = data_enc[2*mem[i]+1];
+	}
 }
 
 // requires data_enc to be loaded before using
@@ -36,7 +48,7 @@ void MEM::generate_encoding(){
 void Resources::load_program(std::string name){
 	auto fs = get_filestream(name);
 	read_n(fs, prg_info.data, 60);
-	read_n(fs, prg.data, prg_info.get_size());
+	read_n(fs, prg.data, prg_info.get_prg_size());
 }
 
 void Resources::load_default(){
@@ -129,13 +141,33 @@ void Resources::load(std::string type, std::string filename){
 		read_n(fs, scr.at(type).data, 48); //dummy read to skip header
 		read_n(fs, scr.at(type).data, SCR::SIZE);		
 	} else if (type == "MEM"){
-		auto fs = get_filestream("programs/"+filename+".PTC");
-		read_n(fs, mem.data, 48); //dummy read to skip header
-		read_n(fs, mem.data, MEM::SIZE);
+		try {
+			auto fs = get_filestream("programs/"+filename+".PTC");
+			read_n(fs, mem.data, 48); //dummy read to skip header
+			read_n(fs, mem.data, MEM::SIZE);
+		} catch (std::runtime_error& e){
+			std::cout << "Failed to load: " << e.what() << "\n";
+			mem.data.resize(MEM::SIZE);
+			std::fill(mem.data.begin(), mem.data.end(), 0);
+		}
 	}
 }
 
-void Resources::save(std::string ){
+void Resources::save(std::string type, std::string filename){
+	Header header{};
+	header.set_filename(filename);
+	header.set_type(type);
 	
+	if (type == "MEM"){
+		header.set_size(12 + MEM::SIZE + 2);
+		std::vector<unsigned char> data{mem.data};
+		data.push_back(mem.actual_size % 256); //store size in memory structure
+		data.push_back(mem.actual_size / 256); //store size in memory structure
+		header.set_md5(data);
+		
+		auto fs = write_filestream("programs/"+filename+".PTC");
+		write_n(fs, header.data);
+		write_n(fs, data);
+	}
 }
 

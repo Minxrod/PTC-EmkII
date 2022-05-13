@@ -81,7 +81,7 @@ std::map<Token, cmd_type> Visual::get_cmds(){
 		cmd_map("ACLS"_TC, getfunc(this, &Visual::acls_)),
 		cmd_map("CLS"_TC, getfunc(this, &Visual::cls_)),
 		cmd_map("LOAD"_TC, getfunc(this, &Visual::load_)),
-//		cmd_map("SAVE"_TC, getfunc(this, &Visual::save_)),
+		cmd_map("SAVE"_TC, getfunc(this, &Visual::save_)),
 	};
 	
 	cmds.merge(c.get_cmds());
