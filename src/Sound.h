@@ -15,6 +15,7 @@ class Sound {
 	const static int SFX_COUNT = 16;
 	const static int SEQ_SFX_OFFSET = 30;
 	
+	bool enabled = true;
 	
 	Evaluator& e;
 	
@@ -46,4 +47,7 @@ public:
 
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
+	
+	// enable or disable sound (at runtime)
+	void _enable(bool state) { enabled = state; }
 };

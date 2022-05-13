@@ -38,6 +38,10 @@ void Console::cls_(const Args&){
 	std::fill(bg_color.begin(), bg_color.end(), cur_bg_color);
 }
 
+void Console::cls(const Args&){
+	cls_({});
+}
+
 void Console::reset(){
 	cur_fg_color = 0;
 	cur_bg_color = 0;

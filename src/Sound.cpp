@@ -12,23 +12,27 @@ Sound::Sound(Evaluator& ev) : e{ev}{
 			throw std::runtime_error{"error loading file: " + name};
 		}
 	}*/
-	
-	swar.open("resources/sounds/SWAR_0.swar");
-	sbnk.open("resources/sounds/SBNK_0.sbnk");
-	
-	sfx.resize(SFX_COUNT);
-	bgm.resize(BGM_TRACK_COUNT);
-	for (auto& s : sfx){
-		s = std::make_unique<SSEQStream>(swar, sbnk);
-	}
-	
-	for (auto& b : bgm){
-		b = std::make_unique<SSEQStream>(swar, sbnk);
-	}
-	
-	for (auto i = 0; i < 294; ++i){
-		sseq.emplace_back();
-		sseq.back().open("resources/sounds/SSEQ_"+std::to_string(i)+".sseq");
+	try {
+		swar.open("resources/sounds/SWAR_0.swar");
+		sbnk.open("resources/sounds/SBNK_0.sbnk");
+		
+		sfx.resize(SFX_COUNT);
+		bgm.resize(BGM_TRACK_COUNT);
+		for (auto& s : sfx){
+			s = std::make_unique<SSEQStream>(swar, sbnk);
+		}
+		
+		for (auto& b : bgm){
+			b = std::make_unique<SSEQStream>(swar, sbnk);
+		}
+		
+		for (auto i = 0; i < 294; ++i){
+			sseq.emplace_back();
+			sseq.back().open("resources/sounds/SSEQ_"+std::to_string(i)+".sseq");
+		}
+	} catch (...){
+		std::cout << "Error loading sound: disabling sound system\n\n";
+		enabled = false;
 	}
 }
 
@@ -43,6 +47,9 @@ int Sound::get_available_sound(){
 }
 
 void Sound::beep_(const Args& a){
+	if (!enabled)
+		return;
+	
 	auto i = get_available_sound();
 	int wf = 0;
 	if (a.size() >= 2){ //BEEP <waveform number>
@@ -69,6 +76,9 @@ void Sound::beep_(const Args& a){
 }
 
 void Sound::bgmplay_(const Args& a){
+	if (!enabled)
+		return;
+	
 	auto arg1 = e.evaluate(a[1]); // there should always be at least one argument
 	if (std::holds_alternative<Number>(arg1)){
 		// BGMPLAY [track] <song> [volume]
@@ -100,6 +110,9 @@ void Sound::bgmplay_(const Args& a){
 }
 
 void Sound::bgmstop_(const Args& a){
+	if (!enabled)
+		return;
+	
 	int track = 0;
 	if (a.size() == 2){
 		//BGMSTOP <track>
@@ -114,6 +127,9 @@ void Sound::bgmstop_(const Args& a){
 }
 
 Var Sound::bgmchk_(const Vals& v){
+	if (!enabled)
+		return Var(0.0);
+	
 	int track = 0;
 	if (v.size() == 1){
 		track = (int)std::get<Number>(v.at(0));

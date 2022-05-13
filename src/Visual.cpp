@@ -79,6 +79,7 @@ std::map<Token, cmd_type> Visual::get_cmds(){
 //		cmd_map("COLSET"_TC, getfunc(this, &Visual::colset_)),
 //		cmd_map("COLREAD"_TC, getfunc(this, &Visual::colread_)),
 		cmd_map("ACLS"_TC, getfunc(this, &Visual::acls_)),
+		cmd_map("CLS"_TC, getfunc(this, &Visual::cls_)),
 		cmd_map("LOAD"_TC, getfunc(this, &Visual::load_)),
 //		cmd_map("SAVE"_TC, getfunc(this, &Visual::save_)),
 	};
@@ -197,6 +198,11 @@ void Visual::colread_(const Args&){
 	
 }
 
+void Visual::cls_(const Args&){
+	c.cls({});
+	p.get_console().reset();
+}
+
 void Visual::acls_(const Args&){
 	//VISIBLE 1,1,1,1,1,1
 	for (int i = 0; i < 6; i++)
@@ -204,6 +210,7 @@ void Visual::acls_(const Args&){
 	//ICONCLR
 	//COLOR 0:CLS
 	c.reset();
+	p.get_console().reset();
 	//GDRAWMD FALSE:GCLS (all):GCOLOR 0'(all GRP)
 	g.reset();
 	//TODO: rest of ACLS
@@ -226,8 +233,18 @@ void Visual::load_(const Args& a){
 	}
 }
 
-void Visual::save_(const Args& ){
+void Visual::save_(const Args& a){
+	auto info = std::get<String>(e.evaluate(a[1]));
+	auto type = info.substr(0,info.find(":"));
+	auto name = info.substr(info.find(":")+1);
 	
+	type = r.normalize_type(type);
+	
+	if (type == "MEM"){
+		auto mem = *std::get<String*>(e.vars.get_var_ptr("MEM$"));
+		r.mem.set_mem(mem);
+		r.save(type, name);
+	}
 }
 
 

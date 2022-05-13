@@ -64,6 +64,12 @@ This has only been tested on Debian 11. It is currently UNTESTED on other machin
 Put any PTC files you want to run or load in the programs/ folder. This includes resources, such as CHR or GRP files.
 You will be prompted to enter a filename when launching PTC-EmkII.
 
+= Execution =
+
+There is currently only one option.
+
+-s = Disable sound system entirely. This also disables BGMCHK and the like, so is not recommended if your program needs this.
+
 = Controls: =
 
 - WASD = dpad

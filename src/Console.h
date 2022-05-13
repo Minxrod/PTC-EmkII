@@ -48,6 +48,7 @@ class Console {
 public:
 	Console(Evaluator&, CHR&, Input&);
 	
+	void cls(const Args&);
 	void reset();
 	
 	void print(int, int, Var&, int);

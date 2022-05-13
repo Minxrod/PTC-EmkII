@@ -56,6 +56,7 @@ struct Visual {
 	void colset_(const Args&);
 	void colread_(const Args&);
 	void acls_(const Args&);
+	void cls_(const Args&);
 	void save_(const Args&);
 	void load_(const Args&);
 	

@@ -20,7 +20,15 @@ void zoom(sf::Window& w, int scale){
 	w.setSize(sf::Vector2u(256*scale, 384*scale));
 }
 
-int main(){	
+// search for command line option
+bool option(std::string option, int option_count, char** options){
+	for (int i = 0; i < option_count; ++i)
+		if (std::string(options[i]) == std::string(option))
+			return true;
+	return false;
+}
+
+int main(int argc, char**argv){
 	Evaluator e{};
 	
 	std::vector<sf::Keyboard::Key> special{};
@@ -69,6 +77,9 @@ int main(){
 	Program program(e, tk);
 	Visual v{e, r, i};
 	Sound s{e};
+	if (option("-s",argc,argv)){
+		s._enable(false);
+	}
 	//Console console(e, r.chr.at("BGF0U"));
 	
 	e.add_funcs(v.get_funcs());
