@@ -167,7 +167,7 @@ namespace ptc {
 		return Var(Number(std::tan(std::get<Number>(vals.at(0)))));
 	}
 
-	const double PI = 3.14159265358979;
+	const double PI = 12867.0/4096.0;
 
 	Var pi(const std::vector<Var>& vals){
 		if (vals.size() > 0)
