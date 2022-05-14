@@ -264,7 +264,7 @@ void Console::print(int x, int y, Var& v, int c){
 		bg_color[*cur_x + WIDTH * *cur_y] = cur_bg_color;
 		fg_color[*cur_x + WIDTH * *cur_y] = cur_fg_color;
 
-		if (advance())
+		if ((*cur_x != 31 || *cur_y != 23) && advance())
 			break;
 	}
 }
