@@ -287,11 +287,15 @@ void Program::on_(const Args& a){
 	//ON <label exp> GOTO/GOSUB <lbl>, <lbl>, <lbl>
 	int index = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
 	
-	std::string lbl = std::get<String>(e.evaluate(a[index+3]));
-	if (a[2][0].text == "GOSUB"){
-		gosub_calls.push(current);
+	int max_index = a.size() - 3;
+	
+	if (index >= 0 && index < max_index){
+		std::string lbl = std::get<String>(e.evaluate(a[index+3]));
+		if (a[2][0].text == "GOSUB"){
+			gosub_calls.push(current);
+		}
+		goto_label(lbl);
 	}
-	goto_label(lbl);
 	//std::cout << "ON " << lbl << std::endl;
 }
 
