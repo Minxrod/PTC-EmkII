@@ -287,6 +287,8 @@ void Visual::draw(sf::RenderWindow& w){
 			rs.texture = &resource_tex[1];
 			auto& bg = b.draw(sc, l);
 			auto pos = bg.getPosition();
+			pos.x = (int)pos.x & 0x1ff;
+			pos.y = (int)pos.y & 0x1ff;
 			pos.y += 192*sc;
 			if (pos.x > 0){
 				bg.setPosition(pos.x - 64*8, pos.y);
