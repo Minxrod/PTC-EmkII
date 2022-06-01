@@ -24,7 +24,7 @@ class Console {
 	Number* tabstep;
 	
 	std::array<unsigned char, WIDTH*HEIGHT> bg_color;
-	std::array<unsigned char, WIDTH*HEIGHT> fg_color;	
+	std::array<unsigned char, WIDTH*HEIGHT> fg_color;
 	std::array<unsigned char, WIDTH*HEIGHT> text;
 	
 	bool advance();

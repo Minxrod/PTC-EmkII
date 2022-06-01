@@ -147,7 +147,7 @@ Var Input::btrig_(const Vals&){
 			}
 		}
 	}
-	std::cout << b << std::endl;
+//	std::cout << b << std::endl;
 	return Var(Number(b));
 }
 	
