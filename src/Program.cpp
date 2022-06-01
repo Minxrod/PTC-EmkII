@@ -9,6 +9,20 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens
 	if (data_current != tokens.end())
 		data_current++; //first piece of data will be directly after DATA statement
 	
+	int line = 1;
+	line_starts.push_back(0);
+	line_starts.push_back(0);
+	for (std::size_t i = 1; i < tokens.size(); ++i){
+		if (tokens[i-1] == Token{"\r",Type::Newl}){
+			line++;
+			line_starts.push_back(i);
+		}
+	}
+	
+	for (auto i : line_starts){
+		std::cout << i << std::endl;
+	}
+	
 	commands = std::map<Token, cmd_type>{
 		cmd_map("FOR"_TC, getfunc(this, &Program::for_)),
 		cmd_map("IF"_TC, getfunc(this, &Program::if_)),
@@ -25,9 +39,16 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens
 		cmd_map("DIM"_TC, getfunc(this, &Program::dim_)),
 		cmd_map("READ"_TC, getfunc(this, &Program::read_)),
 		cmd_map("RESTORE"_TC, getfunc(this, &Program::restore_)),
+		cmd_map("SWAP"_TC, getfunc(this, &Program::swap_)),
+		cmd_map("SORT"_TC, getfunc(this, &Program::sort_)),
+		cmd_map("RSORT"_TC, getfunc(this, &Program::rsort_)),
 		cmd_map("DTREAD"_TC, getfunc(&eval, &Evaluator::dtread_)),
 		cmd_map("TMREAD"_TC, getfunc(&eval, &Evaluator::tmread_))
 	};
+}
+
+void Program::set_breakpoint(int line, bool){
+	breakpoints.insert(line_starts[line]);
 }
 
 void Program::add_cmds(std::map<Token, cmd_type> other){
@@ -55,16 +76,24 @@ void Program::call_cmd(Token instr, const Args& chunks){
 	commands.at(instr)(chunks);
 }
 
-#include <valgrind/callgrind.h>
+//#include <valgrind/callgrind.h>
 
 void Program::run_(){
-	CALLGRIND_START_INSTRUMENTATION;
-	CALLGRIND_TOGGLE_COLLECT;
+//	CALLGRIND_START_INSTRUMENTATION;
+//	CALLGRIND_TOGGLE_COLLECT;
 	current = tokens.cbegin();
 	std::cout << "\nbegin run\n" << std::endl;
 	
 	while (current != tokens.cend()){
 		auto instr = next_instruction();
+		
+		auto d = std::distance(tokens.cbegin(), current);
+		if (breakpoints.count(d)){
+			std::cout << "Break at " << d << std::endl;
+			int test;
+			std::cin >> test;
+		}
+		
 		if (instr.empty())
 			continue; //it's an empty line, don't try to run it
 		
@@ -76,8 +105,8 @@ void Program::run_(){
 //			print("Instr:", chunk);
 		
 /*		if (instr_form.type == Type::Rem){ //ignore it, this is the entire line
-		} else if (instr_form.type == Type::Label){ //ignore
-		}else*/if (instr_form.type == Type::Num){ //error
+		}else*/if (instr_form.type == Type::Label){ //ignore
+		} else if (instr_form.type == Type::Num){ //error
 		} else if (instr_form.type == Type::Str){ //error
 		} else if (instr_form.type == Type::Arr){ //check for valid assignment
 			if (chunks.size() == 1){
@@ -105,8 +134,8 @@ void Program::run_(){
 	commands.at("OK"_TC)({});
 	std::cout << "Program end" << std::endl;
 	
-	CALLGRIND_TOGGLE_COLLECT;
-	CALLGRIND_STOP_INSTRUMENTATION;
+//	CALLGRIND_TOGGLE_COLLECT;
+//	CALLGRIND_STOP_INSTRUMENTATION;
 }
 
 void Program::run(){
@@ -363,8 +392,100 @@ void Program::dim_(const Args& a){
 
 void Program::swap_(const Args& a){
 	//SWAP var1, var2
-	auto tmp = e.evaluate(a[1]); //Var type	
+	auto var1value = e.evaluate(a[1]);
+	auto var2value = e.evaluate(a[2]);
 	
+	if (var1value.index() == var2value.index()){
+		auto token_type = std::holds_alternative<Number>(var1value) ? Type::Num : Type::Str;
+		std::string val1 = std::holds_alternative<Number>(var1value) ? std::to_string(std::get<Number>(var1value)) : std::get<String>(var1value);
+		std::string val2 = std::holds_alternative<Number>(var2value) ? std::to_string(std::get<Number>(var2value)) : std::get<String>(var2value);
+				
+		e.assign(a[1], Token{val2, token_type});
+		e.assign(a[2], Token{val1, token_type});
+	} else {
+		throw std::runtime_error{"Type mismatch"};
+	}
+}
+
+//https://stackoverflow.com/a/17074810
+template <typename T>
+void apply_permutation_in_place(
+	std::vector<T>& vec,
+	const std::vector<std::size_t>& p)
+{
+	std::vector<bool> done(vec.size());
+	for (std::size_t i = 0; i < vec.size(); ++i)
+	{
+		if (done[i])
+		{
+			continue;
+		}
+		done[i] = true;
+		std::size_t prev_j = i;
+		std::size_t j = p[i];
+		while (i != j)
+		{
+			std::swap(vec[prev_j], vec[j]);
+			done[j] = true;
+			prev_j = j;
+			j = p[j];
+		}
+	}
+}
+
+void Program::sort_(const Args& a){
+	//SORT start, num_elems, arr1 [,arr2, ...]
+	auto start = std::get<Number>(e.evaluate(a[1]));
+	auto num_elems = std::get<Number>(e.evaluate(a[2]));
+	//https://stackoverflow.com/questions/17074324/how-can-i-sort-two-vectors-in-the-same-way-with-criteria-that-uses-only-one-of
+	std::vector<Array1*> arrays{};
+	for (std::size_t i = 3; i < a.size(); ++i){
+		arrays.push_back(std::get<Array1*>(e.vars.get_var_ptr(a[i][0].text+"[]"))); //stupid hack, probably isn't reliable
+	}
+	
+	Array1* keyArray = arrays[0];
+	std::vector<std::size_t> sort_array{};
+	for (std::size_t i = 0; i < keyArray->size(); ++i){
+		sort_array.push_back(i);
+	}
+	
+	auto comp = [keyArray](std::size_t a, std::size_t b){ return (*keyArray)[a] < (*keyArray)[b]; };
+	std::sort(sort_array.begin()+start, sort_array.begin()+start+num_elems, comp);
+	
+	// I realized this bit would be annoying to write so I'm copying the 
+	// stackoverflow answer instead of trying to rewrite the solution
+	for (auto* a : arrays){
+		auto& arr = *a;
+		apply_permutation_in_place(arr, sort_array);
+	}
+}
+
+//TODO separate out all of this shared code
+void Program::rsort_(const Args& a){
+	//RSORT start, num_elems, arr1 [,arr2, ...]
+	auto start = std::get<Number>(e.evaluate(a[1]));
+	auto num_elems = std::get<Number>(e.evaluate(a[2]));
+	//https://stackoverflow.com/questions/17074324/how-can-i-sort-two-vectors-in-the-same-way-with-criteria-that-uses-only-one-of
+	std::vector<Array1*> arrays{};
+	for (std::size_t i = 3; i < a.size(); ++i){
+		arrays.push_back(std::get<Array1*>(e.vars.get_var_ptr(a[i][0].text+"[]"))); //stupid hack, probably isn't reliable
+	}
+	
+	Array1* keyArray = arrays[0];
+	std::vector<std::size_t> sort_array{};
+	for (std::size_t i = 0; i < keyArray->size(); ++i){
+		sort_array.push_back(i);
+	}
+	
+	auto comp = [keyArray](std::size_t a, std::size_t b){ return (*keyArray)[a] > (*keyArray)[b]; };
+	std::sort(sort_array.begin()+start, sort_array.begin()+start+num_elems, comp);
+	
+	// I realized this bit would be annoying to write so I'm copying the 
+	// stackoverflow answer instead of trying to rewrite the solution
+	for (auto* a : arrays){
+		auto& arr = *a;
+		apply_permutation_in_place(arr, sort_array);
+	}
 }
 
 std::vector<Token> tokenize(PRG& prg){

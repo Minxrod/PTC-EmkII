@@ -2,6 +2,7 @@
 
 #include <vector>
 #include <map>
+#include <set>
 #include <utility>
 
 #include "Vars.h"
@@ -13,13 +14,16 @@ class Program{
 	Evaluator& e;
 	
 	const std::vector<Token> tokens;
+	std::vector<int> line_starts{};
+	std::set<int> breakpoints{};
+	
 	std::vector<Token>::const_iterator current;
 	std::vector<Token>::const_iterator data_current;
 	
 	std::stack<std::vector<Token>::const_iterator> gosub_calls;
 	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>> for_calls;
 	
-	std::map<Token, cmd_type> commands;
+	std::map<Token, cmd_type> commands{};
 		
 	void if_(const Args&);
 	void for_(const Args&);
@@ -39,6 +43,8 @@ class Program{
 	void clear_(const Args&);
 	void dim_(const Args&);
 	void swap_(const Args&);
+	void sort_(const Args&);
+	void rsort_(const Args&);
 	
 	//actual program runner
 	void run_();
@@ -56,6 +62,8 @@ public:
 	
 	//start thread
 	void run();
+	
+	void set_breakpoint(int line, bool enable);
 };
 
 std::vector<Token> tokenize(PRG&);

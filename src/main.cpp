@@ -80,7 +80,6 @@ int main(int argc, char**argv){
 	if (option("-s",argc,argv)){
 		s._enable(false);
 	}
-	//Console console(e, r.chr.at("BGF0U"));
 	
 	e.add_funcs(v.get_funcs());
 	e.add_funcs(i.get_funcs());
@@ -89,7 +88,7 @@ int main(int argc, char**argv){
 	program.add_cmds(i.get_cmds());
 	program.add_cmds(s.get_cmds());
 	
-	print("TOKENIZED:", tk);	
+	print("TOKENIZED:", tk);
 	program.run();
 	
 	bool keybutton_enable = true;
