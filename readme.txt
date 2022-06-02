@@ -15,24 +15,24 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Sample 5: Works.
 - Sample 6: Partially works, but suffers slowdown the more notes are played. (Also, no ICON = no eraser)
 - Sample 7: Works.
-- Sample 8: Partially works, SWAP, SORT, RSORT unimplemented
-- Sample 9: Mostly does not work.
+- Sample 8: Works.
+- Sample 9: Works.
 - Sample 10: Mostly does not work.
 - Sample 11: Does not work.
 - Sample 12: Does not work.
 - Game 1: Works.
 - Game 2: Works, but input is slightly off (occasional double-inputs).
-- Game 3: Works? Not very tested.
+- Game 3: Works.
 - Game 4: Works.
 - Game 5: Works.
 
 = Features =
 - Console: Almost everything on the console should be working, issues only with INPUT and LINPUT.
-- Background: Basic operations should work, BGREAD and BGCOPY are not finished.
+- Background: Most operations should work, might be missing a few alternate forms of commands.
 - Sprites: Pretty good support; probably missing some more unusual features.
 - Graphics: Some basic operations should work, very unfinished.
 - Panel: In progress, does not yet support ICON commands.
-- Files: Only default graphics are currently loaded.
+- Files: Default graphics work; Some loading and saving has been implemented, but is very untested.
 - Sound: In progress, but has some differences from the original.
 - Input: Buttons and keyboard work, experimental controller support. Controls can be changed from config/controls.txt, though it's not yet convenient.
 
@@ -85,7 +85,7 @@ Special keys:
 - Numpad2: Zoom x2
 - End: Disable/Enable keyboard buttons
 
-KEYBOARD and INKEY$() are approximated by typing on the keyboard. Note that currently, not all keys are mapped, so some symbols are currently unable to be typed (ex. $ or %)
+KEYBOARD and INKEY$() are approximated by typing on the keyboard. The touch keyboard is partially functional, but the different keyboards are not yet implemented.
 
 == Tools used ==
 
