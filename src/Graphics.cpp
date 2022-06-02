@@ -29,6 +29,8 @@ std::map<Token, cmd_type> Graphics::get_cmds(){
 		std::pair<Token, cmd_type>("GCIRCLE"_TC, getfunc(this, &Graphics::gcircle_)),
 		std::pair<Token, cmd_type>("GDRAWMD"_TC, getfunc(this, &Graphics::gdrawmd_)),
 		std::pair<Token, cmd_type>("GPUTCHR"_TC, getfunc(this, &Graphics::gputchr_)),
+		std::pair<Token, cmd_type>("GPRIO"_TC, getfunc(this, &Graphics::gprio_)),
+		std::pair<Token, cmd_type>("GCOPY"_TC, getfunc(this, &Graphics::gcopy_)),
 	};
 }
 
@@ -254,12 +256,41 @@ void Graphics::gdrawmd_(const Args& a){
 	gdrawmd = std::get<Number>(e.evaluate(a[1]));
 }
 
-void Graphics::gprio_(const Args&){
-
+void Graphics::gprio_(const Args& a){
+	// GRPIO priority
+	int p = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+	prio[screen] = p;
 }
 
-void Graphics::gcopy_(const Args&){
-
+void Graphics::gcopy_(const Args& a){
+	//GCOPY [sourcepage,]sx,sy,ex,ey,tx,ty,mode
+	int page_offset = a.size() == 9 ? 1 : 0;
+	int page = page_offset ? static_cast<int>(std::get<Number>(e.evaluate(a[1]))) : drawpage[screen];
+	int source_x1 = static_cast<int>(std::get<Number>(e.evaluate(a[1+page_offset])));
+	int source_y1 = static_cast<int>(std::get<Number>(e.evaluate(a[2+page_offset])));
+	int source_x2 = static_cast<int>(std::get<Number>(e.evaluate(a[3+page_offset])));
+	int source_y2 = static_cast<int>(std::get<Number>(e.evaluate(a[4+page_offset])));
+	int dest_x = static_cast<int>(std::get<Number>(e.evaluate(a[5+page_offset])));
+	int dest_y = static_cast<int>(std::get<Number>(e.evaluate(a[6+page_offset])));
+	int mode = static_cast<int>(std::get<Number>(e.evaluate(a[7+page_offset])));
+	
+	std::array<unsigned char, WIDTH*HEIGHT> temp;
+	for (int x = source_x1; x <= source_x2; ++x){
+		for (int y = source_y1; y <= source_y2; ++y){
+			temp[x+WIDTH*y] = image[page].at(4*(x+WIDTH*y));
+		}
+	}
+	
+	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
+	
+	for (int x = source_x1; x <= source_x2; ++x){
+		for (int y = source_y1; y <= source_y2; ++y){
+			int dx = x - source_x1 + dest_x;
+			int dy = y - source_y1 + dest_y;
+			if (mode || temp[x+WIDTH*y])
+				draw_pixel(image[drawpage[screen]], g, dx, dy, temp[x+WIDTH*y]);
+		}
+	}
 }
 
 Var Graphics::gspoit_(const Vals& v){

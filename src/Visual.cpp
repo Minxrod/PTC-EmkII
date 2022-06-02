@@ -277,6 +277,7 @@ void Visual::draw(sf::RenderWindow& w){
 		sf::Sprite grp;
 		grp_tex.update(g.draw(sc).data());
 		grp.setTexture(grp_tex);
+		grp.setPosition(0,192*sc);
 		grp.setColor(sf::Color(0));
 		//grp prio=3
 		if (g.get_prio(sc) == 3){

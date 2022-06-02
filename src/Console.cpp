@@ -83,6 +83,11 @@ void Console::print_(const Args& a){
 			tab();
 		}
 	}
+	
+	//somehow this was never noticed sooner?
+	if (a.size() == 1){
+		newline();
+	}
 }
 
 std::string printable(const Var& v){
