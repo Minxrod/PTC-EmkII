@@ -37,6 +37,7 @@ public:
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	
+	void reset();
 	void update();
 	SpriteArray draw(int, int);
 };

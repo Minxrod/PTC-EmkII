@@ -9,12 +9,16 @@ y: Tile y coordinate
 Return: index into a SCR data array.
 */
 int to_scr_coords(int x, int y){
+	// limit to range [0,63]
+	x = x & 0x3f;
+	y = y & 0x3f;
+	
 	int cx = x / 32;
 	int cy = y / 32;
 	int tx = x % 32;
 	int ty = y % 32;
 	
-	return 2 * (cx * 1024 + cy * 2024 + tx + ty * 32);
+	return 2 * (cx * 1024 + cy * 2048 + tx + ty * 32);
 }
 
 /*
@@ -34,6 +38,8 @@ std::map<Token, cmd_type> Background::get_cmds(){
 		cmd_map("BGOFS"_TC, getfunc(this, &Background::bgofs_)),
 		cmd_map("BGFILL"_TC, getfunc(this, &Background::bgfill_)),
 		cmd_map("BGPUT"_TC, getfunc(this, &Background::bgput_)),
+		cmd_map("BGCOPY"_TC, getfunc(this, &Background::bgcopy_)),
+		cmd_map("BGREAD"_TC, getfunc(this, &Background::bgread_)),
 	};
 }
 
@@ -95,10 +101,14 @@ d: Combined tiledata.
 */
 void place_tile(SCR& s, TileMap& t, int x, int y, int d){
 	s.data[to_scr_coords(x,y)] = d & 0x00ff;
-	s.data[to_scr_coords(x,y)] = (d & 0xff00) >> 8;
+	s.data[to_scr_coords(x,y)+1] = (d & 0xff00) >> 8;
 	
 	t.tile(x,y,get_chr(d),get_h(d),get_v(d));
 	t.palette(x,y,16*get_pal(d));
+}
+
+int get_tile(SCR& s, int x, int y){
+	return s.data[to_scr_coords(x,y)] | (s.data[to_scr_coords(x,y)+1] << 8);
 }
 
 /*
@@ -227,7 +237,12 @@ void Background::bgput_(const Args& a){
 	
 	int tiledata = 0;
 	if (a.size() == 5){
-		tiledata = static_cast<int>(std::get<Number>(e.evaluate(a[4])));
+		auto tile = e.evaluate(a[4]);
+		if (std::holds_alternative<Number>(tile)){
+			tiledata = static_cast<int>(std::get<Number>(tile));
+		} else {
+			tiledata = static_cast<int>(std::stoi(std::get<String>(tile), nullptr, 16));
+		}
 	} else {
 		auto t = static_cast<int>(std::get<Number>(e.evaluate(a[4])));
 		auto p = static_cast<int>(std::get<Number>(e.evaluate(a[5])));
@@ -289,18 +304,96 @@ void Background::bgfill_(const Args& a){
 	}
 }
 
-/*
 
-*/
-void Background::bgread_(const Args&){
-
+#include <sstream>
+#include <iomanip>
+//https://stackoverflow.com/questions/5100718/integer-to-hex-string-in-c
+std::string u16_to_hex( int i )
+{
+	std::stringstream stream;
+	stream << "0x" << std::setfill ('0') << std::setw(4) << std::hex << i;
+	return stream.str();
 }
 
 /*
 
 */
-void Background::bgcopy_(const Args&){
+void Background::bgread_(const Args& a){
+	// BGREAD (layer, x, y), data
+	// BGREAD (layer, x, y), chr, pal, h, v
 
+	auto a_ = a[1]; //copy so args are not modified
+	//remove parens
+	a_.erase(a_.begin());
+	a_.erase(a_.end()-1);
+	
+	auto args = split(a_);
+	
+	int layer = std::get<Number>(e.evaluate(args[0]));
+	int x = std::get<Number>(e.evaluate(args[1]));
+	int y = std::get<Number>(e.evaluate(args[2]));
+	
+	std::string name = "SCU";
+	std::string screen = page ? "L" : "U";
+	name += std::to_string(layer) + screen;
+	auto& scu = scr.at(name);
+	
+	double data = get_tile(scu, x, y);
+	if (a.size() == 3){
+		if (std::holds_alternative<Number>(e.evaluate(a[2]))){
+			e.assign(a[2], Token{std::to_string(data), Type::Num});
+		} else {
+			e.assign(a[2], Token{u16_to_hex(data), Type::Str});
+		}
+	} else if (a.size() == 6){
+		e.assign(a[2], Token{std::to_string(get_chr(data)), Type::Num});
+		e.assign(a[3], Token{std::to_string(get_pal(data)), Type::Num});
+		e.assign(a[4], Token{std::to_string(get_h(data)), Type::Num});
+		e.assign(a[5], Token{std::to_string(get_v(data)), Type::Num});
+	} else {
+		throw std::runtime_error{"Wrong number of arguments"};
+	}
+}
+
+/*
+
+*/
+void Background::bgcopy_(const Args& a){
+	// BGCOPY layer, sx1, sy1, sx2, sy2, tx, ty
+	int layer = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+	int source_x1 = static_cast<int>(std::get<Number>(e.evaluate(a[2])));
+	int source_y1 = static_cast<int>(std::get<Number>(e.evaluate(a[3])));
+	int source_x2 = static_cast<int>(std::get<Number>(e.evaluate(a[4])));
+	int source_y2 = static_cast<int>(std::get<Number>(e.evaluate(a[5])));
+	int dest_x = static_cast<int>(std::get<Number>(e.evaluate(a[6])));
+	int dest_y = static_cast<int>(std::get<Number>(e.evaluate(a[7])));
+	
+	std::string name = "SCU";
+	std::string screen = page ? "L" : "U";
+	name += std::to_string(layer) + screen;
+	auto& scu = scr.at(name);
+	auto& bgl = bg_layers.at(2*page+layer);
+	
+	// temporary SCR + TileMap to perform intermediate copy to
+	SCR temp_copy{};
+	temp_copy.data.resize(SCR::SIZE);
+	TileMap temp_tilemap{64,64};
+	
+	for (int t = 0; t < 2; ++t){
+		auto& from_scu = !t ? scu : temp_copy;
+		auto& to_scu = !t ? temp_copy : scu;
+		auto& tilemap = !t ? temp_tilemap : bgl;
+		
+		for (int x = source_x1; x <= source_x2; ++x){
+			for (int y = source_y1; y <= source_y2; ++y){
+				int relative_x = x - source_x1;
+				int relative_y = y - source_y1;
+				
+				int tile = get_tile(from_scu, !t ? x : dest_x + relative_x, !t ? y : dest_y	+ relative_y);
+				place_tile(to_scu, tilemap, dest_x + relative_x, dest_y + relative_y, tile);
+			}
+		}
+	}
 }
 
 /*
@@ -312,6 +405,41 @@ Var Background::bgchk_(const Vals& v){
 	int layer = static_cast<int>(std::get<Number>(v.at(0)));
 	
 	return Number(bg_info[2*page+layer].time > 0);
+}
+
+
+void Background::update(){
+	for (auto& b : bg_info){
+		if (b.time > 0){
+			b.x += b.xstep;
+			b.y += b.ystep;
+			b.time--;
+		}
+	}
+}
+
+void Background::reset(){
+	auto oldpage = page;
+	//BGCLR (all)
+	page = 0;
+	bgclr_({});
+	page = 1;
+	bgclr_({});
+	page = oldpage;
+	//BGCLIP 0,0,31,23 (both screens)
+	bgclip_x1 = 0;
+	bgclip_y1 = 0;
+	bgclip_x2 = 31;
+	bgclip_y2 = 23;
+	for (auto& l : bg_layers){
+		l.clip(0,0,31,23);
+	}
+	//BGOFS (all),0,0
+	for (auto& i : bg_info){
+		i.x = 0;
+		i.y = 0;
+		i.time = 0;
+	}
 }
 
 /*

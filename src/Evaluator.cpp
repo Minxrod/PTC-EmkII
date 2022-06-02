@@ -221,7 +221,7 @@ std::vector<PrioToken> conv_tokens(const std::vector<Token>& expression){
 		if (t.text == "("){
 			is_func.push(is_func_paren);
 		}
-		if (t.text == ")"){
+		if (t.text == ")" && t.type != Type::Str){
 			if (is_func.top()){
 				t.text = ".";
 			}

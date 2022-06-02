@@ -213,7 +213,13 @@ void Visual::acls_(const Args&){
 	p.get_console().reset();
 	//GDRAWMD FALSE:GCLS (all):GCOLOR 0'(all GRP)
 	g.reset();
+	//SPCLR (all, both pages)
+	s.reset();
 	//TODO: rest of ACLS
+	// BGOFS (all),0,0
+	// BGCLR (all):BGCLIP 0,0,31,23
+	b.reset();
+	// COLINIT (all, both screens)
 }
 
 void Visual::load_(const Args& a){
@@ -252,6 +258,7 @@ void Visual::update(){
 	e.vars.write_sysvar("MAINCNTL", *maincntl+1);
 	//do interpolation here as well (bg, sp)
 	s.update();
+	b.update();
 }
 
 //note: don't make this silly mistake

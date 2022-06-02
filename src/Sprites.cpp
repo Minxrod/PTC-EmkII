@@ -1,5 +1,7 @@
 #include "Sprites.h"
 
+#include <cmath>
+
 Sprites::Sprites(Evaluator& ev) : e{ev}{
 	sprites = std::vector{2, std::vector{100, SpriteInfo{}}};
 }
@@ -18,6 +20,7 @@ std::map<Token, cmd_type> Sprites::get_cmds(){
 		std::pair("SPCOL"_TC, getfunc(this, &Sprites::spcol_)),
 		std::pair("SPCOLVEC"_TC, getfunc(this, &Sprites::spcolvec_)),
 		std::pair("SPSETV"_TC, getfunc(this, &Sprites::spsetv_)),
+		std::pair("SPREAD"_TC, getfunc(this, &Sprites::spread_)),
 	};
 }
 
@@ -201,7 +204,18 @@ Var Sprites::spchk_(const Vals& v){
 	return Var((double)result);
 }
 
-void Sprites::spread_(const Args&){}
+void Sprites::spread_(const Args& a){
+	// SPREAD (id),x,y,angle,scale,chr
+	auto id = std::get<Number>(e.evaluate(a[1]));
+	auto& s = sprites[page][id];
+	
+	e.assign(a[2], Token{std::to_string(std::round(s.pos.x)), Type::Num});
+	e.assign(a[3], Token{std::to_string(std::round(s.pos.y)), Type::Num});
+	e.assign(a[4], Token{std::to_string(s.angle.a), Type::Num});
+	e.assign(a[5], Token{std::to_string(s.scale.s), Type::Num});
+	int current_chr = s.anim.loop_forever || s.anim.loop ? s.anim.current_chr : s.chr;
+	e.assign(a[6], Token{std::to_string(current_chr), Type::Num});
+}
 
 void Sprites::spsetv_(const Args& a){
 	// SPSETV id var value
@@ -290,6 +304,11 @@ Var Sprites::sphitsp_(const Vals& v){
 
 Var Sprites::sphitrc_(const Vals&){
 	return Var(0.0);
+}
+
+void Sprites::reset(){
+	sprites[0] = std::vector{100, SpriteInfo{}};
+	sprites[1] = std::vector{100, SpriteInfo{}};
 }
 
 void Sprites::update(){
