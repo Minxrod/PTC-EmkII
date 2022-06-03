@@ -20,14 +20,11 @@ class Sound {
 	Evaluator& e;
 	
 	const std::string resource_path{"resources/sounds/"};
-
-//	std::vector<sf::SoundBuffer> wav;
-//	std::vector<sf::Sound> sfx;
-//	std::vector<sf::Music> bgm;
 	
 	SWAR swar;
 	SBNK sbnk;
 	std::vector<SSEQ> sseq;
+	std::vector<SSEQ> user_songs; 
 	
 	std::vector<std::unique_ptr<SSEQStream>> bgm;
 	std::vector<std::unique_ptr<SSEQStream>> sfx;
@@ -39,8 +36,14 @@ class Sound {
 	void bgmplay_(const Args&);
 	void bgmstop_(const Args&);
 	void bgmvol_(const Args&);
-
+	void bgmclear_(const Args&);
+	void bgmset_(const Args&);
+	void bgmsetd_(const Args&);
+	void bgmprg_(const Args&);
+	void bgmsetv_(const Args&);
+	
 	Var bgmchk_(const Vals&);
+	Var bgmgetv_(const Args&);
 
 public:
 	Sound(Evaluator&);

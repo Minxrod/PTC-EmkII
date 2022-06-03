@@ -30,6 +30,10 @@ Sound::Sound(Evaluator& ev) : e{ev}{
 			sseq.emplace_back();
 			sseq.back().open("resources/sounds/SSEQ_"+std::to_string(i)+".sseq");
 		}
+		for (auto i = 128; i <= 256; ++i){
+			user_songs.emplace_back();
+			user_songs.back().mml("");
+		}
 	} catch (...){
 		std::cout << "Error loading sound: disabling sound system\n\n";
 		enabled = false;
@@ -101,12 +105,28 @@ void Sound::bgmplay_(const Args& a){
 			throw std::runtime_error{"BGMPLAY too many args"};
 		}
 		
-		bgm.at(track)->set_sseq(&sseq[song]);
+		if (0 <= song && song < 30){
+			bgm.at(track)->set_sseq(&sseq[song]);
+		} else if (128 <= song && song <= 256){
+			bgm.at(track)->set_sseq(&user_songs[song-128]);
+		}
+		
 		auto& music = *bgm.at(track);
 		music.setVolume(volume);
 		music.play();
+	} else { //assume string
+		std::string mml{};
+		//note: should only be up to 9 strings according to wiki?
+		for (std::size_t i = 1; i < a.size(); ++i){
+			mml += std::get<String>(e.evaluate(a[i]));
+		}
+		
+		SSEQ mml_sseq{};
+		mml_sseq.mml(mml);
+		user_songs[256] = mml_sseq;
+		// will always play at full volume on track 0
+		bgm.at(0)->set_sseq(&user_songs[256]);
 	}
-	//TODO: Implement MML, maybe?
 }
 
 void Sound::bgmstop_(const Args& a){
@@ -126,6 +146,33 @@ void Sound::bgmstop_(const Args& a){
 	//}
 }
 
+void Sound::bgmclear_(const Args& a){
+	//BGMCLEAR [slot]
+	SSEQ empty{};
+	empty.mml("");
+	if (a.size() == 2){
+		int slot = (int)std::get<Number>(e.evaluate(a[1]));
+		
+		user_songs.at(slot-128) = empty;
+	} else {
+		for (int i = 128; i <= 256; ++i){
+			user_songs.at(i-128) = empty;
+		}
+	}
+}
+
+void Sound::bgmset_(const Args& a){
+	//BGMSET song,mml1[,mml2...]
+	int slot = (int)std::get<Number>(e.evaluate(a[1]));
+	std::string mml{};
+	for (std::size_t i = 2; i < a.size(); ++i){
+		mml += std::get<String>(e.evaluate(a[i]));
+	}
+	SSEQ mml_seq{};
+	mml_seq.mml(mml);
+	user_songs.at(slot-128) = mml_seq;
+}
+
 Var Sound::bgmchk_(const Vals& v){
 	if (!enabled)
 		return Var(0.0);
@@ -138,7 +185,7 @@ Var Sound::bgmchk_(const Vals& v){
 	if (!bgm.at(track))
 		return Var(0.0); // no song loaded -> not playing
 	// song is loaded: is it still playing?
-	return Var(static_cast<double>(bgm.at(track)->getStatus() == sf::SoundSource::Status::Stopped));
+	return Var(static_cast<double>(bgm.at(track)->getStatus() == SSEQStream::Playing));
 }
 
 std::map<Token, cmd_type> Sound::get_cmds(){
@@ -146,6 +193,8 @@ std::map<Token, cmd_type> Sound::get_cmds(){
 		cmd_map{"BEEP"_TC, getfunc(this, &Sound::beep_)},
 		cmd_map{"BGMPLAY"_TC, getfunc(this, &Sound::bgmplay_)},
 		cmd_map{"BGMSTOP"_TC, getfunc(this, &Sound::bgmstop_)},
+		cmd_map{"BGMCLEAR"_TC, getfunc(this, &Sound::bgmclear_)},
+		cmd_map{"BGMSET"_TC, getfunc(this, &Sound::bgmset_)},
 	};
 }
 

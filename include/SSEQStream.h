@@ -101,7 +101,7 @@ public:
 	void reset();
 	
 private:
-	int tempo;
+	int tempo = 120;
 	int offset = 0;
 	
 	std::vector<Channel> channels;

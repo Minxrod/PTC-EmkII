@@ -69,8 +69,8 @@ struct NoteEvent
 
 
 struct SSEQ {
-	const int SIZE = 0x14;
-	const int START_OFFSET = 0x18;
+	const static int SIZE = 0x14;
+	const static int START_OFFSET = 0x18;
 	
 //	std::vector<Channel> channels;
 	std::vector<char> data;
@@ -78,9 +78,12 @@ struct SSEQ {
 	std::vector<Event> events; //converted from data
 	
 	void open(std::string filename);
+	void mml(std::string mml_data);
 	std::string info();
 	
 	int tempo; // processed during initial events
+	
+	SSEQ& operator=(const SSEQ&) = default;
 	
 private:
 	int variable_length(int& i);
