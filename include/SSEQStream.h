@@ -84,6 +84,10 @@ struct Channel {
 	int instr = 0;
 	
 	std::vector<int> call_stack{};
+	// may not be particularly accurate to actual format (are multiple nested loops allowed??)
+	//format: loop begin index, remaining count
+	std::vector<int> loop_stack{};
+	
 };
 
 class SSEQStream : public sf::SoundStream {
