@@ -221,7 +221,15 @@ namespace ptc {
 	}
 	
 	Var val(const Vals& vals){
-		return Var((double)std::stoi(std::get<String>(vals.at(0))));
+		String s = std::get<String>(vals.at(0));
+		if (s.size() > 2 && s[0] == '&'){
+			if (s[1] == 'B'){
+				return Var(static_cast<double>(std::stoi(s.substr(2), nullptr, 2)));
+			} else if (s[1] == 'H'){
+				return Var(static_cast<double>(std::stoi(s.substr(2), nullptr, 16)));
+			}
+		}
+		return Var(std::stod(s));
 	}
 	
 	Var chr(const Vals& vals){
@@ -284,7 +292,9 @@ namespace ptc {
 		std::string result{};
 		if (num == 0)
 			result = "0";
-		while (num != 0){
+		else if (num == -1)
+			result = "fffff";
+		while (num != 0 && num != -1){
 			result = digit_str[num & 0x0f] + result;
 			num >>= 4;
 		}
@@ -292,7 +302,7 @@ namespace ptc {
 			throw std::runtime_error{"Illegal function call (HEX$)"};
 		if (digits)
 			result = "00000" + result;
-		return result.substr(digits,5);
+		return result.substr(result.size()-digits);
 	}
 	
 	Var pow(const Vals& vals){

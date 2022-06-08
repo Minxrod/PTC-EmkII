@@ -123,9 +123,13 @@ void Sound::bgmplay_(const Args& a){
 		
 		SSEQ mml_sseq{};
 		mml_sseq.mml(mml);
-		user_songs[256] = mml_sseq;
+		user_songs[128] = mml_sseq;
 		// will always play at full volume on track 0
-		bgm.at(0)->set_sseq(&user_songs[256]);
+		bgm.at(0)->set_sseq(&user_songs[128]);
+		
+		auto& music = *bgm.at(0);
+		music.setVolume(127);
+		music.play();
 	}
 }
 
@@ -173,6 +177,69 @@ void Sound::bgmset_(const Args& a){
 	user_songs.at(slot-128) = mml_seq;
 }
 
+void Sound::bgmprg_(const Args& a){
+	//BGMPRG instr, waveform
+	//BGMPRG instr, key, waveform
+	//BGMPRG instr, a, d, s, r, waveform
+	//BGMPRG instr, key, a, d, s, r, waveform
+	
+	int instr = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+	auto& instrument = sbnk.instruments[instr];
+	auto& note_def = instrument.get_note_def(0);
+	int attack = note_def.attack;
+	int decay = note_def.decay;
+	int sustain = note_def.sustain;
+	int release = note_def.release;
+	int key = 60;
+	std::string waveform;
+	if (a.size() == 3){
+		waveform = std::get<String>(e.evaluate(a[2]));
+	} else if (a.size() == 4){
+		key = std::get<Number>(e.evaluate(a[2]));
+		waveform = std::get<String>(e.evaluate(a[3]));
+	} else if (a.size() == 7){
+		attack = std::get<Number>(e.evaluate(a[2]));
+		decay = std::get<Number>(e.evaluate(a[3]));
+		sustain = std::get<Number>(e.evaluate(a[4]));
+		release = std::get<Number>(e.evaluate(a[5]));
+		waveform = std::get<String>(e.evaluate(a[6]));
+	} else if (a.size() == 8){
+		key = std::get<Number>(e.evaluate(a[2]));
+		attack = std::get<Number>(e.evaluate(a[3]));
+		decay = std::get<Number>(e.evaluate(a[4]));
+		sustain = std::get<Number>(e.evaluate(a[5]));
+		release = std::get<Number>(e.evaluate(a[6]));
+		waveform = std::get<String>(e.evaluate(a[7]));
+	}
+	note_def.note = key;
+	note_def.attack = attack;
+	note_def.decay = decay;
+	note_def.sustain = sustain;
+	note_def.release = release;
+	if (waveform.length() != 256 && waveform.length() != 128){
+		throw std::runtime_error{"Invalid waveform size"};
+	}
+	auto& samples = swar.swav[note_def.swav_no].samples;
+	std::cout << "swav:" << note_def.swav_no;
+	std::cout << "samps:" << samples.size();
+
+	for (std::size_t i = 0; i < samples.size(); ++i){
+		char hi = waveform[(2*i) % waveform.length()];
+		char lo = waveform[(2*i+1) % waveform.length()];
+		
+		int value = (hi > '9' ? hi - 'A' + 10 : hi - '0') << 4;
+		value += (lo > '9' ? lo - 'A' + 10 : lo - '0');
+		if (value >= 128)
+			value -= 256;
+		
+		samples[i] = value * 256;
+	}
+	for (auto s : samples){
+		std::cout << (int)s << " ";
+	}
+	
+}
+
 Var Sound::bgmchk_(const Vals& v){
 	if (!enabled)
 		return Var(0.0);
@@ -195,6 +262,7 @@ std::map<Token, cmd_type> Sound::get_cmds(){
 		cmd_map{"BGMSTOP"_TC, getfunc(this, &Sound::bgmstop_)},
 		cmd_map{"BGMCLEAR"_TC, getfunc(this, &Sound::bgmclear_)},
 		cmd_map{"BGMSET"_TC, getfunc(this, &Sound::bgmset_)},
+		cmd_map{"BGMPRG"_TC, getfunc(this, &Sound::bgmprg_)},
 	};
 }
 

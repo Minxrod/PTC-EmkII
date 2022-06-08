@@ -121,9 +121,13 @@ int main(int argc, char**argv){
 		}
 		//Update mouse info
 		if (mouse_press){
+			sf::Vector2u size = window.getSize();
+			double w = size.x;
+			double h = size.y;
+			
 			auto [x, y] = sf::Mouse::getPosition(window);
-			mouse_x = x;
-			mouse_y = y - 192;
+			mouse_x = 256 * x / w;
+			mouse_y = 192 * y / (h/2) - 192;
 			++mouse_time;
 		} else {
 			mouse_time = 0;

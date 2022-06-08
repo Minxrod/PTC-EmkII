@@ -134,6 +134,7 @@ void Visual::chrinit_(const Args& a){
 void Visual::chrset_(const Args& a){
 	auto resource_type = std::get<String>(e.evaluate(a[1]));
 	int chr_id = std::get<Number>(e.evaluate(a[2]));
+	resource_type = r.normalize_type(resource_type);
 	auto& chr_resource = r.chr.at(resource_type);
 	std::string chr_data = std::get<String>(e.evaluate(a[3]));
 	
@@ -158,6 +159,7 @@ void Visual::chrread_(const Args& a){
 	
 	auto resource_type = std::get<String>(e.evaluate(args[0]));
 	int chr_id = std::get<Number>(e.evaluate(args[1]));
+	resource_type = r.normalize_type(resource_type);
 	auto& chr_resource = r.chr.at(resource_type);
 	
 	const char* digits = "0123456789ABCDEF";
@@ -285,7 +287,7 @@ void Visual::draw(sf::RenderWindow& w){
 			w.draw(grp, rs);
 		}
 		//sprites prio=3
-		rs.texture = &resource_tex[2 + chr_l];
+		rs.texture = &resource_tex[2 + sc + chr_l];
 		auto spr = s.draw(sc,3);
 		bgsp_shader.setUniform("colbank", COL_SP + col_l);
 		w.draw(spr, rs);
@@ -319,7 +321,7 @@ void Visual::draw(sf::RenderWindow& w){
 					w.draw(grp, rs);
 				}
 				
-				rs.texture = &resource_tex[2 + chr_l];
+				rs.texture = &resource_tex[2 + sc + chr_l];
 				spr = s.draw(sc,2);
 				bgsp_shader.setUniform("colbank", COL_SP + col_l);
 				w.draw(spr, rs);
@@ -331,7 +333,7 @@ void Visual::draw(sf::RenderWindow& w){
 			w.draw(grp, rs);
 		}
 		//sprite prio=1
-		rs.texture = &resource_tex[2 + chr_l];
+		rs.texture = &resource_tex[2 + sc + chr_l];
 		spr = s.draw(sc,1);
 		bgsp_shader.setUniform("colbank", COL_SP + col_l);
 		w.draw(spr, rs);
@@ -354,7 +356,7 @@ void Visual::draw(sf::RenderWindow& w){
 			w.draw(grp, rs);
 		}
 		//sprite prio=0
-		rs.texture = &resource_tex[2 + chr_l];
+		rs.texture = &resource_tex[2 + sc + chr_l];
 		spr = s.draw(sc,0);
 		bgsp_shader.setUniform("colbank", COL_SP + col_l);
 		w.draw(spr, rs);

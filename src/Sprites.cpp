@@ -205,16 +205,22 @@ Var Sprites::spchk_(const Vals& v){
 }
 
 void Sprites::spread_(const Args& a){
-	// SPREAD (id),x,y,angle,scale,chr
+	// SPREAD (id),x[,y[,angle[,scale[,chr]]]]
 	auto id = std::get<Number>(e.evaluate(a[1]));
 	auto& s = sprites[page][id];
 	
-	e.assign(a[2], Token{std::to_string(std::round(s.pos.x)), Type::Num});
-	e.assign(a[3], Token{std::to_string(std::round(s.pos.y)), Type::Num});
-	e.assign(a[4], Token{std::to_string(s.angle.a), Type::Num});
-	e.assign(a[5], Token{std::to_string(s.scale.s), Type::Num});
-	int current_chr = s.anim.loop_forever || s.anim.loop ? s.anim.current_chr : s.chr;
-	e.assign(a[6], Token{std::to_string(current_chr), Type::Num});
+	if (a.size() > 2)
+		e.assign(a[2], Token{std::to_string(std::round(s.pos.x)), Type::Num});
+	if (a.size() > 3)
+		e.assign(a[3], Token{std::to_string(std::round(s.pos.y)), Type::Num});
+	if (a.size() > 4)
+		e.assign(a[4], Token{std::to_string(s.angle.a), Type::Num});
+	if (a.size() > 5)
+		e.assign(a[5], Token{std::to_string(s.scale.s), Type::Num});
+	if (a.size() > 6){
+		int current_chr = s.anim.loop_forever || s.anim.loop ? s.anim.current_chr : s.chr;
+		e.assign(a[6], Token{std::to_string(current_chr), Type::Num});
+	}
 }
 
 void Sprites::spsetv_(const Args& a){
@@ -355,8 +361,11 @@ void Sprites::update(){
 SpriteArray Sprites::draw(int page, int prio){
 	SpriteArray sa{};
 	for (auto& spr : sprites[page]){
-		if (spr.active && spr.prio == prio)
+		if (spr.active && spr.prio == prio){
+			spr.pos.y += page * 192;
 			sa.add_sprite(spr);
+			spr.pos.y -= page * 192;
+		}
 	}
 	return sa;
 }
