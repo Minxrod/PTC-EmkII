@@ -17,9 +17,9 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Sample 7: Works.
 - Sample 8: Works.
 - Sample 9: Works.
-- Sample 10: Mostly does not work.
-- Sample 11: Does not work.
-- Sample 12: Does not work.
+- Sample 10: Works.
+- Sample 11: Works.
+- Sample 12: Not quite working - audio does not match, saving/loading untested.
 - Game 1: Works.
 - Game 2: Works, but input is slightly off (occasional double-inputs).
 - Game 3: Works.
@@ -27,13 +27,13 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Game 5: Works.
 
 = Features =
-- Console: Almost everything on the console should be working, issues only with INPUT and LINPUT.
+- Console: Most commands on the console should be working, but there are issues with INPUT and LINPUT. 
 - Background: Most operations should work, might be missing a few alternate forms of commands.
 - Sprites: Pretty good support; probably missing some more unusual features.
-- Graphics: Some basic operations should work, very unfinished.
+- Graphics: Most operations should work. GPAINT is unimplemented, some variants of other commands may be missing.
 - Panel: In progress, does not yet support ICON commands.
 - Files: Default graphics work; Some loading and saving has been implemented, but is very untested.
-- Sound: In progress, but has some differences from the original.
+- Sound: Alright, but has some differences from the original. Does not implement BGMSETV, BGMGETV yet.
 - Input: Buttons and keyboard work, experimental controller support. Controls can be changed from config/controls.txt, though it's not yet convenient.
 
 == Building ==
