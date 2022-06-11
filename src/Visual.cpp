@@ -201,8 +201,8 @@ void Visual::colread_(const Args&){
 }
 
 void Visual::cls_(const Args&){
-	c.cls({});
-	p.get_console().reset();
+	c.cls();
+	p.get_console().cls();
 }
 
 void Visual::acls_(const Args&){

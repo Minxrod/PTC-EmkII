@@ -7,7 +7,7 @@
 #include "Evaluator.h"
 #include "Input.h"
 
-#include "Console.h"
+#include "PTC2Console.h"
 #include "Background.h"
 #include "Sprites.h"
 #include "Graphics.h"
@@ -27,7 +27,7 @@ struct Visual {
 	Evaluator& e;
 	Resources& r;
 	
-	Console c;
+	PTC2Console c;
 	Background b;
 	Sprites s;
 	Graphics g;

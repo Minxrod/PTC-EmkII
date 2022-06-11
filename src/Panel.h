@@ -2,7 +2,7 @@
 
 #include "Vars.h"
 #include "Evaluator.h"
-#include "Console.h"
+#include "PTC2Console.h"
 #include "Background.h"
 #include "PanelKeyboard.h"
 
@@ -13,7 +13,7 @@ class Panel {
 	const static int HEIGHT = 192;
 	
 	Evaluator& e;
-	Console c;
+	PTC2Console c;
 	TileMap panel_bg;
 //	TileMap func_keys;
 //	std::vector<std::string> func_text;
@@ -44,7 +44,7 @@ public:
 	SpriteArray& draw_keyboard();
 	TileMap& draw_funckeys();
 	bool panel_on() { return pnltype; }
-	Console& get_console() { return c; }
+	PTC2Console& get_console() { return c; }
 	
 //	void draw(sf::RenderWindow&, sf::RenderStates&);
 	int get_last_keycode();

@@ -7,30 +7,38 @@
 #include "Resources.h"
 #include "Input.h"
 #include "TileMap.h"
+#include "BaseConsole.h"
 
-class Console {
+const int PTC2_CONSOLE_WIDTH = 32;
+const int PTC2_CONSOLE_HEIGHT = 24;
+
+class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT> {
 	Input& in;
 	Evaluator& e;
 	CHR& c;
 	TileMap tm;
 	
-	static const int WIDTH = 32;
-	static const int HEIGHT = 24;
-	
-	char cur_fg_color = 0;
-	char cur_bg_color = 0;
-	Number* cur_x;
-	Number* cur_y;
+	Number* csrx;
+	Number* csry;
 	Number* tabstep;
 	
-	std::array<unsigned char, WIDTH*HEIGHT> bg_color;
-	std::array<unsigned char, WIDTH*HEIGHT> fg_color;
-	std::array<unsigned char, WIDTH*HEIGHT> text;
+	bool inTheStupidCornerAfterASemicolon = false;
+//	BaseConsole<char, WIDTH, HEIGHT> internal_console;
 	
-	bool advance();
-	void newline();
+/*	char cur_fg_color = 0;*/
+/*	char cur_bg_color = 0;*/
+/*	Number* cur_x;*/
+/*	Number* cur_y;*/
+/*	Number* tabstep;*/
+	
+/*	std::array<unsigned char, WIDTH*HEIGHT> bg_color;*/
+/*	std::array<unsigned char, WIDTH*HEIGHT> fg_color;*/
+/*	std::array<unsigned char, WIDTH*HEIGHT> text;*/
+	
+//	bool advance();
+//	void newline();
 	void tab();
-	void scroll();
+//	void scroll();
 
 	void print_(const Var&);
 	void print_str(std::string);
@@ -46,9 +54,8 @@ class Console {
 	void ok(const Args&);
 	
 public:
-	Console(Evaluator&, CHR&, Input&);
+	PTC2Console(Evaluator&, CHR&, Input&);
 	
-	void cls(const Args&);
 	void reset();
 	
 	void print(int, int, Var&, int);

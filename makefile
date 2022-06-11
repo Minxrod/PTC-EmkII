@@ -12,7 +12,7 @@ OFLAGS = -std=c++17 -Wall -Werror -Wpedantic -Wextra -MMD -I$(INCLUDE) -L$(LIB) 
 
 # https://stackoverflow.com/questions/24096807/dso-missing-from-command-line
 CXXFLAGS = $(OFLAGS) -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -lpthread -lSSEQPlayer
-OBJECTS = main.o Evaluator.o Vars.o Variables.o md5.o Resources.o FileLoader.o Console.o Program.o Visual.o Input.o Sound.o Graphics.o Panel.o TileMap.o Background.o Sprites.o SpriteArray.o PanelKeyboard.o
+OBJECTS = main.o Evaluator.o Vars.o Variables.o md5.o Resources.o FileLoader.o PTC2Console.o Program.o Visual.o Input.o Sound.o Graphics.o Panel.o TileMap.o Background.o Sprites.o SpriteArray.o PanelKeyboard.o
 
 objs = $(OBJECTS:%=$(BUILD)%)
 
@@ -28,7 +28,8 @@ $(BUILD)%.o: $(SOURCE)%.cpp
 .PHONY: clean
 clean:
 	rm -f ptc
-	rm -r $(objs)
+	rm -rf $(objs)
+	rm $(BUILD)*
 
 # https://stackoverflow.com/questions/313778/generate-dependencies-for-a-makefile-for-a-project-in-c-c	
 # https://stackoverflow.com/a/10168396
