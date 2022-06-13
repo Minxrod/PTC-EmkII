@@ -280,7 +280,7 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 				//have RPN subsequence
 				subseq.push_back(r_n);
 				itr = tokens.begin();
-				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);
+//				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);
 			} else {
 				itr++;
 			}

@@ -88,10 +88,10 @@ std::vector<Token> Program::next_instruction(){
 		}
 		newline = search;
 		std::vector<Token> instr{current, newline};
-		for (auto& a : instr){
-			std::cout << a.text << " ";
-		}
-		std::cout << std::endl;
+//		for (auto& a : instr){
+//			std::cout << a.text << " ";
+//		}
+//		std::cout << std::endl;
 		
 		current = newline+(search->type == Type::Newl ? 1 : 0); //skip newlines etc, don't skip commands
 		return instr;

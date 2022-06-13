@@ -131,7 +131,8 @@ void PTC2Console::print_(const Var& v){
 std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args& a){
 	auto& guide = a[1];
 	auto str = std::vector<Token>(guide.begin(), std::find(guide.begin(), guide.end(), ";"_TO));
-	auto var = std::vector<Token>(std::find(guide.begin(), guide.end(), ";"_TO)+1, guide.end());
+	auto semicolon = std::find(guide.begin(), guide.end(), ";"_TO);
+	auto var = std::vector<Token>(semicolon+(semicolon != guide.end()), guide.end());
 	if (var.empty())
 		var = str; //no semicolon means a[1] only contains <varname>
 	
