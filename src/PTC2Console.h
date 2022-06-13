@@ -22,7 +22,7 @@ class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HE
 	Number* csry;
 	Number* tabstep;
 	
-	bool inTheStupidCornerAfterASemicolon = false;
+	bool inTheStupidCorner = false;
 //	BaseConsole<char, WIDTH, HEIGHT> internal_console;
 	
 /*	char cur_fg_color = 0;*/
@@ -35,10 +35,13 @@ class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HE
 /*	std::array<unsigned char, WIDTH*HEIGHT> fg_color;*/
 /*	std::array<unsigned char, WIDTH*HEIGHT> text;*/
 	
-//	bool advance();
-//	void newline();
+	//These are also methods in BaseConsole.
+	//These are not proper overrides, but they are used as extensions of
+	//the methodss from BaseConsole.
+	bool advance();
+	void newline();
 	void tab();
-//	void scroll();
+	void scroll();
 
 	void print_(const Var&);
 	void print_str(std::string);

@@ -26,6 +26,7 @@ class Program{
 	std::map<Token, cmd_type> commands{};
 		
 	void if_(const Args&);
+	void else_(const Args&);
 	void for_(const Args&);
 	void next_(const Args&);
 	void goto_(const Args&);

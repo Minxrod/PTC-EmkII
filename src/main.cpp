@@ -89,6 +89,7 @@ int main(int argc, char**argv){
 	program.add_cmds(s.get_cmds());
 	
 	print("TOKENIZED:", tk);
+	program.set_breakpoint(114, true);
 	program.run();
 	
 	bool keybutton_enable = true;

@@ -29,7 +29,7 @@ $(BUILD)%.o: $(SOURCE)%.cpp
 clean:
 	rm -f ptc
 	rm -rf $(objs)
-	rm $(BUILD)*
+	rm $(BUILD)*.d
 
 # https://stackoverflow.com/questions/313778/generate-dependencies-for-a-makefile-for-a-project-in-c-c	
 # https://stackoverflow.com/a/10168396

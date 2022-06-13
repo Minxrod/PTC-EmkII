@@ -22,7 +22,11 @@ class BaseConsole {
 	std::array<unsigned char, width*height> fg_color{};
 	std::array<charT, width*height> text{};
 	
+protected:
 	bool advance();
+	void newline();
+	void tab();
+	void scroll();
 	
 public:
 	BaseConsole();
@@ -34,10 +38,6 @@ public:
 	void locate(int x, int y);
 	void color(int f, int b = 0);
 	charT chkchr(int x, int y);
-	
-	void newline();
-	void tab();
-	void scroll();
 	
 	int get_w() { return WIDTH; }
 	int get_h() { return HEIGHT; }

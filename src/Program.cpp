@@ -19,13 +19,14 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens
 		}
 	}
 	
-	for (auto i : line_starts){
-		std::cout << i << std::endl;
-	}
+//	for (auto i : line_starts){
+//		std::cout << i << std::endl;
+//	}
 	
 	commands = std::map<Token, cmd_type>{
 		cmd_map("FOR"_TC, getfunc(this, &Program::for_)),
 		cmd_map("IF"_TC, getfunc(this, &Program::if_)),
+		cmd_map("ELSE"_TC, getfunc(this, &Program::else_)),
 		cmd_map("NEXT"_TC, getfunc(this, &Program::next_)),
 		cmd_map("GOTO"_TC, getfunc(this, &Program::goto_)),
 		cmd_map("GOSUB"_TC, getfunc(this, &Program::gosub_)),
@@ -57,15 +58,45 @@ void Program::add_cmds(std::map<Token, cmd_type> other){
 
 std::vector<Token> Program::next_instruction(){
 	Expr::const_iterator newline;
-	if (*current == "IF"_TC){ //IF should read entire line
+	if (*current == "IF"_TC || *current == "ELSE"_TC){ //IF, ELSE should read entire remainder of line
 		newline = std::find(current, tokens.end(), Token{"\r", Type::Newl});
+		std::vector<Token> instr{current, newline};
+		current = newline+1;
+		return instr;
+	} else if (*current == "FOR"_TC || *current == "ON"_TC){ // these instructions read entire line, but ':' is allowed to count as a '\r'
+		newline = current+1;
+		
+		while (newline->type != Type::Newl){
+			++newline;
+		}
+		std::vector<Token> instr{current, newline};
+		current = newline + 1;
+		return instr;
 	} else {
-		newline = std::min(std::find(current, tokens.end(), Token{"\r", Type::Newl}),
-							std::find(current, tokens.end(), Token{":", Type::Newl}));
+		auto search = current; // can assume first item is in [Var, Cmd, Newl] and should be ignored
+		if (search->type == Type::Cmd){
+			++search;
+		}
+		// updated from just checking for '\r' or ':' because of weird exceptions like
+		//LOCATE 5,5PRINT "HELLO"0
+		//The instruction should be LOCATE 5,5. Then PRINT "HELLO"0
+		//Also, separates pieces of statements like this:
+		//IF a THEN IF b THEN c ELSE d ELSE IF e THEN f ELSE g
+		
+		while (search->type != Type::Newl && search->type != Type::Cmd){
+			++search;
+		}
+		newline = search;
+		std::vector<Token> instr{current, newline};
+		for (auto& a : instr){
+			std::cout << a.text << " ";
+		}
+		std::cout << std::endl;
+		
+		current = newline+(search->type == Type::Newl ? 1 : 0); //skip newlines etc, don't skip commands
+		return instr;
 	}
-	std::vector<Token> instr{current, newline};
-	current = newline+1;
-	return instr;
+
 }
 
 bool Program::at_eof(){
@@ -109,15 +140,9 @@ void Program::run_(){
 		} else if (instr_form.type == Type::Num){ //error
 		} else if (instr_form.type == Type::Str){ //error
 		} else if (instr_form.type == Type::Arr){ //check for valid assignment
-			if (chunks.size() == 1){
-				//probably valid
-				e.evaluate(chunks[0]);
-			}
+			e.evaluate(chunks[0]);
 		} else if (instr_form.type == Type::Var){ //check for assignment
-			if (chunks.size() == 1){
-				//probably valid
-				e.evaluate(chunks[0]);
-			}
+			e.evaluate(chunks[0]);
 		} else if (instr_form.type == Type::Op){ //error
 		} else if (instr_form.type == Type::Func){ //error
 		} else if (instr_form.type == Type::Cmd){ //run cmd
@@ -228,6 +253,11 @@ void Program::wait_(const Args& a){
 	auto frames = 1000.0 / 60.0 * std::get<Number>(e.evaluate(a[1]));
 	
 	std::this_thread::sleep_for(std::chrono::milliseconds((int)frames));
+}
+
+void Program::else_(const Args&){
+	//ignore everything past an ELSE
+	//It's like IF if IF did nothing
 }
 
 void Program::if_(const Args& a){
