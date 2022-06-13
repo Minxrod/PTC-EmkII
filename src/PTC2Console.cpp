@@ -63,8 +63,13 @@ void PTC2Console::print_(const Args& a){
 					break;
 				}
 				
-				auto res = e.evaluate(sub_exp);
-				print_(res);
+				auto res = e.eval_all_results(sub_exp);
+				if (res.size() > 1){
+					
+				}
+				for (int i = res.size()-1; i >= 0; --i){
+					print_(res.at(i));
+				}
 				old_end = sub_end+1;
 			} while (sub_end != exp.end());
 			//if in last column and not followed by semicolon || last expression not followed by semicolon

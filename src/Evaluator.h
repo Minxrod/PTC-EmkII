@@ -38,11 +38,16 @@ struct Evaluator {
 	Var evaluate(const std::vector<Token>&);
 	Var eval_no_save(const std::vector<Token>&);
 	
+	//Takes an expression and evaluates it, keeping all results
+	//Ex. 5"HI"78.3 "MUTLI-RESULT" -> tokenized -> eval_all_results =
+	//["MULTI-RESULT", 78.3, "HI", 5] (order reversed because there is a stack used internally
+	std::vector<Var> eval_all_results(const std::vector<Token>& expression);
+	
 	//takes an expression and modifies it to a calculatable form
 	std::vector<Token> process(const std::vector<Token>&);
 	
 	//takes a calculable form and gets a value
-	Var calculate(const std::vector<Token>&, bool = false);
+	std::vector<Var> calculate(const std::vector<Token>&, bool = false);
 	
 	void dtread_(const Args&);
 	void tmread_(const Args&);

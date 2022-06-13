@@ -311,7 +311,7 @@ void Background::bgfill_(const Args& a){
 std::string u16_to_hex( int i )
 {
 	std::stringstream stream;
-	stream << "0x" << std::setfill ('0') << std::setw(4) << std::hex << i;
+	stream << std::setfill ('0') << std::setw(4) << std::hex << i;
 	return stream.str();
 }
 

@@ -99,14 +99,26 @@ Var Evaluator::evaluate(const std::vector<Token>& expression){
 	auto rpn = processed.at(expression);
 	
 	auto res = calculate(rpn);
-	return res;
+	return res.back();
+}
+
+//Version of evaluate that returns a list of results
+std::vector<Var> Evaluator::eval_all_results(const std::vector<Token>& expression){
+	if (processed.count(expression) == 0){
+		auto p = process(expression);
+		processed.insert(std::pair<std::vector<Token>, std::vector<Token>>(expression, p));
+	}
+	
+	auto rpn = processed.at(expression);
+	
+	return calculate(rpn);
 }
 
 Var Evaluator::eval_no_save(const std::vector<Token>& expression){
 	//no check for expression in processed, no store processed expression.
 	auto rpn = process(expression);
 	auto res = calculate(rpn);
-	return res;
+	return res.back();
 }
 
 //,
@@ -268,7 +280,7 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 				//have RPN subsequence
 				subseq.push_back(r_n);
 				itr = tokens.begin();
-//				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);
+				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);
 			} else {
 				itr++;
 			}
@@ -281,8 +293,10 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 //		print("R" + std::to_string(i), r);
 	}
 	
-	std::vector<Token> rpn{};
-	auto exp = subseq.back();
+	auto exp = std::vector<Token>{};
+	for (auto& t : tokens){
+		exp.push_back(Token{t.text, t.type});
+	}
 	for (int i = subseq.size()-1; i >= 0; --i){
 		auto sub_name = "r" + std::to_string(i);
 		auto check = [&sub_name](Token& t){return (t.text == sub_name) && (t.type == Type::Op);};
@@ -375,7 +389,7 @@ Var Evaluator::call_func(const Token& op, std::vector<Var>& args){
 }
 
 //requires expressions in the form of output from Evaluator::process()
-Var Evaluator::calculate(const std::vector<Token>& rpn_expression, bool do_array_init){
+std::vector<Var> Evaluator::calculate(const std::vector<Token>& rpn_expression, bool do_array_init){
 	std::stack<Var> values{};
 	std::stack<int> len_args{}; //for functions of unknown argument count
 	bool has_varptr = false;
@@ -415,7 +429,6 @@ Var Evaluator::calculate(const std::vector<Token>& rpn_expression, bool do_array
 					//needs to handle needing args for array creation otherwise
 					//might have array ACCESS as part of args, so must have len_args be empty.
 					vars.create_arr(t.text+"[]", args);
-					values.push(Var(1.0)); //this result should be ignored, but 1 will indicate success.
 					break;
 				} else {
 					//ptr to array element
@@ -443,7 +456,13 @@ Var Evaluator::calculate(const std::vector<Token>& rpn_expression, bool do_array
 		}
 	}
 	
-	return values.top();
+	std::vector<Var> results;
+	while (values.size()){
+		results.push_back(values.top());
+		values.pop();
+	}
+	
+	return results;
 }
 
 //general tokenization stuff here
