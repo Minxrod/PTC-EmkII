@@ -6,12 +6,14 @@
 #include <map>
 #include <utility>
 
-#include "Vars.h"
-#include "Evaluator.h"
-#include "FileLoader.h"
+#include "Vars.hpp"
+#include "Evaluator.hpp"
+#include "FileLoader.hpp"
 
 struct PRG {
 	std::vector<unsigned char> data;
+	
+	void load(std::string filename);
 };
 
 struct CHR{

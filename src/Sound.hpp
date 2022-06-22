@@ -7,8 +7,8 @@
 #include <vector>
 #include <memory>
 
-#include "Vars.h"
-#include "Evaluator.h"
+#include "Vars.hpp"
+#include "Evaluator.hpp"
 
 class Sound {
 	const static int BGM_TRACK_COUNT = 8;

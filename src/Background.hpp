@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vars.h"
-#include "TileMap.h"
-#include "Evaluator.h"
-#include "Resources.h"
+#include "Vars.hpp"
+#include "TileMap.hpp"
+#include "Evaluator.hpp"
+#include "Resources.hpp"
 
 /*
 Struct defining position and animation data for a BG layer.

@@ -1,6 +1,6 @@
 #pragma once
 
-#include "Vars.h"
+#include "Vars.hpp"
 
 #include <map>
 #include <vector>

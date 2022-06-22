@@ -1,4 +1,4 @@
-#include "Sprites.h"
+#include "Sprites.hpp"
 
 #include <cmath>
 

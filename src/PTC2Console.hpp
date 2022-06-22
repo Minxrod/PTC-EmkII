@@ -2,12 +2,12 @@
 
 #include <array>
 
-#include "Vars.h"
-#include "Evaluator.h"
-#include "Resources.h"
-#include "Input.h"
-#include "TileMap.h"
-#include "BaseConsole.h"
+#include "Vars.hpp"
+#include "Evaluator.hpp"
+#include "Resources.hpp"
+#include "Input.hpp"
+#include "TileMap.hpp"
+#include "BaseConsole.hpp"
 
 const int PTC2_CONSOLE_WIDTH = 32;
 const int PTC2_CONSOLE_HEIGHT = 24;
@@ -58,6 +58,8 @@ class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HE
 	
 public:
 	PTC2Console(Evaluator&, CHR&, Input&);
+	PTC2Console(const PTC2Console&) = delete;
+	PTC2Console& operator=(const PTC2Console&) = delete;
 	
 	void reset();
 	

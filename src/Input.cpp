@@ -1,6 +1,6 @@
-#include "Input.h"
+#include "Input.hpp"
 
-#include "Variables.h"
+#include "Variables.hpp"
 
 Input::Input(Evaluator& ev) : e{ev}, button_info{12, std::vector<int>{0,0,0}}{
 	

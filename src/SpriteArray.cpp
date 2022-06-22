@@ -1,4 +1,4 @@
-#include "SpriteArray.h"
+#include "SpriteArray.hpp"
 #include <cmath>
 
 SpriteArray::SpriteArray() {}

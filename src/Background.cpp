@@ -1,4 +1,4 @@
-#include "Background.h"
+#include "Background.hpp"
 
 /*
 Converts tile coordinate to a SCR index.

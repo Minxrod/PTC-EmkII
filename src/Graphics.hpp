@@ -1,7 +1,8 @@
 #pragma once
 
-#include "Vars.h"
-#include "Resources.h"
+#include "Vars.hpp"
+#include "Resources.hpp"
+
 class Visual;
 
 class Graphics {

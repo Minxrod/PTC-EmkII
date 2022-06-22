@@ -1,4 +1,4 @@
-#include "Vars.h"
+#include "Vars.hpp"
 
 bool operator<(const Token& a, const Token& b){
 	return a.text < b.text ? true : b.text < a.text ? false : a.type < b.type;

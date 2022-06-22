@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Vars.h"
-#include "Evaluator.h"
+#include "Vars.hpp"
+#include "Evaluator.hpp"
 
 #include <atomic>
 #include <mutex>

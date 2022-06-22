@@ -1,4 +1,4 @@
-#include "Panel.h"
+#include "Panel.hpp"
 
 Panel::Panel(Evaluator& ev, Resources& r, Input& i) : 
 	e{ev},

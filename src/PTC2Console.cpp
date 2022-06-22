@@ -1,4 +1,4 @@
-#include "PTC2Console.h"
+#include "PTC2Console.hpp"
 
 PTC2Console::PTC2Console(Evaluator& eval, CHR& chr, Input& i) : BaseConsole(),
 in{i}, e{eval}, c{chr}, tm{PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT} {

@@ -1,4 +1,4 @@
-#include "PanelKeyboard.h"
+#include "PanelKeyboard.hpp"
 
 const int SPACE_KEY_MIN = 320;
 const int SPACE_KEY_MAX = 325;

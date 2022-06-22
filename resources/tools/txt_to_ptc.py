@@ -1,3 +1,4 @@
+#!/bin/python3
 import sys       # for command line args
 import hashlib   # for md5 in .PTC files
 

@@ -5,15 +5,15 @@
 #include <set>
 #include <utility>
 
-#include "Vars.h"
-#include "Evaluator.h"
-#include "FileLoader.h"
-#include "Resources.h"
+#include "Vars.hpp"
+#include "Evaluator.hpp"
+#include "FileLoader.hpp"
+#include "Resources.hpp"
 
 class Program{
 	Evaluator& e;
 	
-	const std::vector<Token> tokens;
+	std::vector<Token> tokens;
 	std::vector<int> line_starts{};
 	std::set<int> breakpoints{};
 	
@@ -34,8 +34,10 @@ class Program{
 	void on_(const Args&);
 	void return_(const Args&);
 	void end_(const Args&);
-	void stop_(const Args&);
 	void wait_(const Args&);
+	
+	void stop_(const Args&);
+	void exec_(const Args&);
 	
 	void data_(const Args&);
 	void read_(const Args&);
@@ -52,6 +54,8 @@ class Program{
 	
 public:
 	Program(Evaluator&, const std::vector<Token>&);
+	void set_tokens(const std::vector<Token>&);
+	void loader();
 	
 	void add_cmds(std::map<Token, cmd_type>);
 	void call_cmd(Token, const std::vector<std::vector<Token>>&);

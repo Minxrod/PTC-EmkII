@@ -1,4 +1,4 @@
-#include "TileMap.h"
+#include "TileMap.hpp"
 
 TileMap::TileMap(int w, int h/*, sf::Texture t*/) : width{w}, height{h}/*, tex{t}*/{
 	va = sf::VertexArray(sf::Quads, w*h*4);

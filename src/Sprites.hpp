@@ -1,8 +1,8 @@
 #pragma once
 
-#include "Vars.h"
-#include "Evaluator.h"
-#include "SpriteArray.h"
+#include "Vars.hpp"
+#include "Evaluator.hpp"
+#include "SpriteArray.hpp"
 
 class Sprites {
 	Evaluator& e;

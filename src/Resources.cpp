@@ -8,10 +8,17 @@
 
 #include <iostream>
 
-#include "Resources.h"
-#include "Vars.h"
-#include "Evaluator.h"
-#include "FileLoader.h"
+#include "Resources.hpp"
+#include "Vars.hpp"
+#include "Evaluator.hpp"
+#include "FileLoader.hpp"
+
+void PRG::load(std::string name){
+	auto fs = get_filestream(name);
+	Header prg_info;
+	read_n(fs, prg_info.data, 60);
+	read_n(fs, data, prg_info.get_prg_size());
+}
 
 std::string MEM::get_mem(){
 	std::string mem{};

@@ -1,9 +1,9 @@
 #pragma once
 
-#include "Vars.h"
-#include "Sprites.h"
-#include "SpriteArray.h"
-#include "TileMap.h"
+#include "Vars.hpp"
+#include "Sprites.hpp"
+#include "SpriteArray.hpp"
+#include "TileMap.hpp"
 
 class PanelKeyboard {
 	TileMap func_keys;
@@ -24,6 +24,9 @@ class PanelKeyboard {
 	
 public:
 	PanelKeyboard();
+	PanelKeyboard(const PanelKeyboard&) = delete;
+	PanelKeyboard& operator=(const PanelKeyboard&) = delete;
+	
 	void touch_keys(bool t, int x, int y);
 	SpriteArray& draw_keyboard();
 	TileMap& draw_funckeys();

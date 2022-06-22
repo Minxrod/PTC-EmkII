@@ -1,7 +1,7 @@
 #pragma once
 
-#include "Vars.h"
-#include "Variables.h"
+#include "Vars.hpp"
+#include "Variables.hpp"
 
 #include <stack>
 #include <string>

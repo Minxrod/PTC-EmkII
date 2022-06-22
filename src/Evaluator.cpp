@@ -1,6 +1,6 @@
-#include "Vars.h"
-#include "Evaluator.h"
-#include "BuiltinFuncs.h"
+#include "Vars.hpp"
+#include "Evaluator.hpp"
+#include "BuiltinFuncs.hpp"
 //debug
 #include <iostream>
 

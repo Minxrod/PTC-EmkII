@@ -1,10 +1,10 @@
 #pragma once
 
-#include "Vars.h"
-#include "Evaluator.h"
-#include "PTC2Console.h"
-#include "Background.h"
-#include "PanelKeyboard.h"
+#include "Vars.hpp"
+#include "Evaluator.hpp"
+#include "PTC2Console.hpp"
+#include "Background.hpp"
+#include "PanelKeyboard.hpp"
 
 #include <array>
 

@@ -1,5 +1,5 @@
-#include "Visual.h"
-#include "Vars.h"
+#include "Visual.hpp"
+#include "Vars.hpp"
 
 const float COL_BG = 0.1;
 const float COL_SP = 1.1;

@@ -2,16 +2,16 @@
 
 #include <SFML/Graphics.hpp>
 
-#include "Vars.h"
-#include "Resources.h"
-#include "Evaluator.h"
-#include "Input.h"
+#include "Vars.hpp"
+#include "Resources.hpp"
+#include "Evaluator.hpp"
+#include "Input.hpp"
 
-#include "PTC2Console.h"
-#include "Background.h"
-#include "Sprites.h"
-#include "Graphics.h"
-#include "Panel.h"
+#include "PTC2Console.hpp"
+#include "Background.hpp"
+#include "Sprites.hpp"
+#include "Graphics.hpp"
+#include "Panel.hpp"
 
 struct Visual {
 	const static int WIDTH = 256;

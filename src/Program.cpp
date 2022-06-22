@@ -1,27 +1,10 @@
-#include "Program.h"
+#include "Program.hpp"
 
 #include <thread>
 #include <chrono>
 
-Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens{t}{
-	current = tokens.cbegin();
-	data_current = std::find(tokens.begin(), tokens.end(), "DATA"_TC);
-	if (data_current != tokens.end())
-		data_current++; //first piece of data will be directly after DATA statement
-	
-	int line = 1;
-	line_starts.push_back(0);
-	line_starts.push_back(0);
-	for (std::size_t i = 1; i < tokens.size(); ++i){
-		if (tokens[i-1] == Token{"\r",Type::Newl}){
-			line++;
-			line_starts.push_back(i);
-		}
-	}
-	
-//	for (auto i : line_starts){
-//		std::cout << i << std::endl;
-//	}
+Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}{
+	set_tokens(t);
 	
 	commands = std::map<Token, cmd_type>{
 		cmd_map("FOR"_TC, getfunc(this, &Program::for_)),
@@ -43,9 +26,62 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}, tokens
 		cmd_map("SWAP"_TC, getfunc(this, &Program::swap_)),
 		cmd_map("SORT"_TC, getfunc(this, &Program::sort_)),
 		cmd_map("RSORT"_TC, getfunc(this, &Program::rsort_)),
+		cmd_map("EXEC"_TC, getfunc(this, &Program::exec_)),
 		cmd_map("DTREAD"_TC, getfunc(&eval, &Evaluator::dtread_)),
 		cmd_map("TMREAD"_TC, getfunc(&eval, &Evaluator::tmread_))
 	};
+}
+
+// this loads a new program, and also reinitializes whatever data should not carry over
+void Program::set_tokens(const std::vector<Token>& t){
+	//set up for program execution and READ commands
+	tokens = t;
+	current = tokens.begin();
+	data_current = std::find(tokens.begin(), tokens.end(), "DATA"_TC);
+	if (data_current != tokens.end())
+		data_current++; //first piece of data will be directly after DATA statement
+	
+	//calculate line starts
+	int line = 1;
+	line_starts = std::vector<int>{};
+	line_starts.push_back(0);
+	line_starts.push_back(0);
+	for (std::size_t i = 1; i < tokens.size(); ++i){
+		if (tokens[i-1] == Token{"\r",Type::Newl}){
+			line++;
+			line_starts.push_back(i);
+		}
+	}
+	//	for (auto i : line_starts){
+	//		std::cout << i << std::endl;
+	//	}
+	
+	//clear breakpoints
+	breakpoints = std::set<int>{};
+	
+	//reset stacks
+	gosub_calls = std::stack<std::vector<Token>::const_iterator>{};
+	for_calls = std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>>{};
+}
+
+void Program::exec_(const Args& a){
+	//EXEC progname
+	std::string prgname = std::get<String>(e.evaluate(a[1]));
+	
+	PRG prg;
+	prg.load("programs/"+prgname+".PTC");
+	
+	auto t = tokenize(prg);
+	set_tokens(t);
+	//RESULt = 0 if failed, else 1
+}
+
+void Program::loader(){
+	PRG loader{};
+	loader.load("resources/misc/LOADER.PTC");
+	
+	auto t = tokenize(loader);
+	set_tokens(t);
 }
 
 void Program::set_breakpoint(int line, bool){
@@ -59,7 +95,7 @@ void Program::add_cmds(std::map<Token, cmd_type> other){
 std::vector<Token> Program::next_instruction(){
 	Expr::const_iterator newline;
 	if (*current == "IF"_TC || *current == "ELSE"_TC){ //IF, ELSE should read entire remainder of line
-		newline = std::find(current, tokens.end(), Token{"\r", Type::Newl});
+		newline = std::find(current, tokens.cend(), Token{"\r", Type::Newl});
 		std::vector<Token> instr{current, newline};
 		current = newline+1;
 		return instr;
@@ -112,10 +148,10 @@ void Program::call_cmd(Token instr, const Args& chunks){
 void Program::run_(){
 //	CALLGRIND_START_INSTRUMENTATION;
 //	CALLGRIND_TOGGLE_COLLECT;
-	current = tokens.cbegin();
+	current = tokens.begin();
 	std::cout << "\nbegin run\n" << std::endl;
 	
-	while (current != tokens.cend()){
+	while (current != tokens.end()){
 		auto instr = next_instruction();
 		
 		auto d = std::distance(tokens.cbegin(), current);
@@ -159,6 +195,8 @@ void Program::run_(){
 	commands.at("OK"_TC)({});
 	std::cout << "Program end" << std::endl;
 	
+	std::this_thread::sleep_for(std::chrono::seconds(1));
+	loader();
 //	CALLGRIND_TOGGLE_COLLECT;
 //	CALLGRIND_STOP_INSTRUMENTATION;
 }
@@ -222,11 +260,11 @@ void Program::for_(const Args& a){
 }
 
 void Program::next_(const Args& a){
-	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>>::iterator itr;
+	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>>::const_iterator itr;
 	if (a.size() > 1){
 		//a contains a variable name, referring to a specifc for loop
 		//search for specific vector of var name
-		itr = std::find_if(for_calls.begin(), for_calls.end(), [&a](auto& x){ return std::get<0>(x) == a[1];});
+		itr = std::find_if(for_calls.cbegin(), for_calls.cend(), [&a](auto& x){ return std::get<0>(x) == a[1];});
 	} else {
 		itr = for_calls.end()-1;
 	}
@@ -365,12 +403,12 @@ void Program::data_(const Args&){
 void Program::read_(const Args& a){
 	//READ var1[,var2,var3$,...]
 	
-	auto expr = [](auto& current, const auto& tokens){
-		auto data_end = std::min(std::find(current, tokens.end(), Token{"\r", Type::Newl}),
-			std::find(current, tokens.end(), Token{",", Type::Op}));
+	auto expr = [](auto& current, auto& tokens){
+		auto data_end = std::min(std::find(current, tokens.cend(), Token{"\r", Type::Newl}),
+			std::find(current, tokens.cend(), Token{",", Type::Op}));
 		auto data_exp = std::vector<Token>(current, data_end);
 		if (data_end->text == "\r"){
-			current = std::find(data_end, tokens.end(), "DATA"_TC); //search for next DATA statement
+			current = std::find(data_end, tokens.cend(), "DATA"_TC); //search for next DATA statement
 			if (current != tokens.end())
 				current++; //first piece of data will be directly after DATA statement
 		} else if (data_end->text == ","){

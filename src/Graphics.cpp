@@ -1,5 +1,5 @@
-#include "Graphics.h"
-#include "Visual.h"
+#include "Graphics.hpp"
+#include "Visual.hpp"
 
 #include <cmath>
 
