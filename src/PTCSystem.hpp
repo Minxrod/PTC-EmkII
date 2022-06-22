@@ -39,6 +39,11 @@ class PTCSystem {
 public:
 	PTCSystem();
 	
+	PTCSystem(const PTCSystem&) = delete;
+	
+	PTCSystem& operator=(const PTCSystem&) = delete;
+	
+	
 	void set_option(std::string option, int state);
 	
 	// Runs whatever program is loaded.

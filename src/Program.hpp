@@ -54,6 +54,13 @@ class Program{
 	
 public:
 	Program(Evaluator&, const std::vector<Token>&);
+	
+	Program() = delete;
+	
+	Program(const Program&) = delete;
+	
+	Program& operator=(const Program&) = delete;
+	
 	void set_tokens(const std::vector<Token>&);
 	void loader();
 	

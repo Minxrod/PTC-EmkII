@@ -109,6 +109,12 @@ struct Input {
 public:	
 	Input(Evaluator&);
 	
+	Input() = delete;
+	
+	Input(const Input&) = delete;
+	
+	Input& operator=(const Input&) = delete;
+	
 	void update(int);
 	void touch(bool, int, int);
 	void touch_key(int keycode);

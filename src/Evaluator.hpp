@@ -25,8 +25,7 @@ struct Evaluator {
 	std::map<Token, op_func> functions;
 	//expressions that have been processed once already can be saved
 	std::map<std::vector<Token>, std::vector<Token>> processed; 
-
-	Evaluator();
+	
 	void add_funcs(std::map<Token, op_func>);
 		
 	void assign(const Expr& exp, Token t);
@@ -51,4 +50,10 @@ struct Evaluator {
 	
 	void dtread_(const Args&);
 	void tmread_(const Args&);
+	
+	Evaluator();
+	
+	Evaluator(const Evaluator&) = delete;
+	
+	Evaluator& operator=(const Evaluator&) = delete;
 };

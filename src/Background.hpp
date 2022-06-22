@@ -60,6 +60,13 @@ class Background {
 public:
 	Background(Evaluator&, std::map<std::string, SCR>&);
 	
+	Background() = delete;
+	
+	Background(const Background&) = delete;
+	
+	Background& operator=(const Background&) = delete;
+	
+	
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	

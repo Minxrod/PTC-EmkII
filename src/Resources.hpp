@@ -168,6 +168,11 @@ struct Resources{
 	std::map<std::string, COL> col; //col0-2*2 //ul only
 	
 	Resources() = default;
+	
+	Resources(const Resources&) = delete;
+	
+	Resources& operator=(const Resources&) = delete;
+	
 	void load_program(std::string name);
 	void load_default();
 	

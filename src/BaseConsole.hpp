@@ -30,6 +30,11 @@ protected:
 	
 public:
 	BaseConsole();
+	
+	BaseConsole(const BaseConsole&) = delete;
+	
+	BaseConsole& operator=(const BaseConsole&) = delete;
+	
 	virtual ~BaseConsole();
 	
 	void cls();

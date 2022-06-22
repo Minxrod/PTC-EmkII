@@ -47,6 +47,13 @@ class Graphics {
 public:
 	Graphics(Evaluator&, std::map<std::string, GRP>&, Resources&, Visual*);
 	
+	Graphics() = delete;
+	
+	Graphics(const Graphics&) = delete;
+	
+	Graphics& operator=(const Graphics&) = delete;
+	
+	
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	

@@ -24,7 +24,9 @@ class PanelKeyboard {
 	
 public:
 	PanelKeyboard();
+	
 	PanelKeyboard(const PanelKeyboard&) = delete;
+	
 	PanelKeyboard& operator=(const PanelKeyboard&) = delete;
 	
 	void touch_keys(bool t, int x, int y);

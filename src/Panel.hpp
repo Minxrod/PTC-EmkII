@@ -35,6 +35,12 @@ class Panel {
 public:
 	Panel(Evaluator&, Resources&, Input& i);
 	
+	Panel() = delete;
+	
+	Panel(const Panel&) = delete;
+	
+	Panel& operator=(const Panel&) = delete;
+	
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	

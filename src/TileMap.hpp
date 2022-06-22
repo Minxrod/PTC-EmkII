@@ -6,12 +6,17 @@
 class TileMap : public sf::Drawable, public sf::Transformable {
 	int width;
 	int height;
-//	sf::Texture tex;
 	sf::VertexArray va;
 	sf::View view;
 	
 public:
-	TileMap(int, int/*, sf::Texture*/);
+	TileMap(int, int);
+	
+	TileMap() = delete;
+	
+	TileMap(const TileMap&) = default;
+	
+	TileMap& operator=(const TileMap&) = default;
 	
 	void tile(int, int, int);
 	void tile(int x, int y, int chr, bool h, bool v);

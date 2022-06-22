@@ -65,7 +65,13 @@ struct Visual {
 	
 public:
 	Visual(Evaluator&, Resources&, Input&);
-
+	
+	Visual() = delete;
+	
+	Visual(const Visual&) = delete;
+	
+	Visual& operator=(const Visual&) = delete;
+	
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	

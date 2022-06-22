@@ -47,6 +47,13 @@ class Sound {
 
 public:
 	Sound(Evaluator&);
+	
+	Sound() = delete;
+	
+	Sound(const Sound&) = delete;
+	
+	Sound& operator=(const Sound&) = delete;
+	
 
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();

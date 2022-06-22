@@ -34,6 +34,12 @@ class Sprites {
 public:
 	Sprites(Evaluator&);
 	
+	Sprites() = delete;
+	
+	Sprites(const Sprites&) = delete;
+	
+	Sprites& operator=(const Sprites&) = delete;
+	
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	

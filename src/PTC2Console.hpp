@@ -58,7 +58,11 @@ class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HE
 	
 public:
 	PTC2Console(Evaluator&, CHR&, Input&);
+	
+	PTC2Console() = delete;
+	
 	PTC2Console(const PTC2Console&) = delete;
+	
 	PTC2Console& operator=(const PTC2Console&) = delete;
 	
 	void reset();
