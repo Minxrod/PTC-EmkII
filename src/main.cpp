@@ -87,8 +87,8 @@ int main(int argc, char**argv){
 	program.add_cmds(v.get_cmds());
 	program.add_cmds(i.get_cmds());
 	program.add_cmds(s.get_cmds());
-	
-	print("TOKENIZED:", tk);
+		
+//	print("TOKENIZED:", tk);
 	program.run();
 	
 	bool keybutton_enable = true;
@@ -112,14 +112,9 @@ int main(int argc, char**argv){
 				if (keyboard_enable)
 					k = event.key.code;
 			}
-			if (event.type == sf::Event::MouseButtonPressed){
-				mouse_press = true;
-			}
-			if (event.type == sf::Event::MouseButtonReleased){
-				mouse_press = false;
-			}
 		}
 		//Update mouse info
+		mouse_press = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
 		if (mouse_press){
 			sf::Vector2u size = window.getSize();
 			double w = size.x;
@@ -192,6 +187,7 @@ int main(int argc, char**argv){
 			}
 		} else {
 			v.p.touch_keys(false, -1, -1);
+			i.touch(mouse_press, mouse_x, mouse_y);
 		}
 		
 		//begin chunk to be moved
