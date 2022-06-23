@@ -148,55 +148,59 @@ void Program::call_cmd(Token instr, const Args& chunks){
 void Program::run_(){
 //	CALLGRIND_START_INSTRUMENTATION;
 //	CALLGRIND_TOGGLE_COLLECT;
-	current = tokens.begin();
-	std::cout << "\nbegin run\n" << std::endl;
 	
-	while (current != tokens.end()){
-		auto instr = next_instruction();
+	while (true){
+		current = tokens.begin();
+		std::cout << "\nbegin run\n" << std::endl;
 		
-		auto d = std::distance(tokens.cbegin(), current);
-		if (breakpoints.count(d)){
-			std::cout << "Break at " << d << std::endl;
-			int test;
-			std::cin >> test;
-		}
-		
-		if (instr.empty())
-			continue; //it's an empty line, don't try to run it
-		
-		auto chunks = split(instr);
-		auto instr_form = chunks[0][0]; //if chunks[0] is empty, we have other problems
-		
-		//std::cout << std::distance(tokens.begin(), current);
-//		for (auto& chunk : chunks)
-//			print("Instr:", chunk);
-		
-/*		if (instr_form.type == Type::Rem){ //ignore it, this is the entire line
-		}else*/if (instr_form.type == Type::Label){ //ignore
-		} else if (instr_form.type == Type::Num){ //error
-		} else if (instr_form.type == Type::Str){ //error
-		} else if (instr_form.type == Type::Arr){ //check for valid assignment
-			e.evaluate(chunks[0]);
-		} else if (instr_form.type == Type::Var){ //check for assignment
-			e.evaluate(chunks[0]);
-		} else if (instr_form.type == Type::Op){ //error
-		} else if (instr_form.type == Type::Func){ //error
-		} else if (instr_form.type == Type::Cmd){ //run cmd
-			if (instr_form.text == "IF"){
-				call_cmd(instr_form, std::vector<Expr>{instr});
-			} else {
-				call_cmd(instr_form, chunks);
+		while (current != tokens.end()){
+			auto instr = next_instruction();
+			
+			auto d = std::distance(tokens.cbegin(), current);
+			if (breakpoints.count(d)){
+				std::cout << "Break at " << d << std::endl;
+				int test;
+				std::cin >> test;
 			}
-		//} else if (instr_form.type == Type::Newl){ //ignore
-		} else { //something has gone horrifically wrong
+			
+			if (instr.empty())
+				continue; //it's an empty line, don't try to run it
+			
+			auto chunks = split(instr);
+			auto instr_form = chunks[0][0]; //if chunks[0] is empty, we have other problems
+			
+			//std::cout << std::distance(tokens.begin(), current);
+	//		for (auto& chunk : chunks)
+	//			print("Instr:", chunk);
+			
+	/*		if (instr_form.type == Type::Rem){ //ignore it, this is the entire line
+			}else*/if (instr_form.type == Type::Label){ //ignore
+			} else if (instr_form.type == Type::Num){ //error
+			} else if (instr_form.type == Type::Str){ //error
+			} else if (instr_form.type == Type::Arr){ //check for valid assignment
+				e.evaluate(chunks[0]);
+			} else if (instr_form.type == Type::Var){ //check for assignment
+				e.evaluate(chunks[0]);
+			} else if (instr_form.type == Type::Op){ //error
+			} else if (instr_form.type == Type::Func){ //error
+			} else if (instr_form.type == Type::Cmd){ //run cmd
+				if (instr_form.text == "IF"){
+					call_cmd(instr_form, std::vector<Expr>{instr});
+				} else {
+					call_cmd(instr_form, chunks);
+				}
+			//} else if (instr_form.type == Type::Newl){ //ignore
+			} else { //something has gone horrifically wrong
+			}
 		}
+		
+		commands.at("OK"_TC)({});
+		std::cout << "Program end" << std::endl;
+		
+		//reset to program loader
+		std::this_thread::sleep_for(std::chrono::seconds(1));
+		loader(); 
 	}
-	
-	commands.at("OK"_TC)({});
-	std::cout << "Program end" << std::endl;
-	
-	std::this_thread::sleep_for(std::chrono::seconds(1));
-	loader();
 //	CALLGRIND_TOGGLE_COLLECT;
 //	CALLGRIND_STOP_INSTRUMENTATION;
 }

@@ -76,7 +76,7 @@ std::map<Token, cmd_type> Visual::get_cmds(){
 		cmd_map("CHRSET"_TC, getfunc(this, &Visual::chrset_)),
 		cmd_map("CHRREAD"_TC, getfunc(this, &Visual::chrread_)),
 		cmd_map("COLINIT"_TC, getfunc(this, &Visual::colinit_)),
-//		cmd_map("COLSET"_TC, getfunc(this, &Visual::colset_)),
+		cmd_map("COLSET"_TC, getfunc(this, &Visual::colset_)),
 //		cmd_map("COLREAD"_TC, getfunc(this, &Visual::colread_)),
 		cmd_map("ACLS"_TC, getfunc(this, &Visual::acls_)),
 		cmd_map("CLS"_TC, getfunc(this, &Visual::cls_)),
@@ -187,13 +187,37 @@ void Visual::colinit_(const Args& a){
 		load_default(r.col.at(res+"U"), path);
 		load_default(r.col.at(res+"L"), path);
 	} else {
+		Number c = std::get<Number>(e.evaluate(a[2]));
 		//needs to write specific color
-		//(not currently stored, needs to be done differently)
+		COL col{};
+		col.load(path);
+		
+		r.col.at(res+"U").set_col(c, col.get_col(c));
+		r.col.at(res+"L").set_col(c, col.get_col(c));
 	}
 }
 
-void Visual::colset_(const Args&){
+void Visual::colset_(const Args& a){
+	//COLSET bank,color,data
+	//Note: Seems to only affect top screen...?
+	String res = std::get<String>(e.evaluate(a[1]));
+	Number c = std::get<Number>(e.evaluate(a[2]));
+	String data = std::get<String>(e.evaluate(a[3]));
 	
+	if (res == "BG"){res = "COL0";}
+	if (res == "SP"){res = "COL1";}
+	if (res == "GRP"){res = "COL2";}
+	
+	//force captials
+	for (auto& d : data){
+		d = d >= 'a' ? d - 'a' + 'A' : d;
+	}
+	
+	int rd = ((data[0] << 4) + data[1]);
+	int g = ((data[2] << 4) + data[3]);
+	int b = ((data[4] << 4) + data[5]);
+	
+	r.col.at(res+"U").set_col(c, rd, g, b);
 }
 
 void Visual::colread_(const Args&){

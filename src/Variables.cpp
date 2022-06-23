@@ -130,10 +130,17 @@ void Variables::init_sysvars(){
 		create_var(var, vars);
 	}
 	
+	//constants
 	*std::get<Number*>(get_var_ptr("TRUE")) = 1;
 	*std::get<Number*>(get_var_ptr("FALSE")) = 0;
 	*std::get<Number*>(get_var_ptr("CANCEL")) = -1;
 	*std::get<Number*>(get_var_ptr("VERSION")) = 0x2020; //2.2
+	
+	//variables
+	*std::get<Number*>(get_var_ptr("ICONPMAX")) = 1;
+	*std::get<Number*>(get_var_ptr("ICONPAGE")) = 0;
+	*std::get<Number*>(get_var_ptr("ICONPUSE")) = 0;
+	
 }
 
 Var Variables::get_sysvar(std::string name){

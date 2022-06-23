@@ -44,7 +44,8 @@ def write_program(ptc_file, filename, data):
 	# Contents
 	ptc_file.write(data)
 	
-filename = sys.argv[1][:8]
+filename = sys.argv[1] # source
+output = sys.argv[2] if len(sys.argv) > 2 else filename.replace("\\","/").split("/")[-1][:8]
 
 # read original file
 with open(filename,'rb') as f:

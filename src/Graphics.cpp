@@ -232,7 +232,7 @@ void Graphics::gputchr_(const Args& a){
 	for (int i = pal * 16; i < pal * 16 + 16; ++i){
 		auto& col2 = r.col.at(screen ? "COL2L" : "COL2U");
 		auto& other = r.col.at(std::string(bank[0] == 'B' ? "COL0" : "COL1") + (screen ? "L" : "U"));
-		col2.set_col(i, other.get_col_r(i), other.get_col_g(i), other.get_col_b(i));
+		col2.set_col(i, other.get_col(i));
 	}
 	v->regen_col();
 	
@@ -244,7 +244,8 @@ void Graphics::gputchr_(const Args& a){
 			auto chr_c = chr_bank.get_pixel(chr, px, py);
 			for (int sx = 0; sx < scale; ++sx){
 				for (int sy = 0; sy < scale; ++sy){
-					draw_pixel(image[drawpage[screen]],g,x+px*scale+sx,y+py*scale+sy,chr_c ? chr_c + pal * 16 : 0);
+					if (chr_c)
+						draw_pixel(image[drawpage[screen]],g,x+px*scale+sx,y+py*scale+sy,chr_c ? chr_c + pal * 16 : 0);
 				}
 			}
 		}

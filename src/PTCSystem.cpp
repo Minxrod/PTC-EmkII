@@ -3,8 +3,13 @@
 #include <chrono>
 #include <ctime>
 
+void zoom(sf::Window& w, int scale){
+	w.setSize(sf::Vector2u(256*scale, 384*scale));
+}
+
 PTCSystem::PTCSystem() : window{sf::VideoMode(256, 384), "PTCEmukII"} {
 	// https://en.sfml-dev.org/forums/index.php?topic=20033.0 ????
+	zoom(window, 2);
 	window.setFramerateLimit(60);
 
 	//Create objects for system
@@ -60,10 +65,6 @@ void PTCSystem::set_option(std::string option, int state){
 	if (option == "-s"){
 		sound->_enable(static_cast<bool>(state));
 	}
-}
-
-void zoom(sf::Window& w, int scale){
-	w.setSize(sf::Vector2u(256*scale, 384*scale));
 }
 
 void PTCSystem::update(){

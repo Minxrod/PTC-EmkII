@@ -2,7 +2,7 @@ PTC Interpreter, attempt two!
 
 == Description ==
 
-This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC programs on PC. The end goal is to support all commands and functions that are usable from programs - DIRECT mode is not currently planned to be supported. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLREAD bug/crash will not work the same.
+This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC programs on PC. The end goal is to support all commands and functions that are usable from programs - DIRECT mode is not currently planned to be supported. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLSET bug/crash will not work the same.
 
 Please note that this is heavily a WIP and nowhere near finished, so don't expect anything to work.
 
@@ -19,12 +19,17 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Sample 9: Works.
 - Sample 10: Works.
 - Sample 11: Works.
-- Sample 12: Not quite working - audio does not match, saving/loading untested.
+- Sample 12: Not quite working - audio does not match, saving/loading does not seem to work.
 - Game 1: Works.
 - Game 2: Works, but input is slightly off (occasional double-inputs).
 - Game 3: Works.
 - Game 4: Works.
 - Game 5: Works.
+- CHRED: Untested, likely broken.
+- SCRED: Untested, likely broken.
+- GRPED: Untested, likely broken.
+- DRWED: Untested, likely broken.
+
 
 = Features =
 - Console: Most commands on the console should be working, but there are issues with INPUT and LINPUT. 

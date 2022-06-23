@@ -26,7 +26,7 @@ struct SpriteInfo {
 	} scale;
 	
 	struct {
-		double a;
+		double a = 0.0;
 		double da;
 		int time;
 	} angle;

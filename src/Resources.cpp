@@ -13,45 +13,6 @@
 #include "Evaluator.hpp"
 #include "FileLoader.hpp"
 
-void PRG::load(std::string name){
-	auto fs = get_filestream(name);
-	Header prg_info;
-	read_n(fs, prg_info.data, 60);
-	read_n(fs, data, prg_info.get_prg_size());
-}
-
-std::string MEM::get_mem(){
-	std::string mem{};
-	for (int i = 0; i < MEM::SIZE; i+=2){
-		int value = data[i] + (data[i+1]<<8);
-		if (encode[value])
-			mem += (char)encode[value];
-		else {
-			actual_size = i/2; //TODO: check if file size matches actual string size 
-			break;
-		}
-	}
-	return mem;
-}
-
-void MEM::set_mem(std::string mem){
-	actual_size = mem.size();
-	data.resize(MEM::SIZE);
-	std::fill(data.begin(), data.end(), 0);
-	for (int i = 0; i < (int)mem.size(); ++i){
-		data[2*i] = data_enc[2*mem[i]];
-		data[2*i+1] = data_enc[2*mem[i]+1];
-	}
-}
-
-// requires data_enc to be loaded before using
-void MEM::generate_encoding(){
-	for (int i = 0; i < MEM::SIZE; i+=2){
-		int value = data_enc[i] + (data_enc[i+1]<<8);
-		encode[value] = i/2;
-	}
-}
-
 void Resources::load_program(std::string name){
 	auto fs = get_filestream(name);
 	read_n(fs, prg_info.data, 60);
@@ -77,10 +38,8 @@ void Resources::load_default(){
 	}
 	
 	for (auto c : col_resources){
-		auto fs = get_filestream("resources/graphics/"+c.substr(0,4)+".PTC");
 		col.insert({c, COL()});
-		read_n(fs, col.at(c).data, 48); //dummy read to skip header
-		read_n(fs, col.at(c).data, COL::SIZE);
+		col.at(c).load("resources/graphics/"+c.substr(0,4)+".PTC");
 	}
 	
 	for (auto g : grp_resources){
