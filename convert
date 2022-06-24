@@ -1,0 +1,12 @@
+#!/bin/bash
+if [ $# -lt 1 ]; then
+	echo "Usage: convert ptc_source_file [output_location]"
+	exit
+elif [ $# -ge 3 ]; then
+	echo "Too many arguments!"
+	echo "Usage: convert ptc_source_file [output_location]"
+	exit
+fi
+
+./resources/tools/txt_to_ptc.py $1
+mv $1.PTC ${2:-programs/}
