@@ -50,7 +50,7 @@ void BaseConsole<charT, width, height>::color(int f, int b){
 }
 
 template <typename charT, int width, int height>
-charT BaseConsole<charT, width, height>::chkchr(int x, int y){
+charT BaseConsole<charT, width, height>::chkchr(int x, int y) const {
 	if (x < 0 || x > width || y < 0 || y > height){
 		throw std::runtime_error{"Attempted to read character out of range"};
 	}

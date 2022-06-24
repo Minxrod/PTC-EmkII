@@ -2,6 +2,7 @@ PTC Interpreter, attempt two!
 
 == Description ==
 
+
 This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC programs on PC. The end goal is to support all commands and functions that are usable from programs - DIRECT mode is not currently planned to be supported. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLSET bug/crash will not work the same.
 
 Please note that this is heavily a WIP and nowhere near finished, so don't expect anything to work.
@@ -69,11 +70,25 @@ This has only been tested on Debian 11. It is currently UNTESTED on other machin
 Put any PTC files you want to run or load in the programs/ folder. This includes resources, such as CHR or GRP files.
 You will be prompted to enter a filename when launching PTC-EmkII.
 
-= Execution =
-
-There is currently only one option.
+= Execution options =
 
 -s = Disable sound system entirely. This also disables BGMCHK and the like, so is not recommended if your program needs this.
+-d = Enable a simple debugger. Currently, lets you track simple variables.
+-a = Enable automatic reload on program exit. When a PTC program ends, this will reload the startup loader program.
+
+= Debugger =
+
+The debugger is a second window that can be opened on execution with the -d option, or opened mid-executation with F12.
+
+Currently, the options are as follows:
+
+tr expression - Add an expression to the list
+
+rm expression - Remove an expression from the list
+
+exit [or close] - Close the debugger window
+
+Note that these are updated per-frame, not as values change. Also, note that functions, operations and variable access will work in these expressions, but that attempting to create a new variable is not currently supported and will likely crash.
 
 = Controls: =
 
@@ -89,6 +104,7 @@ Special keys:
 - Numpad1: Zoom x1
 - Numpad2: Zoom x2
 - End: Disable/Enable keyboard buttons
+- F12: Enable debugger
 
 KEYBOARD and INKEY$() are approximated by typing on the keyboard. The touch keyboard is partially functional, but the different keyboards are not yet implemented.
 

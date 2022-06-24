@@ -513,8 +513,8 @@ const std::string functions{" ABS ASC ATAN BGCHK BGMCHK BGMGETV BTRIG BUTTON CHK
 
 const std::string operations{" XOR AND NOT OR ! - + - * / = == >= <= < > != % ( ) [ ] , ; "};
 
-std::vector<Token> tokenize(unsigned char* data, int size){
-	int char_pos = 0;
+std::vector<Token> tokenize(unsigned char* data, std::size_t size){
+	std::size_t char_pos = 0;
 
 	std::string cur{};
 	
@@ -613,9 +613,11 @@ std::vector<Token> tokenize(unsigned char* data, int size){
 
 				char_pos++;
 
-			} while (std::regex_match(cur, variable));
-			cur = cur.substr(0, cur.size() - 1);
-			--char_pos;
+			} while (char_pos < size && std::regex_match(cur, variable));
+			if (!std::regex_match(cur, variable)){ //only trim not-matching character, don't trim last valid character
+				cur = cur.substr(0, cur.size() - 1);
+				--char_pos;
+			}
 			//assume variable type if not matching any commands, etc.
 			Type tt = Type::Var;
 			if (commands.find(" "+cur+" ") != std::string::npos)
@@ -640,7 +642,7 @@ std::vector<Token> tokenize(unsigned char* data, int size){
 			}
 			if (c == '(' || c == '['){
 				//if finding parens directly after a variable, must be an array.
-				if (tokens.back().type == Type::Var)
+				if (tokens.size() && tokens.back().type == Type::Var)
 					tokens.back().type = Type::Arr;
 			}
 			

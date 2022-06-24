@@ -1,4 +1,5 @@
 #include "PTCSystem.hpp"
+#include "Debugger.hpp"
 
 #include <chrono>
 #include <ctime>
@@ -65,6 +66,12 @@ void PTCSystem::set_option(std::string option, int state){
 	if (option == "-s"){
 		sound->_enable(static_cast<bool>(state));
 	}
+	if (option == "-d"){
+		debug = std::make_unique<Debugger>(this);
+	}
+	if (option == "-a"){
+		program->_reload(state);
+	}
 }
 
 void PTCSystem::update(){
@@ -81,6 +88,10 @@ void PTCSystem::update(){
 			if (keyboard_enable)
 				k = event.key.code;
 		}
+	}
+	
+	if (k == sf::Keyboard::Key::F12){
+		debug = std::make_unique<Debugger>(this);
 	}
 	
 	//special buttons
@@ -182,4 +193,8 @@ void PTCSystem::update(){
 	visual->update(); //update frame etc.
 	
 	window.display();
+	
+	if (debug){
+		debug->update();
+	}
 }

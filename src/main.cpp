@@ -2,12 +2,6 @@
 
 #include "PTCSystem.hpp"
 
-#include <iostream>
-#include <fstream>
-#include <chrono>
-#include <ctime>
-#include <map>
-
 // search for command line option
 bool option(std::string option, int option_count, char** options){
 	for (int i = 0; i < option_count; ++i)
@@ -19,9 +13,10 @@ bool option(std::string option, int option_count, char** options){
 int main(int argc, char**argv){
 	PTCSystem system{};
 	
-	//options:
-	//-s: sound disable
 	system.set_option("-s", !option("-s",argc,argv));
+	system.set_option("-a", option("-a",argc,argv));
+	if (option("-d",argc,argv))
+		system.set_option("-d", true);
 	
 	system.start();
 	

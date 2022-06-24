@@ -5,6 +5,7 @@
 #include <vector>
 #include <utility>
 #include <functional>
+#include <cstddef>
 
 typedef double Number;
 typedef std::string String;

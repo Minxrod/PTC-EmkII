@@ -8,6 +8,7 @@
 #include "Visual.hpp"
 #include "Input.hpp"
 #include "Sound.hpp"
+#include "Debugger.hpp"
 
 #include <memory>
 #include <fstream>
@@ -20,7 +21,10 @@ class PTCSystem {
 	std::shared_ptr<Visual> visual;
 	std::shared_ptr<Input> input;
 	std::shared_ptr<Sound> sound;
-
+	
+	//Extra for debugging
+	std::unique_ptr<Debugger> debug;
+	
 	//Window and keyboard control
 	std::vector<sf::Keyboard::Key> special{};
 	bool keybutton_enable = true; // Use keyboard as controller
@@ -43,7 +47,6 @@ public:
 	
 	PTCSystem& operator=(const PTCSystem&) = delete;
 	
-	
 	void set_option(std::string option, int state);
 	
 	// Runs whatever program is loaded.
@@ -56,4 +59,21 @@ public:
 	}
 	
 	void update();
+	
+	std::shared_ptr<Resources> get_resources(){
+		return resources;
+	}
+	
+	std::shared_ptr<Evaluator> get_evaluator(){
+		return evaluator;
+	}
+	
+	std::shared_ptr<Program> get_program(){
+		return program;
+	}
+	
+	std::shared_ptr<Visual> get_visual(){
+		return visual;
+	}
+	
 };

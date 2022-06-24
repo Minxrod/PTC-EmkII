@@ -24,7 +24,9 @@ class Program{
 	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>> for_calls;
 	
 	std::map<Token, cmd_type> commands{};
-		
+	
+	bool auto_reload = false;
+	
 	void if_(const Args&);
 	void else_(const Args&);
 	void for_(const Args&);
@@ -76,6 +78,8 @@ public:
 	void run();
 	
 	void set_breakpoint(int line, bool enable);
+	
+	void _reload(bool state) { auto_reload = state; }
 };
 
 std::vector<Token> tokenize(PRG&);

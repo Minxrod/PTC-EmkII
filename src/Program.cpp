@@ -149,7 +149,7 @@ void Program::run_(){
 //	CALLGRIND_START_INSTRUMENTATION;
 //	CALLGRIND_TOGGLE_COLLECT;
 	
-	while (true){
+	while (auto_reload || !at_eof()){
 		current = tokens.begin();
 		std::cout << "\nbegin run\n" << std::endl;
 		
@@ -198,8 +198,10 @@ void Program::run_(){
 		std::cout << "Program end" << std::endl;
 		
 		//reset to program loader
-		std::this_thread::sleep_for(std::chrono::seconds(1));
-		loader(); 
+		if (auto_reload){
+			std::this_thread::sleep_for(std::chrono::seconds(1));
+			loader(); 
+		}
 	}
 //	CALLGRIND_TOGGLE_COLLECT;
 //	CALLGRIND_STOP_INSTRUMENTATION;

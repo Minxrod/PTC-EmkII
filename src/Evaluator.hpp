@@ -16,7 +16,7 @@ const int INTERNAL_PAREN = -24;
 
 std::vector<PrioToken> conv_tokens(const std::vector<Token>&);
 Var convert_to_value(const Token& t);
-std::vector<Token> tokenize(unsigned char*, int);
+std::vector<Token> tokenize(unsigned char*, std::size_t);
 std::vector<std::vector<Token>> split(const std::vector<Token>&);
 
 struct Evaluator {
