@@ -26,7 +26,7 @@ class PTCSystem {
 	std::unique_ptr<Debugger> debug;
 	
 	//Window and keyboard control
-	std::vector<sf::Keyboard::Key> special{};
+//	std::vector<sf::Keyboard::Key> special{};
 	bool keybutton_enable = true; // Use keyboard as controller
 	bool keyboard_enable = true; // Use keyboard to simulate touch keyboard
 	

@@ -32,14 +32,19 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}{
 	};
 }
 
-// this loads a new program, and also reinitializes whatever data should not carry over
-void Program::set_tokens(const std::vector<Token>& t){
-	//set up for program execution and READ commands
-	tokens = t;
+//Restart current program
+void Program::restart(){
 	current = tokens.begin();
 	data_current = std::find(tokens.begin(), tokens.end(), "DATA"_TC);
 	if (data_current != tokens.end())
 		data_current++; //first piece of data will be directly after DATA statement
+}
+
+// this loads a new program, and also reinitializes whatever data should not carry over
+void Program::set_tokens(const std::vector<Token>& t){
+	//set up for program execution and READ commands
+	tokens = t;
+	restart();
 	
 	//calculate line starts
 	int line = 1;

@@ -65,6 +65,7 @@ public:
 	
 	void set_tokens(const std::vector<Token>&);
 	void loader();
+	void restart(); //restart current program
 	
 	void add_cmds(std::map<Token, cmd_type>);
 	void call_cmd(Token, const std::vector<std::vector<Token>>&);

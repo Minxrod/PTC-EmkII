@@ -33,10 +33,10 @@ PTCSystem::PTCSystem() : window{sf::VideoMode(256, 384), "PTCEmukII"} {
 	{
 		std::ifstream controls{"config/controls.txt"};
 		int code;
-		for (int b = 0; b < 4; ++b){
-			controls >> code;
-			special.push_back((sf::Keyboard::Key)code);
-		}
+//		for (int b = 0; b < 4; ++b){
+//			controls >> code;
+//			special.push_back((sf::Keyboard::Key)code);
+//		}
 		for (int b = 0; b < 12; ++b){
 			controls >> code;
 			input->code_to_button.insert(std::pair((sf::Keyboard::Key)code, 1 << b));
@@ -85,27 +85,25 @@ void PTCSystem::update(){
 			return; //nothing more to be done
 		}
 		if (event.type == sf::Event::KeyPressed){
-			if (keyboard_enable)
-				k = event.key.code;
+			k = event.key.code;
 		}
 	}
 	
-	if (k == sf::Keyboard::Key::F12){
-		debug = std::make_unique<Debugger>(this);
-	}
+	//hardcoded special buttons
 	
 	//special buttons
-	if (sf::Keyboard::isKeyPressed(special[0])){
+	if (k == sf::Keyboard::Key::F1){
 		zoom(window, 1);
-	}
-	if (sf::Keyboard::isKeyPressed(special[1])){
+	} else if (k == sf::Keyboard::Key::F2){
 		zoom(window, 2);
-	}
-	if (sf::Keyboard::isKeyPressed(special[2])){
+	} else if (k == sf::Keyboard::Key::F5){
+		program->restart();
+	} else if (k == sf::Keyboard::Key::F10){
 		keybutton_enable = !keybutton_enable;
-	}
-	if (sf::Keyboard::isKeyPressed(special[3])){
+	} else if (k == sf::Keyboard::Key::F11){
 		keyboard_enable = !keyboard_enable;
+	} else if (k == sf::Keyboard::Key::F12){
+		debug = std::make_unique<Debugger>(this);
 	}
 	
 	int b = 0;
@@ -154,7 +152,7 @@ void PTCSystem::update(){
 		input->touch(mouse_press, mouse_x, mouse_y);
 		visual->p.touch_keys(mouse_time==1, mouse_x, mouse_y);
 		input->touch_key(visual->p.get_last_keycode());
-	} else if (k != sf::Keyboard::Key::Unknown){
+	} else if (keyboard_enable && k != sf::Keyboard::Key::Unknown){
 		//Simluate touchscreen tap by physical keyboard presses
 		int keycode = input->keyboard_to_keycode(k);
 		if (keycode != 0){

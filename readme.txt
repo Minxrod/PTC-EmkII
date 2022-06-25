@@ -2,7 +2,6 @@ PTC Interpreter, attempt two!
 
 == Description ==
 
-
 This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC programs on PC. The end goal is to support all commands and functions that are usable from programs - DIRECT mode is not currently planned to be supported. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLSET bug/crash will not work the same.
 
 Please note that this is heavily a WIP and nowhere near finished, so don't expect anything to work.
@@ -100,11 +99,12 @@ Note that these are updated per-frame, not as values change. Also, note that fun
 - RShift = Select
 
 Special keys:
-- Home: Disable/Enable keyboard
-- Numpad1: Zoom x1
-- Numpad2: Zoom x2
-- End: Disable/Enable keyboard buttons
-- F12: Enable debugger
+- F1: Zoom x1
+- F2: Zoom x2
+- F5: Restart current program (Note: Will wait until end of current instruction to take effect)
+- F10: Disable/Enable keyboard
+- F11: Disable/Enable keyboard buttons
+- F12: Open debugger window
 
 KEYBOARD and INKEY$() are approximated by typing on the keyboard. The touch keyboard is partially functional, but the different keyboards are not yet implemented.
 

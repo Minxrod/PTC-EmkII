@@ -1,14 +1,10 @@
-76 77 63 64
 22 18 0 3 72 74 73 71 16 4 58 42 
 50 1 0 1 0 2 3 5 6 10 9
 
 First line:
-sf::Key special values for (zoom1, zoom2, keybutton, keyboard)
+sf::Keyboard::Key values for default controls. 
 
-Second line:
-sf::Key values for default controls. 
-
-Third line: Controller button and stick values
+Second line: Controller button and stick values
 S X X Y Y Y Y Y Y Y Y
 S = Sensitivity of joystick, range (0,100)
 X = Joysick axis values; order is vertical, horizontal
