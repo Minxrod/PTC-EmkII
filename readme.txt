@@ -102,8 +102,8 @@ Special keys:
 - F1: Zoom x1
 - F2: Zoom x2
 - F5: Restart current program (Note: Will wait until end of current instruction to take effect)
-- F10: Disable/Enable keyboard
-- F11: Disable/Enable keyboard buttons
+- F10: Disable/Enable keyboard buttons
+- F11: Disable/Enable keyboard 
 - F12: Open debugger window
 
 KEYBOARD and INKEY$() are approximated by typing on the keyboard. The touch keyboard is partially functional, but the different keyboards are not yet implemented.
