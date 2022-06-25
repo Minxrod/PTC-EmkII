@@ -25,12 +25,12 @@ void BaseConsole<charT, width, height>::putchr(charT c){
 }
 
 template <typename charT, int width, int height>
-void BaseConsole<charT, width, height>::print(std::basic_string<charT> t, bool newl){
-	for (int i = 0; i < (int)t.size(); ++i){
-		char c = t[i];
+void BaseConsole<charT, width, height>::print(std::basic_string<charT> text, bool newl){
+	for (int i = 0; i < (int)text.size(); ++i){
+		char c = text[i];
 		putchr(c);
 		
-		if(i != (int)t.size()-1 || (cur_x != width-1 || cur_y != height-1))
+		if(i != (int)text.size()-1 || (cur_x != width-1 || cur_y != height-1))
 			advance();
 	}
 	if (newl)
