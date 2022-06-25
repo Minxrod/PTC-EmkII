@@ -45,7 +45,7 @@ std::vector<unsigned char> CHR::get_array(){
 
 std::string MEM::get_mem(){
 	std::string mem{};
-	for (int i = 0; i < MEM::SIZE; i+=2){
+	for (int i = 0; i < MEM::STRING_SIZE_MAX; i+=2){
 		int value = data[i] + (data[i+1]<<8);
 		if (encode[value])
 			mem += (char)encode[value];
@@ -65,11 +65,16 @@ void MEM::set_mem(std::string mem){
 		data[2*i] = data_enc[2*mem[i]];
 		data[2*i+1] = data_enc[2*mem[i]+1];
 	}
+	//Write string size to MEM file
+	data[MEM::SIZE-4] = actual_size % 256;
+	data[MEM::SIZE-3] = actual_size / 256;
+	data[MEM::SIZE-2] = 0;
+	data[MEM::SIZE-1] = 0;
 }
 
 // requires data_enc to be loaded before using
 void MEM::generate_encoding(){
-	for (int i = 0; i < MEM::SIZE; i+=2){
+	for (int i = 0; i < MEM::STRING_SIZE_MAX; i+=2){
 		int value = data_enc[i] + (data_enc[i+1]<<8);
 		encode[value] = i/2;
 	}

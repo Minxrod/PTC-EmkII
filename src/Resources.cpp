@@ -125,10 +125,8 @@ void Resources::save(std::string type, std::string filename){
 	header.set_type(type);
 	
 	if (type == "MEM"){
-		header.set_size(12 + MEM::SIZE + 2);
+		header.set_size(12 + MEM::SIZE);
 		std::vector<unsigned char> data{mem.data};
-		data.push_back(mem.actual_size % 256); //store size in memory structure
-		data.push_back(mem.actual_size / 256); //store size in memory structure
 		header.set_md5(data);
 		
 		auto fs = write_filestream("programs/"+filename+".PTC");

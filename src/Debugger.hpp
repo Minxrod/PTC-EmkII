@@ -41,7 +41,7 @@ public:
 };
 
 /// Debugger system. 
-/// Runs in sync (immediately after) PTCSystem in current implementation.
+/// Runs in sync with (immediately after) PTCSystem in current implementation.
 /// Offers basic debugging tools like breakpoints and tracking variables
 class Debugger {
 	/// Evaluator object
