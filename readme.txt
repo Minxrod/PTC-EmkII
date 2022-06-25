@@ -104,12 +104,13 @@ The debugger is a second window that can be opened on execution with the -d opti
 Currently, the options are as follows:
 
 tr expression - Add an expression to the list
-
 rm expression - Remove an expression from the list
+exit - Close the debugger window
+br line - Sets a breakpoint at line
+clear line - Removes a breakpoint at line
+c - Continue if program execution is paused from a breakpoint
 
-exit [or close] - Close the debugger window
-
-Note that these are updated per-frame, not as values change. Also, note that functions, operations and variable access will work in these expressions, but that attempting to create a new variable is not currently supported and will likely crash.
+Note that expressions are updated per-frame, not as values change. Also, note that functions, operations and variable access will work in these expressions, but that attempting to create a new variable is not currently supported and will likely crash due to thread-safety issues.
 
 = Controls: =
 
@@ -123,7 +124,7 @@ Note that these are updated per-frame, not as values change. Also, note that fun
 Special keys:
 - F1: Zoom x1
 - F2: Zoom x2
-- F5: Restart current program (Note: Will wait until end of current instruction to take effect)
+- F5: Restart current program (Note: Will wait until end of current instruction to take effect, will not work if program has already terminated)
 - F10: Disable/Enable keyboard buttons
 - F11: Disable/Enable keyboard 
 - F12: Open debugger window

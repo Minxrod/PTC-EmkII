@@ -44,6 +44,7 @@ class Debugger {
 	//Buffer to contain input command
 	bool submit = false;
 	std::string command;
+	std::string feedback;
 	
 	//Expressions to track
 	std::vector<std::string> expression;

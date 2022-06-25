@@ -4,6 +4,7 @@
 #include <map>
 #include <set>
 #include <utility>
+#include <atomic>
 
 #include "Vars.hpp"
 #include "Evaluator.hpp"
@@ -11,11 +12,18 @@
 #include "Resources.hpp"
 
 class Program{
+	friend class Debugger; //useful for access to breakpoints, current location, stack, etc.
+	
 	Evaluator& e;
 	
 	std::vector<Token> tokens;
-	std::vector<int> line_starts{};
+	
+	/// Maps indexes into tokens to PTC line numbers.
+	std::map<int, int> index_to_line{};
+	/// Maps PTC line numbers to indexes into tokens.
+	std::map<int, int> line_to_index{};
 	std::set<int> breakpoints{};
+	std::atomic_bool paused{false};
 	
 	std::vector<Token>::const_iterator current;
 	std::vector<Token>::const_iterator data_current;
@@ -66,6 +74,9 @@ public:
 	void set_tokens(const std::vector<Token>&);
 	void loader();
 	void restart(); //restart current program
+	/// Pauses or unpauses program execution on the next instruction.
+	/// @param p true=pause, false=unpause
+	void pause(bool p) { paused = p; };
 	
 	void add_cmds(std::map<Token, cmd_type>);
 	void call_cmd(Token, const std::vector<std::vector<Token>>&);
@@ -78,7 +89,7 @@ public:
 	//start thread
 	void run();
 	
-	void set_breakpoint(int line, bool enable);
+	void set_breakpoint(int line, bool enable = true);
 	
 	void _reload(bool state) { auto_reload = state; }
 };

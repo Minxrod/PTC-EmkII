@@ -25,6 +25,10 @@ bool cmd(std::string checkfor, std::string checkin){
 	return checkin.substr(0,checkfor.size()) == checkfor;
 }
 
+std::string arg(std::string command){
+	return command.substr(command.find(' ')+1);
+}
+
 void Debugger::update(){
 	if (!window.isOpen())
 		return;
@@ -54,23 +58,34 @@ void Debugger::update(){
 		// just instead of calling evaluate, create/update a Program object and run that
 		if (cmd("tr", command)){
 			PRG prg;
-			for (auto c : command.substr(3))
+			for (auto c : arg(command))
 				prg.data.push_back(c);
 			
-			expression.push_back(command.substr(3));
+			expression.push_back(arg(command));
 			evaluable.push_back(tokenize(prg));
 //			print("Tokenized",evaluable.back());
 		} else if (cmd("rm", command)){
-			auto itr = std::find(expression.begin(), expression.end(), command.substr(3));
+			auto itr = std::find(expression.begin(), expression.end(), arg(command));
 			if (itr != expression.end()){
 				auto dist = std::distance(expression.begin(), itr);
 				evaluable.erase(evaluable.begin() + dist);
 				expression.erase(expression.begin() + dist);
+			} else {
+				feedback = "Expression does not exist";
 			}
+		} else if (cmd("br", command) || cmd("clear", command)){
+			try {
+				program->set_breakpoint(std::stoi(arg(command)), cmd("br", command));
+			} catch (std::invalid_argument& e){
+				feedback = "Error: Invalid argument";
+			}
+		} else if (cmd("c", command)){
+			program->pause(false);
 		} else if (cmd("close", command) || cmd("exit", command)){
 			window.close();
 			return;
 		} else {
+			feedback = "Unrecognized command";
 			/*
 			PRG prg;
 			for (auto c : command.substr(3))
@@ -88,6 +103,7 @@ void Debugger::update(){
 	
 	// Render (console)
 	console.cls();
+	console.color(0);
 	console.print("Debug console");
 	console.print(command);
 	
@@ -103,6 +119,18 @@ void Debugger::update(){
 			console.print(prefix + std::get<String>(var));
 		}
 	}
+	
+	// Breakpoints
+	console.print("");
+	console.print("Breakpoints:");
+	for (auto l : program->breakpoints){
+		console.print(std::to_string(l));
+	}
+	
+	// Errors from debugger
+	console.locate(0,23);
+	console.color(13);
+	console.print(feedback, false);
 	
 	// Render (actual)
 	window.clear();

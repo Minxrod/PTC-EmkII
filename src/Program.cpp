@@ -48,21 +48,16 @@ void Program::set_tokens(const std::vector<Token>& t){
 	
 	//calculate line starts
 	int line = 1;
-	line_starts = std::vector<int>{};
-	line_starts.push_back(0);
-	line_starts.push_back(0);
+	
+	index_to_line = std::map<int, int>{{0,1}};
+	line_to_index = std::map<int, int>{{1,0}};
 	for (std::size_t i = 1; i < tokens.size(); ++i){
 		if (tokens[i-1] == Token{"\r",Type::Newl}){
 			line++;
-			line_starts.push_back(i);
+			index_to_line.insert({i, line});
+			line_to_index.insert({line, i});
 		}
 	}
-	//	for (auto i : line_starts){
-	//		std::cout << i << std::endl;
-	//	}
-	
-	//clear breakpoints
-	breakpoints = std::set<int>{};
 	
 	//reset stacks
 	gosub_calls = std::stack<std::vector<Token>::const_iterator>{};
@@ -89,8 +84,11 @@ void Program::loader(){
 	set_tokens(t);
 }
 
-void Program::set_breakpoint(int line, bool){
-	breakpoints.insert(line_starts[line]);
+void Program::set_breakpoint(int line, bool enable){
+	if (enable)
+		breakpoints.insert(line);
+	else
+		breakpoints.erase(line);
 }
 
 void Program::add_cmds(std::map<Token, cmd_type> other){
@@ -162,11 +160,11 @@ void Program::run_(){
 			auto instr = next_instruction();
 			
 			auto d = std::distance(tokens.cbegin(), current);
-			if (breakpoints.count(d)){
-				std::cout << "Break at " << d << std::endl;
-				int test;
-				std::cin >> test;
+			if (index_to_line.count(d) && breakpoints.count(index_to_line.at(d))){
+				pause(true);
 			}
+			
+			while (paused); //wait for unpause from other thread
 			
 			if (instr.empty())
 				continue; //it's an empty line, don't try to run it
