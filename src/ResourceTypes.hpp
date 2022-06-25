@@ -4,23 +4,44 @@
 #include <string>
 #include <map>
 
+/// PRG resource class. Stores the actual data of a PRG file.
 struct PRG {
+	/// Data as read from a PRG file.
 	std::vector<unsigned char> data;
 	
+	/// Loads data from a file.
+	/// @param filename PRG File to load
 	void load(std::string filename);
 };
 
+/// CHR resource class. Stores the data of a CHR file.
 struct CHR{
+	/// Size of a CHR file (bytes)
 	static const int SIZE = 256*8*8/2;
 	
+	/// Data as read from a CHR file.
 	std::vector<unsigned char> data;
 	
+	/// Default constructor
 	CHR() = default;
 	
+	/// Gets a pixel from within a character.
+	/// 
+	/// @param c Character code [0-255]
+	/// @param x x coordiante within character [0-7]
+	/// @param y y coordinate within character [0-7]
+	/// @return Color index [0-15]
 	unsigned char get_pixel(int c, int x, int y);
 	
+	/// Sets a pixel within a character.
+	/// @param c Character code [0-255]
+	/// @param x x coordiante within character [0-7]
+	/// @param y y coordinate within character [0-7]
+	/// @param col Color index [0-15]
 	void set_pixel(int c, int x, int y, int col);
 	
+	/// Returns an array used to generate the texture for rendering.
+	/// @return Texture data array
 	std::vector<unsigned char> get_array();
 };
 

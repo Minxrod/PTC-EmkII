@@ -69,7 +69,7 @@ $ cd PTC-EmkII
 $ mkdir build/
 $ mingw32-make
 
-Note that Windows versions of some setup tools are scripts are not yet provided; they will be added "soon"
+Note that Windows versions of some setup tools and scripts are not yet provided; they will be added "soon"
 
 = Documentation =
 
