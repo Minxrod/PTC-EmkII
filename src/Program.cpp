@@ -164,7 +164,8 @@ void Program::run_(){
 				pause(true);
 			}
 			
-			while (paused); //wait for unpause from other thread
+			while (paused)
+				std::this_thread::yield(); //wait for unpause from other thread
 			
 			if (instr.empty())
 				continue; //it's an empty line, don't try to run it
