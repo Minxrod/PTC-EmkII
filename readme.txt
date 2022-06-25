@@ -1,13 +1,17 @@
 PTC Interpreter, attempt two!
 
-== Description ==
+== Introduction ==
 
-This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC programs on PC. The end goal is to support all commands and functions that are usable from programs - DIRECT mode is not currently planned to be supported. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLSET bug/crash will not work the same.
+This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC programs on PC. The end goal is to support all commands and functions that are usable from programs. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLSET bug/crash will not work the same.
 
 Please note that this is heavily a WIP and nowhere near finished, so don't expect anything to work.
 
-= Support =
-The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
+== Support ==
+
+The current project has some amount of support for samples ENG1-ENG12, and ENG1G-ENG5G.
+
+= Samples =
+
 - Sample 1: Works.
 - Sample 2: Works, but does not handle invalid input.
 - Sample 3: Works.
@@ -24,14 +28,14 @@ The current project has some amount of support for samples ENG1.PTC-ENG7.PTC:
 - Game 2: Works, but input is slightly off (occasional double-inputs).
 - Game 3: Works.
 - Game 4: Works.
-- Game 5: Works.
+- Game 5: Works, but graphics are broken currently.
 - CHRED: Untested, likely broken.
 - SCRED: Untested, likely broken.
 - GRPED: Untested, likely broken.
 - DRWED: Untested, likely broken.
 
-
 = Features =
+
 - Console: Most commands on the console should be working, but there are issues with INPUT and LINPUT. 
 - Background: Most operations should work, might be missing a few alternate forms of commands.
 - Sprites: Pretty good support; probably missing some more unusual features.
@@ -54,9 +58,27 @@ $ cd PTC-EmkII
 $ mkdir build/
 $ make
 
-== Instructions == 
+= Windows =
 
-= Setup =
+Instructions should be roughly the same as linux, but will require a few modifications to the makefile. It is expected you have git installed and accessible from the command line.
+You will need to add an SFML installation to your path, and it is suggested you use the version with MinGW 32-bit linked from https://www.sfml-dev.org/download/sfml/2.5.1/
+
+Then, the instructions should be similar to
+$ git clone https://github.com/Minxrod/PTC-EmkII.git
+$ cd PTC-EmkII
+$ mkdir build/
+$ mingw32-make
+
+Note that Windows versions of some setup tools are scripts are not yet provided; they will be added "soon"
+
+= Documentation =
+
+To build the documentation, install doxygen and use
+$ doxygen doxyconfig
+
+== Usage == 
+
+= Linux setup =
 
 Place a PTC .nds file in the resources/ directory, then run
 

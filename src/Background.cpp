@@ -1,13 +1,12 @@
 #include "Background.hpp"
 
-/*
-Converts tile coordinate to a SCR index.
-
-x: Tile x coordinate
-y: Tile y coordinate
-
-Return: index into a SCR data array.
-*/
+///
+/// Converts tile coordinates to a SCR index.
+///
+/// @param x Tile x coordinate
+/// @param y Tile y coordinate
+/// @return Index into a SCR data array.
+///
 int to_scr_coords(int x, int y){
 	// limit to range [0,63]
 	x = x & 0x3f;
@@ -21,9 +20,6 @@ int to_scr_coords(int x, int y){
 	return 2 * (cx * 1024 + cy * 2048 + tx + ty * 32);
 }
 
-/*
-Creates the Background manager. Controls both upper and lower screen 
-*/
 Background::Background(Evaluator& ev, std::map<std::string, SCR>& s) : e{ev}, scr{s}{
 	bg_info = std::vector<BGInfo>{4, BGInfo{0,0,0,0,0}};
 	bg_layers = std::vector<TileMap>{4, TileMap(64,64)};
@@ -49,56 +45,54 @@ std::map<Token, op_func> Background::get_funcs(){
 	};
 }
 
-/*
-Converts separated tile info into a single number.
 
-tile: CHR number of tile [0-1023]
-h: Horizontal flip
-v: Vertical flip
-pal: Palette of tile [0-15]
-
-*/
+/// Converts separated tile info into a single number.
+/// 
+/// @param tile CHR number of tile [0-1023]
+/// @param h Horizontal flip
+/// @param v Vertical flip
+/// @param pal Palette of tile [0-15]
+/// @return Screen data for tile
 int to_data(int tile, bool h, bool v, int pal){
 	return tile + (h ? 0x400 : 0) + (v ? 0x800 : 0) + (pal << 12);
 }
 
-/*
-Gets the CHR number from combined tiledata.
-*/
+/// Gets the CHR number from combined tiledata.
+/// @param tiledata Screen data
+/// @return Character code [0-1023]
 int get_chr(int tiledata){
 	return tiledata & 0x03ff;
 }
 
-/*
-Gets the horizontal flip from combined tiledata.
-*/
+/// Gets the horizontal flip state from combined tiledata.
+/// @param tiledata Screen data
+/// @return true if flipped horizontally
 bool get_h(int tiledata){
 	return (bool)(tiledata & 0x0400);
 }
 
-/*
-Gets the vertical flip from combined tiledata.
-*/
+/// Gets the vertical flip state from combined tiledata.
+/// @param tiledata Screen data
+/// @return true if flipped vertically
 bool get_v(int tiledata){
 	return (bool)(tiledata & 0x0800);
 }
 
-/*
-Gets the palette number from combined tiledata.
-*/
+/// Gets the palette number from combined tiledata.
+/// @param tiledata Screen data
+/// @return Palette [0-15]
 int get_pal(int tiledata){
 	return (tiledata & 0xf000) >> 12;
 }
 
-/*
-Places a tile into a SCR.
-
-s: Map to write tiledata to.
-t: TileMap to write tiledata to for rendering.
-x: X coordinate, in tiles.
-y: Y coordinate, in tiles.
-d: Combined tiledata.
-*/
+/// Places a tile on the background layer.
+/// This function both writes to the renderable TileMap and the data format SCR.
+/// 
+/// @param s SCR to write tiledata to.
+/// @param t TileMap to write tiledata to for rendering.
+/// @param x x coordinate, in tiles.
+/// @param y y coordinate, in tiles.
+/// @param d Combined tiledata/screen data.
 void place_tile(SCR& s, TileMap& t, int x, int y, int d){
 	s.data[to_scr_coords(x,y)] = d & 0x00ff;
 	s.data[to_scr_coords(x,y)+1] = (d & 0xff00) >> 8;
@@ -107,29 +101,36 @@ void place_tile(SCR& s, TileMap& t, int x, int y, int d){
 	t.palette(x,y,16*get_pal(d));
 }
 
+/// Gets a tile from the given SCR and location.
+/// 
+/// @param s SCR to read from
+/// @param x x coordinate, in tiles.
+/// @param y y coordinate, in tiles.
+/// @return Screen data at (x,y).
 int get_tile(SCR& s, int x, int y){
 	return s.data[to_scr_coords(x,y)] | (s.data[to_scr_coords(x,y)+1] << 8);
 }
 
-/*
-PTC command to set the current BG page.
-
-Format: BGPAGE screen
-
-screen: 0 for top screen, 1 for bottom screen
-*/
+/// PTC command to set the current BG page.
+/// 
+/// Format: `BGPAGE screen`
+/// 
+/// Arguments:
+/// * screen: 0 for top screen, 1 for bottom screen
+/// 
+/// @param a Arguments
 void Background::bgpage_(const Args& a){
-	//BGPAGE screen
 	page = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
 }
 
-/*
-PTC command to clear the BG screen.
-
-Format: BGPAGE [layer]
-
-layer: Layer to clear. If omitted, clears both layers.
-*/
+/// PTC command to clear the BG screen.
+/// 
+/// Format: `BGPAGE [layer]`
+/// 
+/// Arguments:
+/// * layer: Layer to clear. If omitted, clears both layers.
+/// 
+/// @param a Arguments
 void Background::bgclr_(const Args& a){
 	//BGCLR [layer]
 	std::string name = "SCU";
@@ -155,19 +156,19 @@ void Background::bgclr_(const Args& a){
 	}
 }
 
-/*
-PTC command to set the BG rendering area.
-
-Format: BGCLIP x1,y1,x2,y2
-
-Area is from (x1,y1) to (x2,y2) inclusive.
-*/
+/// PTC command to set the BG rendering area.
+/// 
+/// Format: `BGCLIP x1,y1,x2,y2`
+/// 
+/// Area is from (x1,y1) to (x2,y2) inclusive.
+/// 
+/// @param a Arguments
 void Background::bgclip_(const Args& a){
 	//BGCLIP x1 y1 x2 y2
-	bgclip_x1 = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
-	bgclip_y1 = static_cast<int>(std::get<Number>(e.evaluate(a[2])));
-	bgclip_x2 = static_cast<int>(std::get<Number>(e.evaluate(a[3])));
-	bgclip_y2 = static_cast<int>(std::get<Number>(e.evaluate(a[4])));
+	int bgclip_x1 = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+	int bgclip_y1 = static_cast<int>(std::get<Number>(e.evaluate(a[2])));
+	int bgclip_x2 = static_cast<int>(std::get<Number>(e.evaluate(a[3])));
+	int bgclip_y2 = static_cast<int>(std::get<Number>(e.evaluate(a[4])));
 
 	auto& fg = bg_layers.at(2*page+0);
 	auto& bg = bg_layers.at(2*page+1);
@@ -176,17 +177,18 @@ void Background::bgclip_(const Args& a){
 	bg.clip(bgclip_x1,bgclip_y1,bgclip_x2,bgclip_y2);
 }
 
-/*
-PTC command to set the offset of a BG layer. 
-Optionally can animate the position linearly over time.
-
-Format: BGOFS layer,x,y[,time]
-
-layer: BG layer (foreground=0, background=1)
-x: X offset (pixels)
-y: Y offset (pixels)
-time: Time taken to move to new position. If omitted, layer immediately moves.
-*/
+/// PTC command to set the offset of a BG layer. 
+/// Optionally, can animate the position linearly over time.
+/// 
+/// Format: `BGOFS layer,x,y[,time]`
+/// 
+/// Arguments:
+/// * layer: BG layer (foreground=0, background=1)
+/// * x: x offset (pixels)
+/// * y: y offset (pixels)
+/// * time: Time taken to move to new position (in frames). If omitted, layer moves immediately.
+/// 
+/// @param a Arguments
 void Background::bgofs_(const Args& a){
 	//BGOFS layer x y [time]
 	int layer = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
@@ -205,23 +207,23 @@ void Background::bgofs_(const Args& a){
 	}
 }
 
-/*
-PTC command to place a single BG tile.
-
-Formats: 
-BGPUT layer,x,y,tile
-BGPUT layer,x,y,chr,pal,h,v
-
-layer: Layer to place tile on.
-x: X coordinate in tiles.
-y: Y coordinate in tiles.
-tile: Combined character data, as defined by to_data
-chr: CHR number.
-pal: Palette number.
-h: Horizontal flip state.
-v: Vertical flip state.
-
-*/
+/// PTC command to place a single BG tile.
+/// 
+/// Formats:
+/// * `BGPUT layer,x,y,tile`
+/// * `BGPUT layer,x,y,chr,pal,h,v`
+/// 
+/// Arguments:
+/// * layer: Layer to place tile on.
+/// * x: X coordinate in tiles.
+/// * y: Y coordinate in tiles.
+/// * tile: Screen data (combination of chr,pal,h,v)
+/// * chr: CHR number.
+/// * pal: Palette number.
+/// * h: Horizontal flip state.
+/// * v: Vertical flip state.
+/// 
+/// @param a Arguments
 void Background::bgput_(const Args& a){
 	//BGPUT layer x y tile
 	//BGPUT layer x y chr pal h v
@@ -255,22 +257,22 @@ void Background::bgput_(const Args& a){
 	place_tile(scu, bgl, x, y, tiledata);
 }
 
-/*
-PTC command to fill a rectangular region with the same tile.
-
-Format:
-BGFILL layer,x1,y1,x2,y2,tile
-BGFILL layer,x1,y1,x2,y2,chr,pal,h,v
-
-layer: Layer to fill tiles in.
-x1,y1,x2,y2: Coordinates defining the corners of the rectangle.
-tile: Combined character data, as defined by to_data
-chr: CHR number.
-pal: Palette number.
-h: Horizontal flip state.
-v: Vertical flip state.
-
-*/
+/// PTC command to fill a rectangular region with the same tile.
+/// 
+/// Format:
+/// * `BGFILL layer,x1,y1,x2,y2,tile`
+/// * `BGFILL layer,x1,y1,x2,y2,chr,pal,h,v`
+/// 
+/// Arguments:
+/// * layer: Layer to fill tiles in.
+/// * x1,y1,x2,y2: Coordinates defining the corners of the rectangle.
+/// * tile: Combined character data, as defined by to_data
+/// * chr: CHR number.
+/// * pal: Palette number.
+/// * h: Horizontal flip state.
+/// * v: Vertical flip state.
+/// 
+/// @param a Arguments
 void Background::bgfill_(const Args& a){
 	//BGFILL layer x1 y1 x2 y2 tile
 	std::string name = "SCU";
@@ -308,6 +310,10 @@ void Background::bgfill_(const Args& a){
 #include <sstream>
 #include <iomanip>
 //https://stackoverflow.com/questions/5100718/integer-to-hex-string-in-c
+/// Convert a 16 bit number to hex.
+/// 
+/// @param i number to convert
+/// @return Hex string of number
 std::string u16_to_hex( int i )
 {
 	std::stringstream stream;
@@ -315,12 +321,24 @@ std::string u16_to_hex( int i )
 	return stream.str();
 }
 
-/*
-
-*/
+/// PTC command to read a tile from the BG page
+/// 
+/// Format: 
+/// * `BGREAD (layer,x,y),data`
+/// * `BGREAD (layer,x,y),chr,pal,h,v`
+/// 
+/// Arguments:
+/// * layer: Layer to fill tiles in
+/// * x: x location to read from
+/// * y: y location to read from
+/// * data: Variable to write screen data to
+/// * chr: Variable to write CHR number
+/// * pal: Variable to write palette number
+/// * h: Variable to write horizontal flip state
+/// * v: Variable to write vertical flip state
+/// 
+/// @param a Arguments
 void Background::bgread_(const Args& a){
-	// BGREAD (layer, x, y), data
-	// BGREAD (layer, x, y), chr, pal, h, v
 
 	auto a_ = a[1]; //copy so args are not modified
 	//remove parens
@@ -355,11 +373,23 @@ void Background::bgread_(const Args& a){
 	}
 }
 
-/*
-
-*/
+/// PTC command to copy from one region of the BG page to another.
+/// 
+/// Format: 
+/// * `BGCOPY layer,sx1,sy1,sx2,sy2,tx,ty`
+/// 
+/// Arguments:
+/// * layer: Layer to copy within
+/// * sx1: Source location x1
+/// * sy1: Source location y1
+/// * sx2: Source location x2
+/// * sy2: Source location y2
+/// * tx: Destination location x
+/// * ty: Destination location y
+/// 
+/// @param a Arguments
 void Background::bgcopy_(const Args& a){
-	// BGCOPY layer, sx1, sy1, sx2, sy2, tx, ty
+	// 
 	int layer = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
 	int source_x1 = static_cast<int>(std::get<Number>(e.evaluate(a[2])));
 	int source_y1 = static_cast<int>(std::get<Number>(e.evaluate(a[3])));
@@ -396,17 +426,21 @@ void Background::bgcopy_(const Args& a){
 	}
 }
 
-/*
-PTC function to check the animation state of a BG layer.
-
-Returns: True if the layer is still moving.
-*/
+/// PTC command to check the animation state of a BG layer.
+/// 
+/// Format: 
+/// * `BGCHK(layer)`
+/// 
+/// Values:
+/// * layer: Layer to check
+/// 
+/// @param v Values
+/// @return 1 if layer is moving, otherwise 0
 Var Background::bgchk_(const Vals& v){
 	int layer = static_cast<int>(std::get<Number>(v.at(0)));
 	
 	return Number(bg_info[2*page+layer].time > 0);
 }
-
 
 void Background::update(){
 	for (auto& b : bg_info){
@@ -427,10 +461,6 @@ void Background::reset(){
 	bgclr_({});
 	page = oldpage;
 	//BGCLIP 0,0,31,23 (both screens)
-	bgclip_x1 = 0;
-	bgclip_y1 = 0;
-	bgclip_x2 = 31;
-	bgclip_y2 = 23;
 	for (auto& l : bg_layers){
 		l.clip(0,0,31,23);
 	}
@@ -442,17 +472,6 @@ void Background::reset(){
 	}
 }
 
-/*
-Returns the TileMap corresponding to the given screen and layer.
-
-Note that no actual drawing takes place, as the actual definition of the tilemap is handled by place_tile.
-This function only updates the position of the TileMap as set from BGOFS.
-
-screen: Screen (0=top, 1=bottom)
-layer: Layer (0=foreground, 1=background)
-
-Returns: Tilemap of the screen and layer.
-*/
 TileMap& Background::draw(int screen, int layer){
 	auto& bgl = bg_layers[2*screen+layer];
 	bgl.setPosition(-(int)bg_info[2*screen+layer].x % (64*8), -(int)bg_info[2*screen+layer].y % (64*8));
