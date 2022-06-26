@@ -4,6 +4,7 @@ Panel::Panel(Evaluator& ev, Resources& r, Input& i) :
 	e{ev},
 	c{ev, r.chr.at("BGF0L"), i},
 	panel_bg{64, 64},
+	icon{ev},
 	keyboard{}
 {
 	auto& key = r.scr.at("KEY").data;
@@ -22,18 +23,16 @@ Panel::Panel(Evaluator& ev, Resources& r, Input& i) :
 }
 
 std::map<Token, cmd_type> Panel::get_cmds(){
-	return std::map<Token, cmd_type>{
+	auto cmds = std::map<Token, cmd_type>{
 		std::pair("PNLTYPE"_TC, getfunc(this, &Panel::pnltype_)),
 		std::pair("PNLSTR"_TC, getfunc(this, &Panel::pnlstr_)),
-		std::pair("ICONCLR"_TC, getfunc(this, &Panel::iconset_)),
-		std::pair("ICONSET"_TC, getfunc(this, &Panel::iconset_)),
 	};
+	cmds.merge(icon.get_cmds());
+	return cmds;
 }
 
 std::map<Token, op_func> Panel::get_funcs(){
-	return std::map<Token, op_func>{
-		std::pair("ICONCHK"_TF, getfunc(this, &Panel::iconchk_)),
-	};
+	return icon.get_funcs();
 }
 
 //void Panel::update_keytext(){
@@ -72,20 +71,9 @@ void Panel::pnlstr_(const Args& a){
 	c.print(static_cast<int>(x), static_cast<int>(y), text, static_cast<int>(col));
 }
 
-void Panel::iconset_(const Args&){
-	
-}
-
-void Panel::iconclr_(const Args&){
-	
-}
-
-Var Panel::iconchk_(const Vals&){
-	return Var(0.0);
-}
-
 void Panel::touch_keys(bool t, int x, int y){
 	keyboard.touch_keys(t,x,y);
+	icon.update(t,x,y);
 }
 
 TileMap& Panel::draw_panel(){
@@ -118,6 +106,10 @@ TileMap& Panel::draw_funckeys(){
 	return func_keys;
 }
 
+Icon& Panel::draw_icon(){
+	return icon;
+}
+
 int Panel::get_last_keycode(){
 	return keyboard.get_last_keycode();
 }
@@ -129,6 +121,4 @@ std::pair<int,int> Panel::get_last_xy(){
 std::pair<int,int> Panel::get_keycode_xy(int keycode){
 	return keyboard.get_keycode_xy(keycode);
 }
-
-
 

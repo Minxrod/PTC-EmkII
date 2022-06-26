@@ -5,6 +5,7 @@
 #include "PTC2Console.hpp"
 #include "Background.hpp"
 #include "PanelKeyboard.hpp"
+#include "Icon.hpp"
 
 #include <array>
 
@@ -15,6 +16,7 @@ class Panel {
 	Evaluator& e;
 	PTC2Console c;
 	TileMap panel_bg;
+	Icon icon;
 //	TileMap func_keys;
 //	std::vector<std::string> func_text;
 //	std::vector<SpriteInfo> keys;
@@ -27,10 +29,6 @@ class Panel {
 	
 	void pnltype_(const Args&);
 	void pnlstr_(const Args&);
-	
-	void iconset_(const Args&);
-	void iconclr_(const Args&);
-	Var iconchk_(const Vals&);
 	
 public:
 	Panel(Evaluator&, Resources&, Input& i);
@@ -49,6 +47,8 @@ public:
 	TileMap& draw_panel();
 	SpriteArray& draw_keyboard();
 	TileMap& draw_funckeys();
+	Icon& draw_icon();
+	
 	bool panel_on() { return pnltype; }
 	PTC2Console& get_console() { return c; }
 	

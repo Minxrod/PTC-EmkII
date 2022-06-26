@@ -402,4 +402,10 @@ void Visual::draw(sf::RenderWindow& w){
 		bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
 		w.draw(con, rs);
 	}
+	
+	// icon probably draws over EVERYTHING so it's at the end
+	auto& icon = p.draw_icon();
+	bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
+	rs.texture = &resource_tex[10];
+	w.draw(icon, rs);
 }

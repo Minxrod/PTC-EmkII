@@ -4,14 +4,18 @@
 #include "Evaluator.hpp"
 #include "SpriteArray.hpp"
 
-class Icon {
+class Icon : public sf::Drawable {
 	Evaluator& e;
+	SpriteInfo up;
+	SpriteInfo down;
 	std::vector<SpriteInfo> sprites;
 	
 	//icon paging sysvars
 	Number* iconpuse;
 	Number* iconpmax;
 	Number* iconpage;
+	
+	int last_icon_pressed = -1;
 	
 	void iconset_(const Args&);
 	void iconclr_(const Args&);
@@ -29,5 +33,6 @@ public:
 	std::map<Token, cmd_type> get_cmds();
 	std::map<Token, op_func> get_funcs();
 	
-	void update();
+	void update(bool touch, int x, int y);
+	void draw(sf::RenderTarget& target, sf::RenderStates rs) const override;
 };

@@ -150,7 +150,7 @@ void PTCSystem::update(){
 	if (mouse_press){
 		//"touchscreen" input
 		input->touch(mouse_press, mouse_x, mouse_y);
-		visual->p.touch_keys(mouse_time==1, mouse_x, mouse_y);
+		visual->p.touch_keys(mouse_time>0, mouse_x, mouse_y);
 		input->touch_key(visual->p.get_last_keycode());
 	} else if (keyboard_enable && k != sf::Keyboard::Key::Unknown){
 		//Simluate touchscreen tap by physical keyboard presses

@@ -22,13 +22,13 @@ struct SpriteInfo {
 	struct {
 		double s = 1.0;
 		double ds;
-		int time;
+		int time = 0;
 	} scale;
 	
 	struct {
 		double a = 0.0;
 		double da;
-		int time;
+		int time = 0;
 	} angle;
 	
 	struct {
