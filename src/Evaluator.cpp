@@ -325,8 +325,8 @@ Var convert_to_value(const Token& t){
 	if (t.type == Type::Str)
 		return Var{t.text};
 	if (t.type == Type::Label)
-		return Var{t.text};	
-	return Var{"error: convert_to_value failure"};
+		return Var{t.text};
+	throw std::logic_error{"error: convert_to_value failure"};
 }
 
 void assign_varptr(VarPtr vp, Var v){
@@ -382,8 +382,8 @@ Var Evaluator::call_op(const Token& op, std::stack<Var>& values){
 	return r;
 }
 
-Var Evaluator::call_func(const Token& op, std::vector<Var>& args){
-	Var r = functions.at(op)(args);
+Var Evaluator::call_func(const Token& f, std::vector<Var>& args){
+	Var r = functions.at(f)(args);
 	
 	return r;
 }
