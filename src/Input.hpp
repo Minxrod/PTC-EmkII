@@ -13,7 +13,7 @@
 typedef sf::Keyboard::Key Key;
 typedef std::pair<Key, int> kc;
 
-struct Input {
+struct Input : public IPTCObject {
 	Evaluator& e;
 	
 	std::map<Key, int> code_to_button;
@@ -121,6 +121,6 @@ public:
 	
 	int keyboard_to_keycode(Key);
 	
-	std::map<Token, cmd_type> get_cmds();
-	std::map<Token, op_func> get_funcs();
+	std::map<Token, cmd_type> get_cmds() override;
+	std::map<Token, op_func> get_funcs() override;
 };

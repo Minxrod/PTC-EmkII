@@ -2,6 +2,7 @@
 
 #include "Vars.hpp"
 #include "Variables.hpp"
+#include "IPTCObject.hpp"
 
 #include <stack>
 #include <string>
@@ -77,7 +78,7 @@ std::vector<std::vector<Token>> split(const std::vector<Token>& t);
 /// arguments that must be evaluated.
 ///
 /// @note This class could use some cleanup.
-struct Evaluator {
+struct Evaluator : public IPTCObject {
 	/// Manages all PTC variables, including system variables.
 	Variables vars;
 	/// Function objects corresponding to operators, such as +, -, or !.
@@ -184,4 +185,14 @@ struct Evaluator {
 	
 	/// Copy assignment (deleted)
 	Evaluator& operator=(const Evaluator&) = delete;
+	
+	/// Creates a map of PTC command tokens to callable commands for this object.
+	/// 
+	/// @return Map of Tokens to PTC commands
+	std::map<Token, cmd_type> get_cmds() override;
+	
+	/// Creates and returns a map of PTC function tokens to callable functions.
+	/// 
+	/// @return Map of Tokens to PTC functions
+	std::map<Token, op_func> get_funcs() override;
 };

@@ -4,7 +4,7 @@
 #include "Evaluator.hpp"
 #include "SpriteArray.hpp"
 
-class Icon : public sf::Drawable {
+class Icon : public sf::Drawable, public IPTCObject {
 	Evaluator& e;
 	SpriteInfo up;
 	SpriteInfo down;
@@ -30,8 +30,8 @@ public:
 	
 	Icon& operator=(const Icon&) = delete;
 	
-	std::map<Token, cmd_type> get_cmds();
-	std::map<Token, op_func> get_funcs();
+	std::map<Token, cmd_type> get_cmds() override;
+	std::map<Token, op_func> get_funcs() override;
 	
 	void update(bool touch, int x, int y);
 	void draw(sf::RenderTarget& target, sf::RenderStates rs) const override;

@@ -2,10 +2,11 @@
 
 #include "Vars.hpp"
 #include "Resources.hpp"
+#include "IPTCObject.hpp"
 
 class Visual;
 
-class Graphics {
+class Graphics : public IPTCObject {
 	const static int WIDTH = 256;
 	const static int HEIGHT = 192;	
 	
@@ -54,8 +55,8 @@ public:
 	Graphics& operator=(const Graphics&) = delete;
 	
 	
-	std::map<Token, cmd_type> get_cmds();
-	std::map<Token, op_func> get_funcs();
+	std::map<Token, cmd_type> get_cmds() override;
+	std::map<Token, op_func> get_funcs() override;
 	
 	void reset();
 	

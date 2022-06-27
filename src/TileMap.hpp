@@ -23,7 +23,7 @@ public:
 	void palette(int, int, int, int = 0);
 	void clip(int, int, int, int);
 	
-	void draw(sf::RenderTarget&, sf::RenderStates) const;
+	void draw(sf::RenderTarget&, sf::RenderStates) const override;
 };
 
 

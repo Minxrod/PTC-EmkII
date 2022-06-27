@@ -8,7 +8,7 @@ LIB = lib/
 INCLUDE = include/
 
 CXX = g++
-OFLAGS = -std=c++17 -Wall -Werror -Wpedantic -Wextra -MMD -I$(INCLUDE) -L$(LIB) -Wl,-rpath,./lib
+OFLAGS = -std=c++17 -Wall -Werror -Wpedantic -Wextra -Wsuggest-override -MMD -I$(INCLUDE) -L$(LIB) -Wl,-rpath,./lib
 
 # https://stackoverflow.com/questions/24096807/dso-missing-from-command-line
 CXXFLAGS = $(OFLAGS) -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -lpthread -lSSEQPlayer

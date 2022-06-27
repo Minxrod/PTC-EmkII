@@ -33,13 +33,6 @@ typedef std::vector<Token> Expr;
 typedef const std::vector<Expr>& Args;
 typedef const std::vector<Var>& Vals;
 
-using cmd_type = std::function<void(const Args&)>;
-typedef std::pair<Token, cmd_type> cmd_map;
-
-using op_func = std::function<Var(const Vals&)>;
-typedef std::pair<Token, op_func> func_map;
-typedef func_map op_map;
-
 bool operator<(const Token& a, const Token& b);
 bool operator<(const PrioToken& a, const PrioToken& b);
 bool operator==(const Token& a, const Token& b);

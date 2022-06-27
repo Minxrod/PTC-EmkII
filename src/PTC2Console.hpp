@@ -8,11 +8,13 @@
 #include "Input.hpp"
 #include "TileMap.hpp"
 #include "BaseConsole.hpp"
+#include "IPTCObject.hpp"
 
 const int PTC2_CONSOLE_WIDTH = 32;
 const int PTC2_CONSOLE_HEIGHT = 24;
 
-class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT> {
+class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT>,
+					public IPTCObject {
 	Input& in;
 	Evaluator& e;
 	CHR& c;
@@ -69,8 +71,8 @@ public:
 	
 	void print(int, int, Var&, int);
 	
-	std::map<Token, cmd_type> get_cmds();
-	std::map<Token, op_func> get_funcs();
+	std::map<Token, cmd_type> get_cmds() override;
+	std::map<Token, op_func> get_funcs() override;
 	
 	TileMap& draw();
 };

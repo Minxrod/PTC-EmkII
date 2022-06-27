@@ -6,10 +6,11 @@
 #include "Background.hpp"
 #include "PanelKeyboard.hpp"
 #include "Icon.hpp"
+#include "IPTCObject.hpp"
 
 #include <array>
 
-class Panel {
+class Panel : public IPTCObject {
 	const static int WIDTH = 256;
 	const static int HEIGHT = 192;
 	
@@ -39,8 +40,8 @@ public:
 	
 	Panel& operator=(const Panel&) = delete;
 	
-	std::map<Token, cmd_type> get_cmds();
-	std::map<Token, op_func> get_funcs();
+	std::map<Token, cmd_type> get_cmds() override;
+	std::map<Token, op_func> get_funcs() override;
 	
 	void touch_keys(bool, int, int);
 	

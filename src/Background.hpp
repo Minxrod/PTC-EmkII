@@ -4,11 +4,12 @@
 #include "TileMap.hpp"
 #include "Evaluator.hpp"
 #include "Resources.hpp"
+#include "IPTCObject.hpp"
 
 ///
 /// Background management class. Controls the background layers and implements all the BG* commands.
 ///
-class Background {
+class Background : public IPTCObject {
 	///
 	///Struct defining position and animation data for a BG layer.
 	///
@@ -69,11 +70,11 @@ public:
 	
 	/// Creates and returns a map of PTC command tokens to callable commands for this object.
 	/// @return Map of Tokens to callable objects
-	std::map<Token, cmd_type> get_cmds();
+	std::map<Token, cmd_type> get_cmds() override;
 	
 	/// Creates and returns a map of PTC function tokens to callable functions for this object.
 	/// @return Map of Tokens to callable objects
-	std::map<Token, op_func> get_funcs();
+	std::map<Token, op_func> get_funcs() override;
 	
 	/// Resets the background state, as if ACLS had been called.
 	void reset();

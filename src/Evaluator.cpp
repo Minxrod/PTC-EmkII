@@ -36,7 +36,18 @@ Evaluator::Evaluator(){
 		op_map{"XOR"_TO, ptc::bxor},
 	};
 	
-	functions = std::map{
+	functions = get_funcs();
+}
+
+std::map<Token, cmd_type> Evaluator::get_cmds() {
+	return std::map{
+		cmd_map("DTREAD"_TC, getfunc(this, &Evaluator::dtread_)),
+		cmd_map("TMREAD"_TC, getfunc(this, &Evaluator::tmread_))
+	};
+}
+	
+std::map<Token, op_func> Evaluator::get_funcs() {
+	return std::map{
 		func_map{"SIN"_TF, ptc::sin},
 		func_map{"COS"_TF, ptc::cos},
 		func_map{"TAN"_TF, ptc::tan},
@@ -62,7 +73,6 @@ Evaluator::Evaluator(){
 		func_map{"SUBST$"_TF, ptc::subst},
 		func_map{"VAL"_TF, ptc::val},
 		func_map{"INSTR"_TF, ptc::instr},
-		
 	};
 }
 

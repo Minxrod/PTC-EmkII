@@ -12,6 +12,7 @@
 #include "Sprites.hpp"
 #include "Graphics.hpp"
 #include "Panel.hpp"
+#include "IPTCObject.hpp"
 
 /// This class is responsible for managing all components that are on screen,
 /// and the texturing/colors of these components.
@@ -19,7 +20,7 @@
 /// This includes stuff like the console, BG layers, sprites, and so on.
 /// This class also implements some functions for multi-component commands,
 /// like VISIBLE, and color/character commands.
-struct Visual {
+struct Visual : public IPTCObject {
 	/// Width of screen, in pixels.
 	const static int WIDTH = 256;
 	/// Height of screen, in pixels.
@@ -100,12 +101,12 @@ public:
 	/// objects, like the console, panel, sprites, etc.
 	/// 
 	/// @return Map of Tokens to PTC commands
-	std::map<Token, cmd_type> get_cmds();
+	std::map<Token, cmd_type> get_cmds() override;
 	/// Returns a map of tokens to functions. Includes functions from contained
 	/// objects, like the console, panel, sprites, etc.
 	/// 
 	/// @return Map of Tokens to PTC functions
-	std::map<Token, op_func> get_funcs();
+	std::map<Token, op_func> get_funcs() override;
 	
 	/// Advances by one frame. Updates MAINCNTL, as well as any objects with
 	/// animation, like sprites or BG layers.

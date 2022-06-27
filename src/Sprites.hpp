@@ -3,8 +3,9 @@
 #include "Vars.hpp"
 #include "Evaluator.hpp"
 #include "SpriteArray.hpp"
+#include "IPTCObject.hpp"
 
-class Sprites {
+class Sprites : public IPTCObject {
 	Evaluator& e;
 	std::vector<std::vector<SpriteInfo>> sprites;
 	int page;
@@ -40,8 +41,8 @@ public:
 	
 	Sprites& operator=(const Sprites&) = delete;
 	
-	std::map<Token, cmd_type> get_cmds();
-	std::map<Token, op_func> get_funcs();
+	std::map<Token, cmd_type> get_cmds() override;
+	std::map<Token, op_func> get_funcs() override;
 	
 	void reset();
 	void update();

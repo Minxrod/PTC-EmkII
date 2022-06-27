@@ -50,25 +50,44 @@ struct SpriteInfo {
 	double vars[8];
 };
 
+/// Simple vector class
 struct vec {
-	double x, y;
+	/// x component of vector.
+	double x;
+	/// y component of vector.
+	double y;
 	
+	/// Calculate dot product of this vector and a second vector.
+	/// 
+	/// @param other Vector to dot with
+	/// @return Result of dot product
 	double dot(const vec& other){
 		return x * other.x + y * other.y;
 	}
 	
+	/// Adds this vector and another.
+	/// 
+	/// @param other Secnod vector to add
+	/// @returns Sum of vectors
 	vec add(const vec& other){
 		return vec{x + other.x, y + other.y};
 	}
 	
+	/// Subtracts a vector from this vector.
+	/// 
+	/// @param other Vector to subtract
+	/// @returns Difference of this vector with other
 	vec sub(const vec& other){
 		return vec{x - other.x, y - other.y};
 	}
 };
 
-//vec normal(const SpriteInfo&);
-
-bool is_hit(SpriteInfo&, SpriteInfo&);
+/// Calculates if two sprites are colliding.
+/// 
+/// @param a Sprite 1
+/// @param b Sprite 2
+/// @return true if sprites are touching
+bool is_hit(SpriteInfo& a, SpriteInfo& b);
 
 class SpriteArray : public sf::Drawable, public sf::Transformable {
 	sf::VertexArray va{sf::Quads, 0};
@@ -80,7 +99,7 @@ public:
 	void add_sprite(const SpriteInfo&);
 	void update_sprite_xy(const SpriteInfo&, int, int);
 	
-	void draw(sf::RenderTarget&, sf::RenderStates) const;
+	void draw(sf::RenderTarget&, sf::RenderStates) const override;
 };
 
 

@@ -8,9 +8,10 @@
 #include <memory>
 
 #include "Vars.hpp"
+#include "IPTCObject.hpp"
 #include "Evaluator.hpp"
 
-class Sound {
+class Sound : public IPTCObject {
 	const static int BGM_TRACK_COUNT = 8;
 	const static int SFX_COUNT = 16;
 	const static int SEQ_SFX_OFFSET = 30;
@@ -54,9 +55,8 @@ public:
 	
 	Sound& operator=(const Sound&) = delete;
 	
-
-	std::map<Token, cmd_type> get_cmds();
-	std::map<Token, op_func> get_funcs();
+	std::map<Token, cmd_type> get_cmds() override;
+	std::map<Token, op_func> get_funcs() override;
 	
 	// enable or disable sound (at runtime)
 	void _enable(bool state) { enabled = state; }

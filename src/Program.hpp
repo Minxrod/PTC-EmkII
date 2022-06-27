@@ -10,8 +10,9 @@
 #include "Evaluator.hpp"
 #include "FileLoader.hpp"
 #include "Resources.hpp"
+#include "IPTCObject.hpp"
 
-class Program{
+class Program {
 	friend class Debugger; //useful for access to breakpoints, current location, stack, etc.
 	
 	Evaluator& e;

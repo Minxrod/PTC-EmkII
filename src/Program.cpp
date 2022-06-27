@@ -27,9 +27,9 @@ Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}{
 		cmd_map("SORT"_TC, getfunc(this, &Program::sort_)),
 		cmd_map("RSORT"_TC, getfunc(this, &Program::rsort_)),
 		cmd_map("EXEC"_TC, getfunc(this, &Program::exec_)),
-		cmd_map("DTREAD"_TC, getfunc(&eval, &Evaluator::dtread_)),
-		cmd_map("TMREAD"_TC, getfunc(&eval, &Evaluator::tmread_))
 	};
+	
+	add_cmds(e.get_cmds());
 }
 
 //Restart current program
