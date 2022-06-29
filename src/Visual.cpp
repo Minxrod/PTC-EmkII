@@ -101,11 +101,35 @@ std::map<Token, op_func> Visual::get_funcs(){
 	return funcs;
 }
 
+/// PTC command to set the visible status of different components.
+/// @note This function is implemented, but the results are currently ignored.
+/// 
+/// Format: 
+/// * `VISIBLE con,pnl,bg0,bg1,sp,grp`
+/// 
+/// Arguments:
+/// * con: true=Console is visible
+/// * pnl: true=Panel is visible
+/// * bg0: true=BG layer 0 is visible
+/// * bg1: true=BG layer 1 is visible
+/// * sp: true=Sprites are visible
+/// * grp: true=Graphics page is visible
+/// 
+/// @param a Arguments
 void Visual::visible_(const Args& a){
 	for (int i = 0; i < 6; i++)
 		visible[i] = (bool)(int)std::get<Number>(e.evaluate(a[i+1]));
 }
 
+/// PTC command to wait for vertical synchronization.
+/// 
+/// Format: 
+/// * `VSYNC frames`
+/// 
+/// Arguments:
+/// * frames: Number of frames to wait for
+/// 
+/// @param a Arguments
 void Visual::vsync_(const Args& a){
 	int frames = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
 	int wait_until = (int)*maincntl + frames;
@@ -115,6 +139,15 @@ void Visual::vsync_(const Args& a){
 	}
 }
 
+/// PTC command to restore character(s) to their default state.
+/// 
+/// Format: 
+/// * `CHRINIT resource`
+/// 
+/// Arguments:
+/// * resource: Resource to reset
+/// 
+/// @param a Arguments
 void Visual::chrinit_(const Args& a){
 	//CHRINIT resource
 	String res = std::get<String>(e.evaluate(a[1]));
@@ -131,6 +164,17 @@ void Visual::chrinit_(const Args& a){
 	regen_chr(res);
 }
 
+/// PTC command to set new character data.
+/// 
+/// Format: 
+/// * `CHRSET resource,chr,data`
+/// 
+/// Arguments:
+/// * resource: Bank to set data for
+/// * chr: Character code [0-255]
+/// * data: Data string (64 hex digits)
+/// 
+/// @param a Arguments
 void Visual::chrset_(const Args& a){
 	auto resource_type = std::get<String>(e.evaluate(a[1]));
 	int chr_id = std::get<Number>(e.evaluate(a[2]));
@@ -149,6 +193,17 @@ void Visual::chrset_(const Args& a){
 	regen_chr(resource_type);
 }
 
+/// PTC command to read character data into a string.
+/// 
+/// Format: 
+/// * `CHRREAD(resource,chr),data`
+/// 
+/// Arguments:
+/// * resource: Resource bank to read from
+/// * chr: Character code [0-255]
+/// * data: Variable to write character data to
+/// 
+/// @param a Arguments
 void Visual::chrread_(const Args& a){
 	auto a_ = a[1]; //copy so args are not modified
 	//remove parens
@@ -173,6 +228,16 @@ void Visual::chrread_(const Args& a){
 	e.assign(a[2], Token{chr_data, Type::Str});
 }
 
+/// PTC command to reset the colors to their default state.
+/// 
+/// Format: 
+/// * `COLINIT resource[,color]`
+/// 
+/// Arguments:
+/// * resource: Color resource to reset
+/// * color: Color code to reset. If none, resets all colors.
+/// 
+/// @param a Arguments
 void Visual::colinit_(const Args& a){
 	//COLINIT resource color
 	//BG, SP, GRP
@@ -197,9 +262,20 @@ void Visual::colinit_(const Args& a){
 	}
 }
 
+/// PTC command to set a specific color.
+/// 
+/// Format: 
+/// * `COLSET resource,color,data`
+/// 
+/// Arguments:
+/// * resource: COL resource to write
+/// * color: Color code [0-255]
+/// * data: Color string "RRGGBB"
+/// 
+/// @param a Arguments
 void Visual::colset_(const Args& a){
 	//COLSET bank,color,data
-	//Note: Seems to only affect top screen...?
+	//Note: Affected by BGPAGE, SPPAGE, GPAGE?
 	String res = std::get<String>(e.evaluate(a[1]));
 	Number c = std::get<Number>(e.evaluate(a[2]));
 	String data = std::get<String>(e.evaluate(a[3]));
@@ -220,20 +296,44 @@ void Visual::colset_(const Args& a){
 	r.col.at(res+"U").set_col(c, rd, g, b);
 }
 
+/// PTC command to read a color.
+/// @warning Unimplemented.
+/// 
+/// Format: 
+/// * `COLREAD(resource,color),r,g,b`
+/// 
+/// Arguments:
+/// * resource: COL resource to read
+/// * color: Color code [0-255]
+/// * r: Variable to write red component
+/// * g: Variable to write green component
+/// * b: Variable to write blue component
+/// 
+/// @param a Arguments
 void Visual::colread_(const Args&){
 	
 }
 
+/// PTC command to clear the console screens.
+/// @note Clears both the upper screen console and lower screen console (`PNLSTR` output)
+/// 
+/// Format: 
+/// * `CLS`
 void Visual::cls_(const Args&){
 	c.cls();
 	p.get_console().cls();
 }
 
+/// PTC command to reset almost the entire graphics state.
+/// @note Not yet fully implemented.
+/// 
+/// Format: 
+/// * `ACLS`
 void Visual::acls_(const Args&){
 	//VISIBLE 1,1,1,1,1,1
 	for (int i = 0; i < 6; i++)
 		visible[i] = true;
-	//ICONCLR
+	//TODO: ICONCLR
 	//COLOR 0:CLS
 	c.reset();
 	p.get_console().reset();
@@ -241,13 +341,26 @@ void Visual::acls_(const Args&){
 	g.reset();
 	//SPCLR (all, both pages)
 	s.reset();
-	//TODO: rest of ACLS
 	// BGOFS (all),0,0
 	// BGCLR (all):BGCLIP 0,0,31,23
 	b.reset();
+	//TODO: rest of ACLS
 	// COLINIT (all, both screens)
 }
 
+/// PTC command to load from a file.
+/// @note This is currently located in Visual due to needing to often
+/// regenerate COL or CHR resource textures, but will likely be moved.
+/// @note Dialog is not implemented, so the silent flag is currently ignored.
+/// 
+/// Format: 
+/// * `LOAD filename[,silent]`
+/// 
+/// Arguments:
+/// * filename: File type and name string
+/// * silent: true=Do not show load dialog
+/// 
+/// @param a Arguments
 void Visual::load_(const Args& a){
 	// LOAD <filename> [dialog]
 	auto info = std::get<String>(e.evaluate(a[1]));
@@ -265,6 +378,17 @@ void Visual::load_(const Args& a){
 	}
 }
 
+/// PTC command to save to a file.
+/// @note This will likely be moved later, same as `LOAD`.
+/// @warning Only MEM save is currently implemented.
+/// 
+/// Format: 
+/// * `SAVE filename`
+/// 
+/// Arguments:
+/// * filename: File type and name string.
+/// 
+/// @param a Arguments
 void Visual::save_(const Args& a){
 	auto info = std::get<String>(e.evaluate(a[1]));
 	auto type = info.substr(0,info.find(":"));
@@ -278,7 +402,6 @@ void Visual::save_(const Args& a){
 		r.save(type, name);
 	}
 }
-
 
 void Visual::update(){
 	e.vars.write_sysvar("MAINCNTL", *maincntl+1);
