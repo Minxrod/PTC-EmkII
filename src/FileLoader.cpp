@@ -70,12 +70,14 @@ void Header::set_md5(std::vector<unsigned char>& d){
 }
 
 int Header::get_prg_size() const {
+	if (data.size() != 60){
+		throw std::runtime_error{"Error: Attempted to get program size from non-program header"};
+	}
 	return data[0x38] + ((unsigned int)data[0x39] << 8) + ((unsigned int)data[0x3a] << 16);
 }
 
 std::string Header::get_md5() const {
 	//todo: proper conversion to string md5
-	MD5 md5;
 	return std::string(reinterpret_cast<const char*>(&data[0x14]), 12);
 }
 

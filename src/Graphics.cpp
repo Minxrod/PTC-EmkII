@@ -63,11 +63,29 @@ void Graphics::draw_pixel(std::array<unsigned char, 256*192*4>& i, std::vector<u
 	}
 }
 
+/// PTC command to set the default graphics drawing color
+/// 
+/// Format: 
+/// * `GCOLOR color`
+/// 
+/// Arguments:
+/// * color: The color to set as default [0-255]
+/// 
+/// @param a Arguments
 void Graphics::gcolor_(const Args& a){
 	//GCOLOR color
 	gcolor = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
 }
 
+/// PTC command to clear the graphics screen.
+/// 
+/// Format: 
+/// * `GCLS [color]`
+/// 
+/// Arguments:
+/// * color: Color to clear screen with (defaults to gcolor)
+/// 
+/// @param a Arguments
 void Graphics::gcls_(const Args& a){
 	//GCLS [color]
 	auto col = a.size() == 1 ? gcolor : static_cast<int>(std::get<Number>(e.evaluate(a[1])));
@@ -81,6 +99,17 @@ void Graphics::gcls_(const Args& a){
 	}
 }
 
+/// PTC command to set the current graphics page. Can optionally select specific drawing and display pages.
+/// 
+/// Format: 
+/// * `GPAGE screen[,draw,disp]`
+/// 
+/// Arguments:
+/// * screen: 0=upper screen, 1=lower screen
+/// * draw: Draw page for selected screen [0-3]
+/// * disp: Display page for selected screen [0-3]
+/// 
+/// @param a Arguments
 void Graphics::gpage_(const Args& a){
 	//GPAGE screen
 	if (a.size() == 2){
@@ -92,6 +121,17 @@ void Graphics::gpage_(const Args& a){
 	}
 }
 
+/// PTC command to draw a pixel to the graphics page.
+/// 
+/// Format: 
+/// * `GPSET x,y[,color]`
+/// 
+/// Arguments:
+/// * x: x coordinate
+/// * y: y coordinate
+/// * color: Color to set pixel to (defaults to gcolor)
+/// 
+/// @param a Arguments
 void Graphics::gpset_(const Args& a){
 	//GPSET X,Y[,C]
 	auto col = a.size() == 3 ? gcolor : static_cast<int>(std::get<Number>(e.evaluate(a[3])));
@@ -132,6 +172,19 @@ void Graphics::draw_line(std::array<unsigned char, 256*192*4>& i, std::vector<un
 	}
 }
 
+/// PTC command to draw a line to the graphics page.
+/// 
+/// Format: 
+/// * `GLINE x1,y1,x2,y2[,color]`
+/// 
+/// Arguments:
+/// * x1: Starting point x
+/// * y1: Starting point y
+/// * x2: Ending point x
+/// * y2: Ending point y
+/// * color: Color of line (default = gcolor)
+/// 
+/// @param a Arguments
 void Graphics::gline_(const Args& a){
 	//GLINE x1 y1 x2 y2 [c]
 	auto col = a.size() == 5 ? gcolor : static_cast<int>(std::get<Number>(e.evaluate(a[5])));
@@ -145,6 +198,19 @@ void Graphics::gline_(const Args& a){
 	draw_line(image[drawpage[screen]],g,x1,y1,x2,y2,col);
 }
 
+/// PTC command to draw a circle to the graphics page.
+/// @note Not perfectly accurate to PTC `GCIRCLE`.
+/// 
+/// Format: 
+/// * `GCIRCLE x,y,r[,color]`
+/// 
+/// Arguments:
+/// * x: Center of circle x coordinate
+/// * y: Center of circle y coordinate
+/// * r: Radius of circle
+/// * color: Color of circle (default = gcolor)
+/// 
+/// @param a Arguments
 void Graphics::gcircle_(const Args& a){
 	//GCIRCLE x y r [c]
 	auto col = a.size() == 4 ? gcolor : static_cast<int>(std::get<Number>(e.evaluate(a[4])));
@@ -165,10 +231,35 @@ void Graphics::gcircle_(const Args& a){
 	}
 }
 
+/// PTC command to flood fill a region starting from a point.
+/// @warning Not yet implemented.
+/// 
+/// Format: 
+/// * `GPAINT x,y[,color]`
+/// 
+/// Arguments:
+/// * x: Starting x
+/// * y: Starting y
+/// * color: Color to fill (default = gcolor)
+/// 
+/// @param a Arguments
 void Graphics::gpaint_(const Args&){
 	//GPAINT x y [c]
 }
 
+/// PTC command to draw an unfilled box.
+/// 
+/// Format: 
+/// * `GBOX x1,y1,x2,y2[,color]`
+/// 
+/// Arguments:
+/// * x1: Corner 1 x
+/// * y1: Corner 1 y
+/// * x2: Corner 2 x
+/// * y2: Corner 2 y
+/// * color: Color of box (default = gcolor)
+/// 
+/// @param a Arguments
 void Graphics::gbox_(const Args& a){
 	//GBOX x1 y1 x2 y2 [c]
 	auto col = a.size() == 5 ? gcolor : static_cast<int>(std::get<Number>(e.evaluate(a[5])));
@@ -193,6 +284,19 @@ void Graphics::gbox_(const Args& a){
 	}
 }
 
+/// PTC command to draw a filled box.
+/// 
+/// Format: 
+/// * `GFILL x1,y1,x2,y2[,color]`
+/// 
+/// Arguments:
+/// * x1: Corner 1 x
+/// * y1: Corner 1 y
+/// * x2: Corner 2 x
+/// * y2: Corner 2 y
+/// * color: Color of box (default = gcolor)
+/// 
+/// @param a Arguments
 void Graphics::gfill_(const Args& a){
 	//GFILL x1 y1 x2 y2 [c]
 	auto col = a.size() == 5 ? gcolor : static_cast<int>(std::get<Number>(e.evaluate(a[5])));
@@ -215,6 +319,21 @@ void Graphics::gfill_(const Args& a){
 	}
 }
 
+/// PTC command to draw a character to the graphics screen.
+/// @note: This overwrites part of the graphics palette with whatever palette is used by the character drawn.
+/// 
+/// Format: 
+/// * `GPUTCHR x,y,bank,chr,pal,scale`
+/// 
+/// Arguments:
+/// * x: X coordinate (upper left)
+/// * y: Y coordinate (upper left)
+/// * bank: Character bank (ex. BGU0, SPU3, etc.)
+/// * chr: Character code [0-255]
+/// * pal: Palette [0-15]
+/// * scale: Scale [1,2,4,8]
+/// 
+/// @param a Arguments
 void Graphics::gputchr_(const Args& a){
 	// GPUTCHR x y bank chr pal scale
 	int x = std::get<Number>(e.evaluate(a[1]));
@@ -252,17 +371,51 @@ void Graphics::gputchr_(const Args& a){
 	}
 }
 
+/// PTC command to set the drawing mode.
+/// 
+/// Format: 
+/// * `GDRAWMD state`
+/// 
+/// Arguments:
+/// * state: true=XOR drawing mode, false=overwrite drawing mode
+/// 
+/// @param a Arguments
 void Graphics::gdrawmd_(const Args& a){
 	//GDRAWMD <status>
 	gdrawmd = std::get<Number>(e.evaluate(a[1]));
 }
 
+/// PTC command to set the graphics priority.
+/// 
+/// Format: 
+/// * `GPRIO priority`
+/// 
+/// Arguments:
+/// * priority: Priority of current screen's graphics
+/// 
+/// @param a Arguments
 void Graphics::gprio_(const Args& a){
 	// GRPIO priority
 	int p = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
 	prio[screen] = p;
 }
 
+/// PTC command to copy graphics from a rectangular region.
+/// 
+/// Format: 
+/// * `GCOPY [source,]sx1,sy1,sx2,sy2,dx,dy,mode`
+/// 
+/// Arguments:
+/// * source: Source graphics page. (default = current drawing page)
+/// * sx1: Source corner 1 x
+/// * sy1: Source corner 1 y
+/// * sx2: Source corner 2 x
+/// * sy2: Source corner 2 y
+/// * dx: Destination x (upper left)
+/// * dy: Destination y (upper left)
+/// * mode: If true, copies color zero.
+/// 
+/// @param a Arguments
 void Graphics::gcopy_(const Args& a){
 	//GCOPY [sourcepage,]sx,sy,ex,ey,tx,ty,mode
 	int page_offset = a.size() == 9 ? 1 : 0;
@@ -294,6 +447,17 @@ void Graphics::gcopy_(const Args& a){
 	}
 }
 
+/// PTC function to get the color at a point.
+/// 
+/// Format: 
+/// * `GSPOIT(x,y)`
+/// 
+/// Values:
+/// * x: x coordinate
+/// * y: y coordinate
+/// 
+/// @param v Values
+/// @return Pixel color at (x,y)
 Var Graphics::gspoit_(const Vals& v){
 	int x = std::get<Number>(v.at(0));
 	int y = std::get<Number>(v.at(1));

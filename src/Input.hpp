@@ -13,14 +13,23 @@
 typedef sf::Keyboard::Key Key;
 typedef std::pair<Key, int> kc;
 
+/// Input management struct.
+/// 
+/// Provides access to PTC input functionss, and additionally manages part of the keyboard input.
 struct Input : public IPTCObject {
+	/// Evaluator object
 	Evaluator& e;
 	
+	/// Map of keyboard key codes to button codes
 	std::map<Key, int> code_to_button;
+	/// Map of controller buttons to button codes
 	std::map<int, int> joy_to_button;
+	/// Map of controller sticks to d-pad button codes
 	std::map<int, int> stick_to_button;
-	float sensitivity = 50; 
+	/// Stick sensitivity for controllers
+	float sensitivity = 50;
 	
+	/// Map of keyboard keys to PTC `KEYBOARD` key codes
 	const std::map<Key, int> code_to_ptc{
 		kc(Key::Unknown, 0),
 		kc(Key::Escape, 1),
@@ -80,45 +89,85 @@ struct Input : public IPTCObject {
 		kc(Key::Delete, 67),
 	};
 	
+	/// Keyboard characters list for default keyboard
 	const std::string       kya{"??1234567890-+=\b$\"QWERTYUIOP@*()\t!ASDFGHJKL;:<>?'ZXCVBNM,./%\r???? ???"};
+	/// Keyboard characters list for lowercase keyboard (unused)
 	const std::string shift_kya{"....#..&.^\\~..|\b..qwertyuiop`.[]\t.asdfghjkl..{}..zxcvbnm..?_\r.... ..."};
 	
+	/// Mutex for updating button_info
 	std::mutex button_mutex;
+	/// 2D array containing button repeat timings and current hold duration.
 	std::vector<std::vector<int>> button_info{};
 	
+	/// Button status from previus frame
 	std::atomic_int old_buttons; //updates each frame
+	/// Current button status
 	std::atomic_int buttons; //same as above
+	/// Current keycode
 	std::atomic_int keycode; //updates each frame, sysvar
 
 	//sysvars
+	/// TCHST sysvar (touch state)
 	std::atomic_bool tchst;
+	/// TCHTIME sysvar (hold timer)
 	std::atomic_int tchtime;
+	/// TCHX sysvar
 	std::atomic_int tchx;
+	/// TCHY sysvar
 	std::atomic_int tchy;
 	
+	/// Mutex for INKEY$() buffer
 	std::mutex inkeybuf_mutex;
+	/// Buffer for characters that need to be typed
 	std::queue<char> inkeybuffer; //syncs to keycode unless a function key is pressed, which adds a string to the buffer (and has keycode = 0.)
-		
+	
+	/// Returns a character from the INKEY$() buffer
+	/// 
+	/// @return character typed
 	char inkey_internal();
 	
+	// PTC commands
 	void brepeat_(const Args&);
+	
+	// PTC functions
 	Var inkey_(const Vals&);
 	Var button_(const Vals&);
 	Var btrig_(const Vals&);
 	
-public:	
-	Input(Evaluator&);
+public:
+	/// Constructor
+	///
+	/// @param ev Evaluator object
+	Input(Evaluator& ev);
 	
+	/// Default constructor (deleted)
 	Input() = delete;
 	
+	/// Copy constructor (deleted)
 	Input(const Input&) = delete;
 	
+	/// Copy assignment (deleted)
 	Input& operator=(const Input&) = delete;
 	
-	void update(int);
-	void touch(bool, int, int);
+	/// Sets the buttons currently pressed.
+	/// 
+	/// @param b BUTTON() equivalent data
+	void update(int b);
+	/// Sets the touchscreen state.
+	/// 
+	/// @param t Touch state
+	/// @param x Touch x coordinate
+	/// @param y Touch y coordinate
+	void touch(bool t, int x, int y);
+	/// Simulates the touch of the given key on the current keyboard.
+	/// 
+	/// @param keycode Location of key pressed
 	void touch_key(int keycode);
 	
+	/// Converts a sf::Keyboard::Key to a KEYBOARD keycode.
+	/// 
+	/// @param SFML keycode
+	/// @return PTC keycode
 	int keyboard_to_keycode(Key);
 	
 	std::map<Token, cmd_type> get_cmds() override;
