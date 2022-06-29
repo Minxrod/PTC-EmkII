@@ -75,7 +75,19 @@ void Input::touch_key(int keycode){
 		}
 	}
 }
-	
+
+/// PTC command to set button repeat timings.
+/// @note If start and repeat are omitted, repetition is disabled.
+/// 
+/// Format: 
+/// * `BREPEAT button[,start,repeat]`
+/// 
+/// Arguments:
+/// * button: Button id to set or clear repeat timings
+/// * start: Number of frames before first repeat
+/// * repeat: Number of frames before consecutive repeats
+/// 
+/// @param a Arguments
 void Input::brepeat_(const Args& a){
 	Number id = std::get<Number>(e.evaluate(a[1]));
 	Number start = 0;
@@ -101,12 +113,35 @@ char Input::inkey_internal(){
 	return c;
 }
 
+/// PTC function to get a typed character.
+/// 
+/// Format: 
+/// * `INKEY$()`
+/// 
+/// @param Values (ignored)
+/// @return String containing character typed, or empty string if nothing was typed
 Var Input::inkey_(const Vals&){
 	std::string res = "";
 	res += inkey_internal();
 	return Var(res);
 }
 
+/// PTC command to check the state of the buttons.
+/// 
+/// Format: 
+/// * `BUTTON(mode)`
+/// 
+/// Values:
+/// * mode: Button mode (default=0)
+/// 
+/// The button modes are: 
+/// * 0=held
+/// * 1=moment pressed, repeat on
+/// * 2=moment pressed, repeat off
+/// * 3=moment released
+/// 
+/// @param v Values
+/// @return Button states in mode
 Var Input::button_(const Vals& v){
 	double b0 = static_cast<double>(buttons);
 	double b2 = static_cast<double>(buttons & ~old_buttons);
@@ -131,6 +166,13 @@ Var Input::button_(const Vals& v){
 	}
 }
 
+/// PTC command to check the button press state, with repeats. Equivalent to BUTTON(1)
+/// 
+/// Format: 
+/// * `BTRIG()`
+/// 
+/// @param Values (ignored)
+/// @return Buttons pressed or repeating
 Var Input::btrig_(const Vals&){
 	int b = 0;
 	//lock <maybe> not necessary? (only reads here, but button_info[x][0] may be modified elsewhere)

@@ -459,6 +459,8 @@ std::vector<Var> Evaluator::calculate(const std::vector<Token>& rpn_expression, 
 				has_varptr = true;
 			}
 			values.push(v);
+		} else if (t.type == Type::Rem){
+			// do nothing, because this is a comment
 		} else {
 			//add value to stack
 			Var v = convert_to_value(t);

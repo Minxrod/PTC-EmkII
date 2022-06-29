@@ -164,7 +164,7 @@ public:
 	/// @param keycode Location of key pressed
 	void touch_key(int keycode);
 	
-	/// Converts a sf::Keyboard::Key to a KEYBOARD keycode.
+	/// Converts a sf::Keyboard::Key to a `KEYBOARD` keycode.
 	/// 
 	/// @param SFML keycode
 	/// @return PTC keycode
