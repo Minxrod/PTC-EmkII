@@ -116,4 +116,12 @@ public:
 	/// 
 	/// @param window Window to render to
 	void draw(sf::RenderWindow& window);
+	
+	/// Sets the render states to match the CHR and COL provided.
+	/// Also sets a uniform in bgsp_shader.
+	/// 
+	/// @param chr Character texture to use
+	/// @param col Color palette to use
+	/// @return RenderStates for combination
+	sf::RenderStates set_state(int chr, float col);
 };

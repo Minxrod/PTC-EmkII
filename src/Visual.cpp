@@ -4,6 +4,14 @@
 const float COL_BG = 0.1;
 const float COL_SP = 1.1;
 const float COL_GRP = 2.1;
+const float COL_BG_L = 3.1;
+const float COL_SP_L = 4.1;
+
+/// Enum used for naming textures in resource_tex
+enum Tex {
+	BGF_U = 0, BGU_U, SPU, SPS_U, UNUSED_1, BGD_U,
+	BGF_L, BGU_L, UNUSED_2, SPS_L, SPD, BGD_L
+};
 
 Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 	e{ev},
@@ -410,18 +418,31 @@ void Visual::update(){
 	b.update();
 }
 
+sf::RenderStates Visual::set_state(int chr, float col){
+	sf::RenderStates rs;
+	rs.shader = &bgsp_shader;
+	rs.texture = &resource_tex[chr];
+	bgsp_shader.setUniform("colbank", col);
+	return rs;
+}
+
 //note: don't make this silly mistake
 //https://en.sfml-dev.org/forums/index.php?topic=13526.0
 void Visual::draw(sf::RenderWindow& w){
 	//common
 	bgsp_shader.setUniform("colors", col_tex);
 	bgsp_shader.setUniform("texture", sf::Shader::CurrentTexture);
-	sf::RenderStates rs;
-	rs.shader = &bgsp_shader;
 	//screens
 	for (int sc = 0; sc < 2; ++sc){
 		float col_l = 3.0f * sc;
 		int chr_l = 6 * sc;
+		// state functions
+		auto grp_state = [this, col_l](){
+			return set_state(Tex::BGU_U, COL_GRP + col_l);
+		};
+		auto sprite_state = [this, sc, col_l](){
+			return set_state(sc ? Tex::SPS_L : Tex::SPU, COL_SP + col_l);
+		};
 		//grp
 		sf::Sprite grp;
 		grp_tex.update(g.draw(sc).data());
@@ -430,18 +451,16 @@ void Visual::draw(sf::RenderWindow& w){
 		grp.setColor(sf::Color(0));
 		//grp prio=3
 		if (g.get_prio(sc) == 3){
-			bgsp_shader.setUniform("colbank", COL_GRP + col_l);
-			w.draw(grp, rs);
+//			bgsp_shader.setUniform("colbank", COL_GRP + col_l);
+			w.draw(grp, grp_state());
 		}
 		//sprites prio=3
-		rs.texture = &resource_tex[2 + sc + chr_l];
-		auto spr = s.draw(sc,3);
-		bgsp_shader.setUniform("colbank", COL_SP + col_l);
-		w.draw(spr, rs);
+		w.draw(s.draw(sc,3), sprite_state());
 		//bg
 		for (int l = 1; l >= 0; --l){
-			bgsp_shader.setUniform("colbank", COL_BG + col_l);
-			rs.texture = &resource_tex[1];
+			auto state = set_state(Tex::BGU_U + chr_l, COL_BG);
+//			bgsp_shader.setUniform("colbank", COL_BG + col_l);
+//			rs.texture = &resource_tex[1];
 			auto& bg = b.draw(sc, l);
 			auto pos = bg.getPosition();
 			pos.x = (int)pos.x & 0x1ff;
@@ -449,86 +468,47 @@ void Visual::draw(sf::RenderWindow& w){
 			pos.y += 192*sc;
 			if (pos.x > 0){
 				bg.setPosition(pos.x - 64*8, pos.y);
-				w.draw(bg, rs);
+				w.draw(bg, state);
 			}
 			if (pos.y > 192*sc){
 				bg.setPosition(pos.x, pos.y - 64*8);
-				w.draw(bg, rs);
+				w.draw(bg, state);
 			}
 			if (pos.x > 0 && pos.y > 0){
 				bg.setPosition(pos.x - 64*8, pos.y - 64*8);
-				w.draw(bg, rs);
+				w.draw(bg, state);
 			}
 			bg.setPosition(pos);
-			w.draw(bg, rs);
-			//sprites prio=2, graphics prio=2
-			if (l == 1){
-				if (g.get_prio(sc) == 2){
-					bgsp_shader.setUniform("colbank", COL_GRP + col_l);
-					w.draw(grp, rs);
-				}
-				
-				rs.texture = &resource_tex[2 + sc + chr_l];
-				spr = s.draw(sc,2);
-				bgsp_shader.setUniform("colbank", COL_SP + col_l);
-				w.draw(spr, rs);
+			w.draw(bg, state);
+			
+			// grp prio=2,1
+			if (g.get_prio(sc) == 1+l){
+				w.draw(grp, grp_state());
 			}
+			// sprite prio=2,1
+			w.draw(s.draw(sc,1+l), sprite_state());
 		}
-		//grp prio=1
-		if (g.get_prio(sc) == 1){
-			bgsp_shader.setUniform("colbank", COL_GRP + col_l);
-			w.draw(grp, rs);
+		
+		//console + panel console
+		auto console_state = set_state(BGF_U + chr_l, COL_BG + col_l);
+		auto& console = sc ? p.get_console().draw() : c.draw();
+		if (sc){
+			console.setPosition(sf::Vector2f{0,192});
 		}
-		//sprite prio=1
-		rs.texture = &resource_tex[2 + sc + chr_l];
-		spr = s.draw(sc,1);
-		bgsp_shader.setUniform("colbank", COL_SP + col_l);
-		w.draw(spr, rs);
-		//console
-		if (sc == 0){
-			rs.texture = &resource_tex[0 + chr_l];
-			auto& con = c.draw();
-			bgsp_shader.setUniform("colbank", COL_BG + col_l);
-			w.draw(con, rs);
-		} else {
-			rs.texture = &resource_tex[0 + chr_l];
-			auto& con = p.get_console().draw();
-			con.setPosition(sf::Vector2f{0,192});
-			bgsp_shader.setUniform("colbank", COL_BG + col_l);
-			w.draw(con, rs);
-		}
+		w.draw(console, console_state);
 		//grp prio=0
 		if (g.get_prio(sc) == 0){
-			bgsp_shader.setUniform("colbank", COL_GRP + col_l);
-			w.draw(grp, rs);
+			w.draw(grp, grp_state());
 		}
 		//sprite prio=0
-		rs.texture = &resource_tex[2 + sc + chr_l];
-		spr = s.draw(sc,0);
-		bgsp_shader.setUniform("colbank", COL_SP + col_l);
-		w.draw(spr, rs);
+		w.draw(s.draw(sc,0), sprite_state());
 	}
 	
 	if (p.panel_on()){
-		auto& pnl = p.draw_panel();
-		bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
-		rs.texture = &resource_tex[11];
-		w.draw(pnl, rs);
-		
-		auto keysp = p.draw_keyboard();
-		bgsp_shader.setUniform("colbank", COL_SP + 3.0f);
-		rs.texture = &resource_tex[10];
-		w.draw(keysp, rs);
-		
-		rs.texture = &resource_tex[6];
-		auto& con = p.draw_funckeys();
-		bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
-		w.draw(con, rs);
+		w.draw(p.draw_panel(), set_state(Tex::BGD_L, COL_BG_L));
+		w.draw(p.draw_keyboard(), set_state(Tex::SPD, COL_SP_L));
+		w.draw(p.draw_funckeys(), set_state(Tex::BGF_L, COL_BG_L));
 	}
-	
 	// icon probably draws over EVERYTHING so it's at the end
-	auto& icon = p.draw_icon();
-	bgsp_shader.setUniform("colbank", COL_BG + 3.0f);
-	rs.texture = &resource_tex[10];
-	w.draw(icon, rs);
+	w.draw(p.draw_icon(), set_state(Tex::SPD, COL_SP_L));
 }
