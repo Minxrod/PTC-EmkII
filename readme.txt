@@ -17,7 +17,7 @@ The current project has some amount of support for samples ENG1-ENG12, and ENG1G
 - Sample 3: Works.
 - Sample 4: Works.
 - Sample 5: Works.
-- Sample 6: Partially works, but suffers slowdown the more notes are played. (Also, no ICON = no eraser)
+- Sample 6: Partially works, but suffers slowdown the more notes are played.
 - Sample 7: Works.
 - Sample 8: Works.
 - Sample 9: Works.
@@ -28,7 +28,7 @@ The current project has some amount of support for samples ENG1-ENG12, and ENG1G
 - Game 2: Works, but input is slightly off (occasional double-inputs).
 - Game 3: Works.
 - Game 4: Works.
-- Game 5: Works, but graphics are broken currently.
+- Game 5: Works.
 - CHRED: Untested, likely broken.
 - SCRED: Untested, likely broken.
 - GRPED: Untested, likely broken.
@@ -94,7 +94,7 @@ You will be prompted to enter a filename when launching PTC-EmkII.
 = Execution options =
 
 -s = Disable sound system entirely. This also disables BGMCHK and the like, so is not recommended if your program needs this.
--d = Enable a simple debugger. Currently, lets you track simple variables.
+-d = Enable a simple debugger. Currently, lets you track simple variables, set breakpoints, and view CHR resource textures.
 -a = Enable automatic reload on program exit. When a PTC program ends, this will reload the startup loader program.
 
 = Debugger =
@@ -109,6 +109,7 @@ exit - Close the debugger window
 br line - Sets a breakpoint at line
 clear line - Removes a breakpoint at line
 c - Continue if program execution is paused from a breakpoint
+tex index - Displays the resource corresponding to the given index.
 
 Note that expressions are updated per-frame, not as values change. Also, note that functions, operations and variable access will work in these expressions, but that attempting to create a new variable is not currently supported and will likely crash due to thread-safety issues.
 
