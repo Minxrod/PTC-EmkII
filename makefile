@@ -7,8 +7,19 @@ BUILD = build/
 LIB = lib/
 INCLUDE = include/
 
+# (Windows) Modify SFML_PATH if you have a different installation location.
+SFML_PATH="C:/SFML-2.5.1/"
+SFML_INCLUDE=$(SFML_PATH)include/
+SFML_LIB=$(SFML_PATH)lib/
+
 CXX = g++
-OFLAGS = -std=c++17 -Wall -Werror -Wpedantic -Wextra -Wsuggest-override -MMD -I$(INCLUDE) -L$(LIB) -Wl,-rpath,./lib
+OFLAGS = -g -std=c++17 -Wall -Werror -Wpedantic -Wextra -Wsuggest-override -MMD -I$(INCLUDE) -L$(LIB) -Wl,-rpath,./lib
+
+# https://stackoverflow.com/questions/714100/os-detecting-makefile
+PLATFORM:=$(shell g++ -dumpmachine)
+ifeq ($(PLATFORM),mingw32)
+	OFLAGS += -I$(SFML_INCLUDE) -L$(SFML_LIB)
+endif
 
 # https://stackoverflow.com/questions/24096807/dso-missing-from-command-line
 CXXFLAGS = $(OFLAGS) -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -lpthread -lSSEQPlayer
@@ -17,13 +28,13 @@ OBJECTS = main.o Evaluator.o Vars.o Tokens.o Variables.o md5.o Resources.o FileL
 objs = $(OBJECTS:%=$(BUILD)%)
 
 ptc: $(objs)
-	$(CXX) -g -o ptc $(objs) $(CXXFLAGS)
+	$(CXX) -o ptc $(objs) $(CXXFLAGS)
 
 $(BUILD)main.o: $(SOURCE)main.cpp
-	$(CXX) $(CXXFLAGS) -g -c $< -o $@
+	$(CXX) $(CXXFLAGS) -c $< -o $@
 
 $(BUILD)%.o: $(SOURCE)%.cpp
-	$(CXX) $(OFLAGS) -g -c $< -o $@
+	$(CXX) $(OFLAGS) -c $< -o $@
 
 .PHONY: clean
 clean:
