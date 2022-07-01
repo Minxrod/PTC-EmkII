@@ -309,16 +309,15 @@ void Background::bgfill_(const Args& a){
 
 #include <sstream>
 #include <iomanip>
-//https://stackoverflow.com/questions/5100718/integer-to-hex-string-in-c
 /// Convert a 16 bit number to hex.
 /// 
-/// @param i number to convert
+/// @param num number to convert
 /// @return Hex string of number
-std::string u16_to_hex( int i )
+std::string u16_to_hex(int num)
 {
-	std::stringstream stream;
-	stream << std::setfill ('0') << std::setw(4) << std::hex << i;
-	return stream.str();
+	std::stringstream ss;
+	ss << std::uppercase << std::hex << std::setfill('0') << std::setw(4) << num;
+	return ss.str();
 }
 
 /// PTC command to read a tile from the BG page

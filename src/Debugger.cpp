@@ -13,6 +13,26 @@ void DebugConsole::draw(sf::RenderTarget& target, sf::RenderStates rs) const {
 	target.draw(tm, rs);
 }
 
+Debugger::DebugWindow::DebugWindow(Debugger* d, sf::Texture& t) : sf::RenderWindow{sf::VideoMode(t.getSize().x, t.getSize().y), "Debugger"}, debugger{d} {
+	spr.setTexture(t);
+	spr.setColor(sf::Color(0,0,0));
+}
+
+void Debugger::DebugWindow::update(){
+	sf::Event event;
+	while (isOpen() && pollEvent(event))
+	{
+		if (event.type == sf::Event::Closed){
+			close();
+		}
+	}
+	
+	clear(sf::Color(32,8,128));
+	sf::RenderWindow::draw(spr, debugger->visual->set_state(0, 0.1f));
+	display();
+}
+
+
 Debugger::Debugger(PTCSystem* ptc) : window{sf::VideoMode(256, 192), "Debugger"} {
 	window.setSize(sf::Vector2u{512,384});
 	program = ptc->get_program();
@@ -38,6 +58,9 @@ void Debugger::update(){
 	{
 		if (event.type == sf::Event::Closed){
 			window.close();
+			if (texture_window){
+				texture_window->close();
+			}
 			return; //nothing more to be done
 		}
 		//TODO: maybe replace with TextEntered?
@@ -84,6 +107,17 @@ void Debugger::update(){
 		} else if (cmd("close", command) || cmd("exit", command)){
 			window.close();
 			return;
+		} else if (cmd("tex", command)){
+			try {
+				auto index = std::stoi(arg(command));
+				if (index == 4 || index == 8){
+					throw std::out_of_range{"Undefined texture"};
+				}
+				auto& tex = visual->resource_tex.at(index);
+				texture_window = std::make_unique<DebugWindow>(this, tex);
+			} catch (std::out_of_range& e){
+				feedback = "Invalid texture index";
+			}
 		} else {
 			feedback = "Unrecognized command";
 			/*
@@ -146,4 +180,8 @@ void Debugger::update(){
 	window.draw(console, rs);
 	
 	window.display();
+	
+	if (texture_window){
+		texture_window->update();
+	}
 }

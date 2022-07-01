@@ -3,6 +3,8 @@
 #include "Vars.hpp"
 #include <cmath>
 #include <random>
+#include <sstream>
+#include <iomanip>
 
 std::random_device rd{};
 std::minstd_rand random_lcg{std::uniform_int_distribution<unsigned int>(0,524287)(rd)};
@@ -287,22 +289,12 @@ namespace ptc {
 			if (digits > 5 || digits < 1)
 				throw std::runtime_error{"Out of range (HEX$)"};
 		}
+		std::stringstream ss;
+		ss << std::uppercase << std::hex << std::setfill('0') << std::setw(digits) << num;
 		
-		std::string digit_str{"0123456789ABCDEF"};
-		std::string result{};
-		if (num == 0)
-			result = "0";
-		else if (num == -1)
-			result = "fffff";
-		while (num != 0 && num != -1){
-			result = digit_str[num & 0x0f] + result;
-			num >>= 4;
-		}
-		if (digits && (int)result.size() > digits)
+		if (digits && (int)ss.str().size() > digits)
 			throw std::runtime_error{"Illegal function call (HEX$)"};
-		if (digits)
-			result = "00000" + result;
-		return result.substr(result.size()-digits);
+		return ss.str();
 	}
 	
 	Var pow(const Vals& vals){

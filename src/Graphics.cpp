@@ -464,7 +464,8 @@ Var Graphics::gspoit_(const Vals& v){
 	
 //	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
 	
-	return Var(static_cast<Number>(image[drawpage[screen]].at(4*(x+256*y))));
+	auto r = Var(static_cast<Number>(image[drawpage[screen]].at(4*(x+256*y))));
+	return r;
 }
 
 void Graphics::reset(){

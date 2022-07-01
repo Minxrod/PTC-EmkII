@@ -44,6 +44,25 @@ public:
 /// Runs in sync with (immediately after) PTCSystem in current implementation.
 /// Offers basic debugging tools like breakpoints and tracking variables
 class Debugger {
+	/// Debug window for viewing textures easily.
+	class DebugWindow : public sf::RenderWindow {
+		/// Parent object
+		Debugger* debugger;
+		/// Sprite for rendering texture
+		sf::Sprite spr{};
+		
+	public:
+		/// Constructor
+		/// 
+		/// @param d Pointer to containing Debugger
+		/// @param t Texture to display
+		DebugWindow(Debugger* d, sf::Texture& t);
+		
+		/// Checks for window close events and draws the window.
+		void update();
+		
+	};
+	
 	/// Evaluator object
 	std::shared_ptr<Evaluator> evaluator;
 	/// Resources object
@@ -61,6 +80,8 @@ class Debugger {
 	sf::RenderWindow window;
 	/// Where debug information is printed to
 	DebugConsole console;
+	/// Where textures are rendered to
+	std::unique_ptr<DebugWindow> texture_window{nullptr};
 	
 	/// Determines whether or not the command will be executed.
 	bool submit = false;
