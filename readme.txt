@@ -4,7 +4,7 @@ PTC Interpreter, attempt two!
 
 This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC programs on PC. The end goal is to support all commands and functions that are usable from programs. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLSET bug/crash will not work the same.
 
-Please note that this is heavily a WIP and nowhere near finished, so don't expect anything to work.
+Please note that this is heavily a WIP and nowhere near finished, so don't be surprised if something breaks.
 
 == Support ==
 
@@ -69,8 +69,6 @@ $ cd PTC-EmkII
 $ mkdir build/
 $ mingw32-make
 
-Note that Windows versions of some setup tools and scripts are not yet provided; they will be added "soon"
-
 = Documentation =
 
 To build the documentation, install doxygen and use
@@ -83,10 +81,22 @@ $ doxygen doxyconfig
 Place a PTC .nds file in the resources/ directory, then run
 
 $ cd resources/
-$ ./nds_extract
+$ ./nds_extract <ptc_file>.nds
 
 This should automatically extract all required graphics and sound resources to the correct locations. Note that if you put more than one .nds in the resources directory, it will not work.
-This has only been tested on Debian 11. It is currently UNTESTED on other machines; I do not know if the copy of ndstool or sdatxtract provided will work. If it does not, see the Tools link below and compile/download the binaries yourself, and replace the copies in resources/tools/.
+
+If the precompiled versions of ndstool or sdatxtract do not work, see the Tools link below and compile/download the binaries yourself, and replace the copies in resources/tools/.
+
+= Windows setup =
+
+Place a PTC .nds file in the resources/ directory, then run
+
+$ cd resources/
+$ nds_extract.bat <ptc_file>.nds
+
+The current iteration of this script is untested; this may not work.
+
+If the precompiled versions of ndstool or sdatxtract do not work, see the Tools link below and compile/download the binaries yourself, and replace the copies in resources/tools/.
 
 Put any PTC files you want to run or load in the programs/ folder. This includes resources, such as CHR or GRP files.
 You will be prompted to enter a filename when launching PTC-EmkII.

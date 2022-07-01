@@ -25,7 +25,7 @@ move %EXTRACT_PATH%*.NCLR ui\
 
 echo "Moving sample programs..."
 for /F %f in (%EXTRACT_PATH%*.PRG) do (
-	python3 tools/txt_to_ptc.py %f
+	python tools/txt_to_ptc.py %f
 )
 move *.PTC ..\programs\
 
