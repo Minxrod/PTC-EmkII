@@ -9,4 +9,7 @@ elif [ $# -ge 3 ]; then
 fi
 
 ./resources/tools/txt_to_ptc.py $1
-mv $1.PTC ${2:-programs/}
+# https://stackoverflow.com/questions/125281/how-do-i-remove-the-file-suffix-and-path-portion-from-a-path-string-in-bash
+nosuffix=${1%.*}
+nopath=${nosuffix##*/}
+mv ${nopath}.PTC ${2:-programs/}

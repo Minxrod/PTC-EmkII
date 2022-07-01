@@ -6,15 +6,11 @@ PTC_PRG_TYPE = b"PETC0300RPRG"
 PRG_EXTRA_HEADER_SIZE = 0x0c
 
 def as_u32(number, pad=False):
-	# also can doe padding to multiple of 4
-	bstr = b""
+	# also can do padding to multiple of 4
 	if (pad):
 		pad = (4 - (number % 4) if number % 4 else 0)
 	number += pad
-	for i in range(0,4):
-		bstr += chr(number % 256).encode()
-		number >>= 8
-	return bstr
+	return number.to_bytes(4, byteorder="little")
 
 def write_program(ptc_file, filename, data):
 	# See https://petitcomputer.fandom.com/wiki/PTC_File_Formats for header deatils
@@ -44,12 +40,15 @@ def write_program(ptc_file, filename, data):
 	# Contents
 	ptc_file.write(data)
 	
-filename = sys.argv[1] # source
-output = sys.argv[2] if len(sys.argv) > 2 else filename.replace("\\","/").split("/")[-1][:8]
-
-# read original file
-with open(filename,'rb') as f:
-	data = f.read()
-# convert and add .PTC to name
-with open(filename+".PTC",'wb') as f:
-	write_program(f, filename, data)
+if __name__ == "__main__":
+	filename = sys.argv[1] # source
+	output = sys.argv[2] if len(sys.argv) > 2 else filename.replace("\\","/").split("/")[-1].split(".")[0][:8]
+	
+	# read original file
+	with open(filename,'rb') as f:
+		if ".PRG" in filename:
+			f.read(0x18) # skip useless PRG header info
+		data = f.read()
+	# convert and add .PTC to name
+	with open(output+".PTC",'wb') as f:
+		write_program(f, output, data)
