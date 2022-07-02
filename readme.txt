@@ -77,6 +77,12 @@ $ cd PTC-EmkII
 $ mkdir build/
 $ mingw32-make
 
+Additionally, you will need to move the relevant .dll files to the project root. You can find these in your SFML installation, in the bin folder.
+If you used the default directory, you can use the following commands:
+
+$ cp C:\SFML-2.5.1\bin\* .
+$ cp lib\SSEQPlayer.dll .
+
 = Documentation =
 
 To build the documentation, install doxygen and use
