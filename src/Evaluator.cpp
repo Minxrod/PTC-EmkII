@@ -16,7 +16,7 @@
 #include <stack>
 
 Evaluator::Evaluator(){
-	operators = std::map{
+	operators = std::map<Token, op_func>{
 		op_map{"+"_TO, ptc::add},
 		op_map{"-"_TO, ptc::sub},
 		op_map{"0-"_TO, ptc::neg},
@@ -40,14 +40,14 @@ Evaluator::Evaluator(){
 }
 
 std::map<Token, cmd_type> Evaluator::get_cmds() {
-	return std::map{
+	return std::map<Token, cmd_type>{
 		cmd_map("DTREAD"_TC, getfunc(this, &Evaluator::dtread_)),
 		cmd_map("TMREAD"_TC, getfunc(this, &Evaluator::tmread_))
 	};
 }
 	
 std::map<Token, op_func> Evaluator::get_funcs() {
-	return std::map{
+	return std::map<Token, op_func>{
 		func_map{"SIN"_TF, ptc::sin},
 		func_map{"COS"_TF, ptc::cos},
 		func_map{"TAN"_TF, ptc::tan},
