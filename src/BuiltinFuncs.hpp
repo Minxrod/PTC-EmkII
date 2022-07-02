@@ -293,13 +293,13 @@ namespace ptc {
 		std::stringstream ss;
 		ss << std::uppercase
 		   << std::hex
-		   << std::setfill(num >= 0 ? '0' : 'f')
+		   << std::setfill(num >= 0 ? '0' : 'F')
 		   << std::setw(digits)
 		   << num;
 		
 		if (digits && (num >= (1 << (4*digits-1)) || num < -(1 << (4*digits-1))))
 			throw std::runtime_error{"Illegal function call (HEX$)"};
-		return ss.str().substr(ss.str().size()-digits,digits);
+		return digits ? ss.str().substr(ss.str().size()-digits,digits) : ss.str();
 	}
 	
 	Var pow(const Vals& vals){

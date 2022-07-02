@@ -47,4 +47,9 @@ public:
 	void reset();
 	void update();
 	SpriteArray draw(int, int);
+	
+	/// Gets the current sprite screen.
+	/// 
+	/// @return Current sprite page.
+	int get_page() { return page; }
 };

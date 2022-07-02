@@ -22,7 +22,12 @@ struct Resources{
 	const static std::vector<std::string> grp_resources;
 	/// All valid full names for SCR resources.
 	const static std::vector<std::string> scr_resources;
-
+	
+	/// Current BG page
+	int bgpage = 0;
+	/// Current sprite page
+	int sppage = 0;	
+	
 	//should contain all required resources
 	/// Program header
 	Header prg_info;
@@ -70,8 +75,10 @@ struct Resources{
 	/// Example: BGU0 -> BGU0U
 	///
 	/// @param type Type to convert
+	/// @param bg Current BG screen
+	/// @param sp Current sprite screen
 	/// @return Full type
-	std::string normalize_type(std::string type);
+	std::string normalize_type(std::string type, int bg = 0, int sp = 0);
 };
 
 /// Function to load data into a resource type.

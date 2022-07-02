@@ -125,7 +125,7 @@ void Background::bgpage_(const Args& a){
 
 /// PTC command to clear the BG screen.
 /// 
-/// Format: `BGPAGE [layer]`
+/// Format: `BGCLR [layer]`
 /// 
 /// Arguments:
 /// * layer: Layer to clear. If omitted, clears both layers.

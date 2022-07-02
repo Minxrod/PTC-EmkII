@@ -159,13 +159,7 @@ void Visual::vsync_(const Args& a){
 void Visual::chrinit_(const Args& a){
 	//CHRINIT resource
 	String res = std::get<String>(e.evaluate(a[1]));
-	if (res.size() == 3){
-		res += "0"; //CHRINIT "BGU" initializes BGU0 apparently
-	}
-	if (res.size() == 4){
-		if (res.substr(0,3) != "SPU" && res.substr(0,3) != "SPD")
-			res += "U"; //default resources are upper screen
-	}
+	res = r.normalize_type(res, b.get_page(), s.get_page());
 	std::string path = "resources/graphics/"+res.substr(0,4)+".PTC";
 	load_default(r.chr.at(res), path);
 	//needs to regen textures
@@ -186,7 +180,7 @@ void Visual::chrinit_(const Args& a){
 void Visual::chrset_(const Args& a){
 	auto resource_type = std::get<String>(e.evaluate(a[1]));
 	int chr_id = std::get<Number>(e.evaluate(a[2]));
-	resource_type = r.normalize_type(resource_type);
+	resource_type = r.normalize_type(resource_type, b.get_page(), s.get_page());
 	auto& chr_resource = r.chr.at(resource_type);
 	std::string chr_data = std::get<String>(e.evaluate(a[3]));
 	
@@ -293,7 +287,7 @@ void Visual::colset_(const Args& a){
 	if (res == "GRP"){res = "COL2";}
 	
 	//force captials
-	for (auto& d : data){
+	for (auto& d : data){ //TODO: Remove this? Might be invalid argument
 		d = d >= 'a' ? d - 'a' + 'A' : d;
 	}
 	
@@ -357,8 +351,6 @@ void Visual::acls_(const Args&){
 }
 
 /// PTC command to load from a file.
-/// @note This is currently located in Visual due to needing to often
-/// regenerate COL or CHR resource textures, but will likely be moved.
 /// @note Dialog is not implemented, so the silent flag is currently ignored.
 /// 
 /// Format: 
@@ -375,7 +367,7 @@ void Visual::load_(const Args& a){
 	auto type = info.substr(0,info.find(":"));
 	auto name = info.substr(info.find(":")+1);
 	
-	type = r.normalize_type(type);
+	type = r.normalize_type(type, b.get_page(), s.get_page());
 	r.load(type, name);
 	if (std::find(r.chr_resources.begin(), r.chr_resources.end(), type) != r.chr_resources.end()){
 		regen_chr(type);
@@ -387,7 +379,6 @@ void Visual::load_(const Args& a){
 }
 
 /// PTC command to save to a file.
-/// @note This will likely be moved later, same as `LOAD`.
 /// @warning Only MEM save is currently implemented.
 /// 
 /// Format: 
@@ -402,7 +393,7 @@ void Visual::save_(const Args& a){
 	auto type = info.substr(0,info.find(":"));
 	auto name = info.substr(info.find(":")+1);
 	
-	type = r.normalize_type(type);
+	type = r.normalize_type(type, b.get_page(), s.get_page());
 	
 	if (type == "MEM"){
 		auto mem = *std::get<String*>(e.vars.get_var_ptr("MEM$"));

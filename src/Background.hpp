@@ -89,4 +89,7 @@ public:
 	/// @param layer Layer (0=foreground, 1=background)
 	/// @return Tilemap for the screen and layer.
 	TileMap& draw(int screen, int layer);
+	
+	/// Gets the current BG page.
+	int get_page() { return page; }
 };

@@ -68,6 +68,7 @@ struct Visual : public IPTCObject {
 	void colinit_(const Args&);
 	void colset_(const Args&);
 	void colread_(const Args&);
+	
 	void acls_(const Args&);
 	void cls_(const Args&);
 	void save_(const Args&);
