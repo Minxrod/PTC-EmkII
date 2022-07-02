@@ -282,7 +282,8 @@ namespace ptc {
 	}
 	
 	Var hex(const Vals& vals){
-		int num = std::get<Number>(vals.at(0));
+		int num = static_cast<int>(std::get<Number>(vals.at(0)));
+//		unsigned int unum = static_cast<unsigned int>(num) & 0x0fffff;
 		int digits = 0;
 		if (vals.size() == 2){
 			digits = std::get<Number>(vals.at(1));
@@ -290,11 +291,15 @@ namespace ptc {
 				throw std::runtime_error{"Out of range (HEX$)"};
 		}
 		std::stringstream ss;
-		ss << std::uppercase << std::hex << std::setfill('0') << std::setw(digits) << num;
+		ss << std::uppercase
+		   << std::hex
+		   << std::setfill(num >= 0 ? '0' : 'f')
+		   << std::setw(digits)
+		   << num;
 		
-		if (digits && (int)ss.str().size() > digits)
+		if (digits && (num >= (1 << (4*digits-1)) || num < -(1 << (4*digits-1))))
 			throw std::runtime_error{"Illegal function call (HEX$)"};
-		return ss.str();
+		return ss.str().substr(ss.str().size()-digits,digits);
 	}
 	
 	Var pow(const Vals& vals){
