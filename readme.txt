@@ -47,6 +47,12 @@ The current project has some amount of support for samples ENG1-ENG12, and ENG1G
 
 == Building ==
 
+Requirements: 
+* SFML 2.5.1
+* g++ supporting c++17 (c++1z may work as well, with some effort)
+* make or something compatible
+* Python 3 (for extraction scripts, technically optional if you manually perform the extraction)
+
 = Linux =
 
 Clone this repo, then create a build directory named "build/" in the root of the repo. Ensure you have SFML installed, and run make. It should work (currently untested on other machines).
@@ -60,14 +66,22 @@ $ make
 
 = Windows =
 
-Instructions should be roughly the same as linux, but will require a few modifications to the makefile. It is expected you have git installed and accessible from the command line.
-You will need to add an SFML installation to your path, and it is suggested you use the version with MinGW 32-bit linked from https://www.sfml-dev.org/download/sfml/2.5.1/
+Instructions should be roughly the same as linux, but may require some modifications to the makefile. It is expected you have git installed and accessible from the command line.
+It is suggested you use the version with MinGW 7.3.0 32-bit linked from https://www.sfml-dev.org/download/sfml/2.5.1/, as it is known to work.
+
+If you install SFML to a location other than C:/SFML-2.5.1/, modify the SFML_PATH variable in the makefile to reflect this.
 
 Then, the instructions should be similar to
 $ git clone https://github.com/Minxrod/PTC-EmkII.git
 $ cd PTC-EmkII
 $ mkdir build/
 $ mingw32-make
+
+Additionally, you will need to move the relevant .dll files to the project root. You can find these in your SFML installation, in the bin folder.
+If you used the default directory, you can use the following commands:
+
+$ cp C:\SFML-2.5.1\bin\* .
+$ cp lib\SSEQPlayer.dll .
 
 = Documentation =
 
@@ -93,8 +107,6 @@ Place a PTC .nds file in the resources/ directory, then run
 
 $ cd resources/
 $ nds_extract.bat <ptc_file>.nds
-
-The current iteration of this script is untested; this may not work.
 
 If the precompiled versions of ndstool or sdatxtract do not work, see the Tools link below and compile/download the binaries yourself, and replace the copies in resources/tools/.
 

@@ -2,6 +2,7 @@
 
 #include <string>
 #include <vector>
+#include <cstddef>
 
 /// Tokenization types (What a given string will be used for/is)
 enum class Type { Num, Str, Arr, Var, Op, Func, Cmd, Newl, Rem, Label, Internal};
@@ -30,9 +31,9 @@ typedef const std::vector<Expr>& Args;
 bool operator<(const Token& a, const Token& b);
 bool operator<(const PrioToken& a, const PrioToken& b);
 bool operator==(const Token& a, const Token& b);
-Token operator""_TO(const char*, long unsigned int);
-Token operator""_TF(const char*, long unsigned int);
-Token operator""_TC(const char*, long unsigned int);
+Token operator""_TO(const char*, std::size_t);
+Token operator""_TF(const char*, std::size_t);
+Token operator""_TC(const char*, std::size_t);
 
 //debug
 #include <iostream>

@@ -3,7 +3,7 @@
 #include <cmath>
 
 Sprites::Sprites(Evaluator& ev) : e{ev}{
-	sprites = std::vector{2, std::vector{100, SpriteInfo{}}};
+	sprites = std::vector<std::vector<SpriteInfo>>{2, std::vector<SpriteInfo>{100, SpriteInfo{}}};
 }
 
 std::map<Token, cmd_type> Sprites::get_cmds(){
@@ -79,7 +79,7 @@ void Sprites::spset_(const Args& a){
 void Sprites::spclr_(const Args& a){
 	//SPCLR [id]
 	if (a.size() == 1){
-		sprites[page] = std::vector{100, SpriteInfo{}};
+		sprites[page] = std::vector<SpriteInfo>{100, SpriteInfo{}};
 	} else {
 		auto id = std::get<Number>(e.evaluate(a[1]));
 		sprites[page][id] = SpriteInfo{};
@@ -313,8 +313,8 @@ Var Sprites::sphitrc_(const Vals&){
 }
 
 void Sprites::reset(){
-	sprites[0] = std::vector{100, SpriteInfo{}};
-	sprites[1] = std::vector{100, SpriteInfo{}};
+	sprites[0] = std::vector<SpriteInfo>{100, SpriteInfo{}};
+	sprites[1] = std::vector<SpriteInfo>{100, SpriteInfo{}};
 }
 
 void Sprites::update(){
