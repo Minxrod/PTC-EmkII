@@ -20,17 +20,17 @@ namespace ptc {
 		if (vals.at(0).index() != vals.at(1).index())
 			throw std::runtime_error{"mismatched types for binary operator >:("};
 	}
-
+	
 	auto get_nums(const std::vector<Var>& vals){
 		std::pair<Number, Number> nums {
 			std::get<Number>(vals.at(0)), std::get<Number>(vals.at(1))
 		};
 		return nums;
 	}
-
+	
 	Var add(const std::vector<Var>& vals){
 		require_same(vals);
-
+		
 		if (is_type<Number>(vals.at(0))){
 			auto [n1, n2] = get_nums(vals);;
 					
@@ -40,10 +40,10 @@ namespace ptc {
 			auto s1 = std::get<String>(vals.at(0));
 			auto s2 = std::get<String>(vals.at(1));
 			
-			return Var(s1 + s2);	
+			return Var(s1 + s2);
 		}
 	}
-
+	
 	Var sub(const std::vector<Var>& vals){
 		auto [n1, n2] = get_nums(vals);
 			
@@ -282,7 +282,7 @@ namespace ptc {
 	}
 	
 	Var hex(const Vals& vals){
-		int num = static_cast<int>(std::get<Number>(vals.at(0)));
+		int num = std::floor(std::get<Number>(vals.at(0)));
 //		unsigned int unum = static_cast<unsigned int>(num) & 0x0fffff;
 		int digits = 0;
 		if (vals.size() == 2){
@@ -297,9 +297,15 @@ namespace ptc {
 		   << std::setw(digits)
 		   << num;
 		
-		if (digits && (num >= (1 << (4*digits-1)) || num < -(1 << (4*digits-1))))
+		if (digits && (num >= (1 << (4*digits)) || num < -(1 << (4*digits-1))))
 			throw std::runtime_error{"Illegal function call (HEX$)"};
-		return digits ? ss.str().substr(ss.str().size()-digits,digits) : ss.str();
+		
+		if (!digits){
+			auto str = ss.str();
+			return str.substr(str.size() < 5 ? 0 : str.size() - 5, 5);
+		} else {
+			return ss.str().substr(ss.str().size()-digits,digits);
+		}
 	}
 	
 	Var pow(const Vals& vals){
