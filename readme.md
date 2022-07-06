@@ -57,7 +57,10 @@ $ cp lib\SSEQPlayer.dll .
 ## Documentation
 
 To build the documentation, install doxygen and use
-```doxygen doxyconfig```
+```
+doxygen doxyconfig
+```
+
 Note that this is only documentation for the source code, and it is not yet complete.
 
 # Usage
