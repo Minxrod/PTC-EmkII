@@ -146,12 +146,8 @@ void Program::call_cmd(Token instr, const Args& chunks){
 	commands.at(instr)(chunks);
 }
 
-//#include <valgrind/callgrind.h>
 
-void Program::run_(){
-//	CALLGRIND_START_INSTRUMENTATION;
-//	CALLGRIND_TOGGLE_COLLECT;
-	
+void Program::run_(){	
 	while (auto_reload || !at_eof()){
 		current = tokens.begin();
 		std::cout << "\nbegin run\n" << std::endl;
@@ -207,8 +203,6 @@ void Program::run_(){
 			loader(); 
 		}
 	}
-//	CALLGRIND_TOGGLE_COLLECT;
-//	CALLGRIND_STOP_INSTRUMENTATION;
 }
 
 void Program::run(){

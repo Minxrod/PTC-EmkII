@@ -45,9 +45,9 @@ struct Visual : public IPTCObject {
 	/// Determines which components are visible. (Currently ignored)
 	bool visible[6]; //CON, PNL, FG, BG, SP, GRP
 	/// Frames since launching, lower half
-	Number* maincntl;
+	volatile Number* maincntl;
 	/// Frames since launching, upper half (currently unimplemented)
-	Number* maincnth;
+	volatile Number* maincnth;
 	
 	/// Shader to handle rendering textures with palette.
 	sf::Shader bgsp_shader;

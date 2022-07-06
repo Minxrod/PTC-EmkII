@@ -362,6 +362,12 @@ SpriteArray Sprites::draw(int page, int prio){
 	SpriteArray sa{};
 	for (auto& spr : sprites[page]){
 		if (spr.active && spr.prio == prio){
+			if (spr.pos.y <= -spr.h + spr.home_y ||
+			    spr.pos.x <= -spr.w + spr.home_x ||
+			    spr.pos.y >= 192 + spr.home_y||
+			    spr.pos.x >= 256 + spr.home_x){
+				continue;
+			}
 			spr.pos.y += page * 192;
 			sa.add_sprite(spr);
 			spr.pos.y -= page * 192;

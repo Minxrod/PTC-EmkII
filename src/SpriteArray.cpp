@@ -1,7 +1,8 @@
 #include "SpriteArray.hpp"
 #include <cmath>
 
-SpriteArray::SpriteArray() {}
+SpriteArray::SpriteArray() {
+}
 
 //reads from a CHR resource
 sf::Vector2f chr_texCoords2(int chr, int xofs = 0, int yofs = 0){

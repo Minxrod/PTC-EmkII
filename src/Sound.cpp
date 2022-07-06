@@ -78,7 +78,7 @@ void Sound::bgmplay_(const Args& a){
 	if (std::holds_alternative<Number>(arg1)){
 		// BGMPLAY [track] <song> [volume]
 		int track = 0;
-		int song;
+		int song = -1;
 		double volume = 100.0; // assumed default?
 		
 		if (a.size() == 2){ 
@@ -88,8 +88,7 @@ void Sound::bgmplay_(const Args& a){
 			// BGMPLAY <track> <song>
 			track = std::get<Number>(arg1);
 			song = std::get<Number>(e.evaluate(a[2]));
-		}
-		if (a.size() == 4){
+		} else if (a.size() == 4){
 			// BGMPLAY <track> <song> <volume>
 			volume = std::get<Number>(e.evaluate(a[3])) / 127.0 * 100.0;
 		} else if (a.size() > 4){

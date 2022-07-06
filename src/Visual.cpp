@@ -1,6 +1,8 @@
 #include "Visual.hpp"
 #include "Vars.hpp"
 
+#include <thread>
+
 const float COL_BG = 0.1;
 const float COL_SP = 1.1;
 const float COL_GRP = 2.1;
@@ -144,6 +146,8 @@ void Visual::vsync_(const Args& a){
 	
 	while (*maincntl < wait_until){
 		//?? idk;
+		//https://stackoverflow.com/questions/7083482/how-to-prevent-gcc-from-optimizing-out-a-busy-wait-loop
+		std::this_thread::yield();
 	}
 }
 
