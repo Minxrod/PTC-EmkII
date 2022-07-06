@@ -25,10 +25,10 @@ If you don't have SFML installed, go here first: https://www.sfml-dev.org/tutori
 
 Commands will probably look something like this:
 ```
-$ git clone https://github.com/Minxrod/PTC-EmkII.git
-$ cd PTC-EmkII
-$ mkdir build/
-$ make
+git clone https://github.com/Minxrod/PTC-EmkII.git
+cd PTC-EmkII
+mkdir build/
+make
 ```
 
 ## Windows
@@ -40,18 +40,18 @@ If you install SFML to a location other than C:/SFML-2.5.1/, modify the SFML_PAT
 
 Then, the instructions should be similar to
 ```
-$ git clone https://github.com/Minxrod/PTC-EmkII.git
-$ cd PTC-EmkII
-$ mkdir build/
-$ mingw32-make
+git clone https://github.com/Minxrod/PTC-EmkII.git
+cd PTC-EmkII
+mkdir build/
+mingw32-make
 ```
 
 Additionally, you will need to move the relevant .dll files to the project root. You can find these in your SFML installation, in the bin folder.
 If you used the suggested installation folder, you can use the following commands:
 
 ```
-$ cp C:\SFML-2.5.1\bin\* .
-$ cp lib\SSEQPlayer.dll .
+cp C:\SFML-2.5.1\bin\* .
+cp lib\SSEQPlayer.dll .
 ```
 
 ## Documentation
@@ -69,8 +69,8 @@ Note that this is only documentation for the source code, and it is not yet comp
 
 Place a PTC .nds file in the resources/ directory, then run
 ```
-$ cd resources/
-$ ./nds_extract <ptc_file>.nds
+cd resources/
+./nds_extract <ptc_file>.nds
 ```
 
 This should automatically extract all required graphics and sound resources to the correct locations. Note that if you put more than one .nds in the resources directory, it will not work.
@@ -81,8 +81,8 @@ If the precompiled versions of ndstool or sdatxtract do not work, see the Tools 
 
 Place a PTC .nds file in the resources/ directory, then run
 ```
-$ cd resources/
-$ nds_extract.bat <ptc_file>.nds
+cd resources/
+nds_extract.bat <ptc_file>.nds
 ```
 
 If the precompiled versions of ndstool or sdatxtract do not work, see the Tools link below and compile/download the binaries yourself, and replace the copies in resources/tools/.
@@ -90,7 +90,7 @@ If the precompiled versions of ndstool or sdatxtract do not work, see the Tools 
 Put any PTC files you want to run or load in the programs/ folder. This includes resources, such as CHR or GRP files.
 You will be prompted to enter a filename when launching PTC-EmkII.
 
-# Execution options
+## Execution options
 
 * -s Disable sound system entirely. This also disables BGMCHK and the like, so is not recommended if your program needs this.
 * -d Opens a debugger immediately after starting.
