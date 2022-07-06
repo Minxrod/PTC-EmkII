@@ -85,7 +85,7 @@ std::map<Token, cmd_type> Visual::get_cmds(){
 		cmd_map("CHRREAD"_TC, getfunc(this, &Visual::chrread_)),
 		cmd_map("COLINIT"_TC, getfunc(this, &Visual::colinit_)),
 		cmd_map("COLSET"_TC, getfunc(this, &Visual::colset_)),
-//		cmd_map("COLREAD"_TC, getfunc(this, &Visual::colread_)),
+		cmd_map("COLREAD"_TC, getfunc(this, &Visual::colread_)),
 		cmd_map("ACLS"_TC, getfunc(this, &Visual::acls_)),
 		cmd_map("CLS"_TC, getfunc(this, &Visual::cls_)),
 		cmd_map("LOAD"_TC, getfunc(this, &Visual::load_)),
@@ -285,21 +285,18 @@ void Visual::colset_(const Args& a){
 	if (res == "BG"){res = "COL0";}
 	if (res == "SP"){res = "COL1";}
 	if (res == "GRP"){res = "COL2";}
+	res = r.normalize_type(res, b.get_page(), s.get_page(), g.get_page());
 	
-	//force captials
-	for (auto& d : data){ //TODO: Remove this? Might be invalid argument
-		d = d >= 'a' ? d - 'a' + 'A' : d;
-	}
+	const std::string digits = "0123456789ABCDEF";
 	
-	int rd = ((data[0] << 4) + data[1]);
-	int g = ((data[2] << 4) + data[3]);
-	int b = ((data[4] << 4) + data[5]);
+	int rd = ((digits.find(data[0]) << 4) + digits.find(data[1]));
+	int g = ((digits.find(data[2]) << 4) + digits.find(data[3]));
+	int b = ((digits.find(data[4]) << 4) + digits.find(data[5]));
 	
-	r.col.at(res+"U").set_col(c, rd, g, b);
+	r.col.at(res).set_col(c, rd, g, b);
 }
 
 /// PTC command to read a color.
-/// @warning Unimplemented.
 /// 
 /// Format: 
 /// * `COLREAD(resource,color),r,g,b`
@@ -312,8 +309,32 @@ void Visual::colset_(const Args& a){
 /// * b: Variable to write blue component
 /// 
 /// @param a Arguments
-void Visual::colread_(const Args&){
+void Visual::colread_(const Args& a){
+	// COLREAD (resource color) r g b
+	auto a_ = a[1]; //copy so args are not modified
+	//remove parens
+	a_.erase(a_.begin());
+	a_.erase(a_.end()-1);
 	
+	auto args = split(a_);
+	
+	auto res = std::get<String>(e.evaluate(args[0]));
+	int col_id = std::get<Number>(e.evaluate(args[1]));
+	
+	if (res == "BG"){res = "COL0";}
+	if (res == "SP"){res = "COL1";}
+	if (res == "GRP"){res = "COL2";}
+	res = r.normalize_type(res, b.get_page(), s.get_page(), g.get_page());
+	
+	auto& col_resource = r.col.at(res);
+	
+	auto red = col_resource.get_col_r(col_id);
+	auto green = col_resource.get_col_g(col_id);
+	auto blue = col_resource.get_col_b(col_id);
+	
+	e.assign(a[2], Token{std::to_string(red), Type::Num});
+	e.assign(a[3], Token{std::to_string(green), Type::Num});
+	e.assign(a[4], Token{std::to_string(blue), Type::Num});
 }
 
 /// PTC command to clear the console screens.

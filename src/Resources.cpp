@@ -96,7 +96,7 @@ void Resources::load_default(){
 	mem.generate_encoding();
 }
 
-std::string Resources::normalize_type(std::string type, int bg, int sp){
+std::string Resources::normalize_type(std::string type, int bg, int sp, int gp){
 	if (type == "MEM")
 		return type;
 	
@@ -108,10 +108,12 @@ std::string Resources::normalize_type(std::string type, int bg, int sp){
 			return type.substr(0,3) + "0" + type[3];
 		}
 		auto t = type.substr(0,3);
-		if (t == "BGF" || t == "BGU" || t == "BGD")
+		if (t == "BGF" || t == "BGU" || t == "BGD" || type == "COL0")
 			type += bg ? "L" : "U";
-		else if (t == "SPS")
+		else if (t == "SPS" || type == "COL1")
 			type += sp ? "L" : "U";
+		else if (type == "COL2")
+			type += gp ? "L" : "U";
 	}
 	return type;
 }

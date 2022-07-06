@@ -219,7 +219,9 @@ namespace ptc {
 	}
 
 	Var right(const Vals& vals){
-		return Var(std::get<String>(vals.at(0)).substr((int)std::get<Number>(vals.at(1))));
+		auto str = std::get<String>(vals.at(0));
+		auto len = static_cast<int>(std::get<Number>(vals.at(1)));
+		return Var(str.substr((int)str.size() < len ? 0 : str.size() - len, len));
 	}
 	
 	Var val(const Vals& vals){

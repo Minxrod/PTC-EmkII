@@ -127,8 +127,12 @@ void Icon::draw(sf::RenderTarget& target, sf::RenderStates rs) const {
 		sa.add_sprite(down);
 	}
 	for (auto& si : sprites){
-		if (si.active)
+		if (si.active){
 			sa.add_sprite(si);
+			if (si.id == last_icon_pressed){
+				sa.update_sprite_xy(si, 1, 1);
+			}
+		}
 	}
 	
 	sa.setPosition(0,192);

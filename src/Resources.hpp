@@ -78,7 +78,7 @@ struct Resources{
 	/// @param bg Current BG screen
 	/// @param sp Current sprite screen
 	/// @return Full type
-	std::string normalize_type(std::string type, int bg = 0, int sp = 0);
+	std::string normalize_type(std::string type, int bg = 0, int sp = 0, int gp = 0);
 };
 
 /// Function to load data into a resource type.

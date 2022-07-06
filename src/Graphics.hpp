@@ -111,4 +111,9 @@ public:
 	/// 
 	/// @param screen Screen to get texture array of
 	std::array<unsigned char, WIDTH*HEIGHT*4>& draw(int screen);
+	
+	/// Gets the current `GPAGE` screen.
+	/// 
+	/// @return Current graphics screen
+	int get_page() { return screen; };
 };

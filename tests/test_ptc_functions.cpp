@@ -3,7 +3,7 @@
 #include "Vars.hpp"
 #include "BuiltinFuncs.hpp"
 
-TEST_CASE("hex", "ptc_func"){
+TEST_CASE("HEX$", "ptc_func"){
 	auto hex2 = [](double n, double d) -> String {
 		return std::get<String>(ptc::hex({n,d}));
 	};
@@ -44,4 +44,43 @@ TEST_CASE("hex", "ptc_func"){
 	CHECK(hex2(-8,1) == "8");
 	CHECK(hex2(15,1) == "F");
 	CHECK_THROWS(hex2(16,1) == "8");
+	
+	//zero
+	CHECK(hex1(0) == "0");
+	CHECK(hex2(0,1) == "0");
+	CHECK(hex2(0,2) == "00");
+	CHECK(hex2(0,3) == "000");
+	CHECK(hex2(0,4) == "0000");
+	CHECK(hex2(0,5) == "00000");
 }
+
+TEST_CASE("RIGHT$", "ptc_func"){
+	auto right = [](std::string s, double n) -> String {
+		return std::get<String>(ptc::right({s,n}));
+	};
+	
+	// regular
+	CHECK(right("HELLO WORLD", 5) == "WORLD");
+	
+	// right none
+	CHECK(right("HELLO WORLD", 0) == "");
+
+	// past bound
+	CHECK(right("HELLO WORLD", 15) == "HELLO WORLD");
+}
+
+TEST_CASE("LEFT$", "ptc_func"){
+	auto left = [](std::string s, double n) -> String {
+		return std::get<String>(ptc::left({s,n}));
+	};
+	
+	// regular
+	CHECK(left("HELLO WORLD", 5) == "HELLO");
+	
+	// left none
+	CHECK(left("HELLO WORLD", 0) == "");
+
+	// past bound
+	CHECK(left("HELLO WORLD", 15) == "HELLO WORLD");
+}
+
