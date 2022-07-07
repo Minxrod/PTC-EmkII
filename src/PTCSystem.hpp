@@ -38,6 +38,10 @@ public:
 		program->run();
 	}
 	
+	bool is_running(){
+		return !program->at_eof();
+	}
+	
 	std::shared_ptr<Resources> get_resources(){
 		return resources;
 	}
@@ -61,6 +65,8 @@ public:
 	std::shared_ptr<Sound> get_sound(){
 		return sound;
 	}
+	
+	void update();
 };
 
 /// Class that creates and displays a PTCSystem

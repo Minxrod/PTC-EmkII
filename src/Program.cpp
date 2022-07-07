@@ -150,7 +150,7 @@ void Program::call_cmd(Token instr, const Args& chunks){
 void Program::run_(){	
 	while (auto_reload || !at_eof()){
 		current = tokens.begin();
-		std::cout << "\nbegin run\n" << std::endl;
+//		std::cout << "\nbegin run\n" << std::endl;
 		
 		while (current != tokens.end()){
 			auto instr = next_instruction();
@@ -195,7 +195,7 @@ void Program::run_(){
 		}
 		
 		commands.at("OK"_TC)({});
-		std::cout << "Program end" << std::endl;
+//		std::cout << "Program end" << std::endl;
 		
 		//reset to program loader
 		if (auto_reload){

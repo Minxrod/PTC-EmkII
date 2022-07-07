@@ -428,7 +428,24 @@ void Visual::save_(const Args& a){
 }
 
 void Visual::update(){
-	e.vars.write_sysvar("MAINCNTL", *maincntl+1);
+	//https://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c
+	//https://en.cppreference.com/w/cpp/chrono
+	auto time_t = std::time(0);
+	std::tm* tm = std::localtime(&time_t);
+	char date[10+1];//"yyyy/mm/dd\0";
+	char time[8+1]; //"hh:mm:ss\0";
+	strftime(date, 11, "%Y/%m/%d", tm);
+	strftime(time, 9, "%H:%M:%S", tm);
+	//Sets some system variables
+	e.vars.write_sysvar("DATE$", std::string(date));
+	e.vars.write_sysvar("TIME$", std::string(time));
+
+	if (*maincntl > 524287){
+		e.vars.write_sysvar("MAINCNTH", *maincnth+1);
+		e.vars.write_sysvar("MAINCNTL", 0.0);
+	} else {
+		e.vars.write_sysvar("MAINCNTL", *maincntl+1);
+	}
 	//do interpolation here as well (bg, sp)
 	s.update();
 	b.update();

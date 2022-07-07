@@ -67,6 +67,10 @@ void PTCSystem::set_option(std::string option, int state){
 	}
 }
 
+void PTCSystem::update(){
+	get_visual()->update(); //update frame etc.
+}
+
 void PTCSystemDisplay::set_option(std::string option, int state){
 	PTCSystem::set_option(option, state);
 	if (option == "-d"){
@@ -81,6 +85,7 @@ PTCSystemDisplay::PTCSystemDisplay() : PTCSystem(), window{sf::VideoMode(256, 38
 }
 
 void PTCSystemDisplay::update(){
+	PTCSystem::update();
 	//Check SFML events
 	sf::Event event;
 	sf::Keyboard::Key k = sf::Keyboard::Key::Unknown;
@@ -171,28 +176,10 @@ void PTCSystemDisplay::update(){
 		get_input()->touch(mouse_press, mouse_x, mouse_y);
 	}
 	
-	//https://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c
-	//https://en.cppreference.com/w/cpp/chrono
-	auto time_t = std::time(0);
-	std::tm* tm = std::localtime(&time_t);
-	char date[10+1];//"yyyy/mm/dd\0";
-	char time[8+1]; //"hh:mm:ss\0";
-	//date[10]='\0';
-	//time[8]='\0';
-	strftime(date, 11, "%Y/%m/%d", tm);
-	strftime(time, 9, "%H:%M:%S", tm);
-	date[4] = '/';
-	date[7] = '/';
-	
-	//Sets some system variables
-	get_evaluator()->vars.write_sysvar("DATE$", std::string(date));
-	get_evaluator()->vars.write_sysvar("TIME$", std::string(time));
-
 	//Draw current state
 	window.clear();
 	
 	get_visual()->draw(window);
-	get_visual()->update(); //update frame etc.
 	
 	window.display();
 	

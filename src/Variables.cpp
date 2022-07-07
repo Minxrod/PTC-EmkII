@@ -141,6 +141,9 @@ void Variables::init_sysvars(){
 	*std::get<Number*>(get_var_ptr("ICONPAGE")) = 0;
 	*std::get<Number*>(get_var_ptr("ICONPUSE")) = 0;
 	
+	//read-only variables
+	*std::get<Number*>(get_var_ptr("MAINCNTL")) = 0;
+	*std::get<Number*>(get_var_ptr("MAINCNTH")) = 0;
 }
 
 Var Variables::get_sysvar(std::string name){
