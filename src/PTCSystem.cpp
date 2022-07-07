@@ -8,11 +8,7 @@ void zoom(sf::Window& w, int scale){
 	w.setSize(sf::Vector2u(256*scale, 384*scale));
 }
 
-PTCSystem::PTCSystem() : window{sf::VideoMode(256, 384), "PTCEmukII"} {
-	// https://en.sfml-dev.org/forums/index.php?topic=20033.0 ????
-	zoom(window, 2);
-	window.setFramerateLimit(60);
-
+PTCSystem::PTCSystem() {
 	//Create objects for system
 	resources = std::make_shared<Resources>();
 	resources->load_default();
@@ -66,15 +62,25 @@ void PTCSystem::set_option(std::string option, int state){
 	if (option == "-s"){
 		sound->_enable(static_cast<bool>(state));
 	}
-	if (option == "-d"){
-		debug = std::make_unique<Debugger>(this);
-	}
 	if (option == "-a"){
 		program->_reload(state);
 	}
 }
 
-void PTCSystem::update(){
+void PTCSystemDisplay::set_option(std::string option, int state){
+	PTCSystem::set_option(option, state);
+	if (option == "-d"){
+		debug = std::make_unique<Debugger>(this);
+	}
+}
+
+PTCSystemDisplay::PTCSystemDisplay() : PTCSystem(), window{sf::VideoMode(256, 384), "PTCEmukII"} {
+	// https://en.sfml-dev.org/forums/index.php?topic=20033.0 ????
+	zoom(window, 2);
+	window.setFramerateLimit(60);
+}
+
+void PTCSystemDisplay::update(){
 	//Check SFML events
 	sf::Event event;
 	sf::Keyboard::Key k = sf::Keyboard::Key::Unknown;
@@ -90,14 +96,12 @@ void PTCSystem::update(){
 	}
 	
 	//hardcoded special buttons
-	
-	//special buttons
 	if (k == sf::Keyboard::Key::F1){
 		zoom(window, 1);
 	} else if (k == sf::Keyboard::Key::F2){
 		zoom(window, 2);
 	} else if (k == sf::Keyboard::Key::F5){
-		program->restart();
+		get_program()->restart();
 	} else if (k == sf::Keyboard::Key::F10){
 		keybutton_enable = !keybutton_enable;
 	} else if (k == sf::Keyboard::Key::F11){
@@ -108,29 +112,29 @@ void PTCSystem::update(){
 	
 	int b = 0;
 	//controller buttons are always enabled
-	for (const auto jkp : input->joy_to_button){
+	for (const auto jkp : get_input()->joy_to_button){
 		if (sf::Joystick::isButtonPressed(0, jkp.first)){
 			b|=jkp.second;
 		}
 	}
 	//controller sticks
-	for (auto jxp : input->stick_to_button){
+	for (auto jxp : get_input()->stick_to_button){
 		auto pos = sf::Joystick::getAxisPosition(0, (sf::Joystick::Axis)jxp.first);
-		if (pos > input->sensitivity)
+		if (pos > get_input()->sensitivity)
 			b|=2*jxp.second;
-		if (pos < -input->sensitivity)
+		if (pos < -get_input()->sensitivity)
 			b|=jxp.second;
 	}
 	//only use keyboard for buttons if enabled
 	if (keybutton_enable){
-		for (const auto kp : input->code_to_button){
+		for (const auto kp : get_input()->code_to_button){
 			if (sf::Keyboard::isKeyPressed(kp.first)){
 				b|=kp.second;
 			}
 		}
 	}
 	
-	input->update(b);
+	get_input()->update(b);
 	
 	//Update mouse info/Touchscreen info
 	mouse_press = sf::Mouse::isButtonPressed(sf::Mouse::Button::Left);
@@ -149,22 +153,22 @@ void PTCSystem::update(){
 	
 	if (mouse_press){
 		//"touchscreen" input
-		input->touch(mouse_press, mouse_x, mouse_y);
-		visual->p.touch_keys(mouse_time>0, mouse_x, mouse_y);
-		input->touch_key(visual->p.get_last_keycode());
+		get_input()->touch(mouse_press, mouse_x, mouse_y);
+		get_visual()->p.touch_keys(mouse_time>0, mouse_x, mouse_y);
+		get_input()->touch_key(get_visual()->p.get_last_keycode());
 	} else if (keyboard_enable && k != sf::Keyboard::Key::Unknown){
 		//Simluate touchscreen tap by physical keyboard presses
-		int keycode = input->keyboard_to_keycode(k);
+		int keycode = get_input()->keyboard_to_keycode(k);
 		if (keycode != 0){
-			auto [x,y] = visual->p.get_keycode_xy(keycode);
+			auto [x,y] = get_visual()->p.get_keycode_xy(keycode);
 			
-			input->touch(true, x, y);
-			visual->p.touch_keys(true, x, y);
-			input->touch_key(keycode);
+			get_input()->touch(true, x, y);
+			get_visual()->p.touch_keys(true, x, y);
+			get_input()->touch_key(keycode);
 		}
 	} else {
-		visual->p.touch_keys(false, -1, -1);
-		input->touch(mouse_press, mouse_x, mouse_y);
+		get_visual()->p.touch_keys(false, -1, -1);
+		get_input()->touch(mouse_press, mouse_x, mouse_y);
 	}
 	
 	//https://stackoverflow.com/questions/997946/how-to-get-current-time-and-date-in-c
@@ -181,14 +185,14 @@ void PTCSystem::update(){
 	date[7] = '/';
 	
 	//Sets some system variables
-	evaluator->vars.write_sysvar("DATE$", std::string(date));
-	evaluator->vars.write_sysvar("TIME$", std::string(time));
+	get_evaluator()->vars.write_sysvar("DATE$", std::string(date));
+	get_evaluator()->vars.write_sysvar("TIME$", std::string(time));
 
 	//Draw current state
 	window.clear();
 	
-	visual->draw(window);
-	visual->update(); //update frame etc.
+	get_visual()->draw(window);
+	get_visual()->update(); //update frame etc.
 	
 	window.display();
 	

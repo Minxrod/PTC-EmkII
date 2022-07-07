@@ -45,16 +45,6 @@ std::vector<PrioToken> conv_tokens(const std::vector<Token>& t);
 /// @return Var containing either a Number or a String
 Var convert_to_value(const Token& t);
 
-/// Tokenizes the given data as a PTC2 program.
-/// 
-/// @note This was some of the first code created for this iteration of the project, 
-/// and could probably be more efficient.
-/// 
-/// @param data Pointer to PRG data to tokenize
-/// @param size Length of data pointed to
-/// @return Vector of Tokens
-std::vector<Token> tokenize(unsigned char* data, std::size_t size);
-
 /// Splits a list of Tokens on every un-nested comma and Cmd Token.
 /// 
 /// This function splits a list of Tokens into a list of lists of Tokens,

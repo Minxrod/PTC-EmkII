@@ -35,6 +35,16 @@ Token operator""_TO(const char*, std::size_t);
 Token operator""_TF(const char*, std::size_t);
 Token operator""_TC(const char*, std::size_t);
 
+/// Tokenizes the given data as a PTC2 program.
+/// 
+/// @note This was some of the first code created for this iteration of the project, 
+/// and could probably be more efficient.
+/// 
+/// @param data Pointer to PRG data to tokenize
+/// @param size Length of data pointed to
+/// @return Vector of Tokens
+std::vector<Token> tokenize(unsigned char* data, std::size_t size);
+
 //debug
 #include <iostream>
 std::ostream& print(std::string name, const std::vector<Token>& items);

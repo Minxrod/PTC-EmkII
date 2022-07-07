@@ -22,24 +22,6 @@ class PTCSystem {
 	std::shared_ptr<Input> input;
 	std::shared_ptr<Sound> sound;
 	
-	//Extra for debugging
-	std::unique_ptr<Debugger> debug;
-	
-	//Window and keyboard control
-//	std::vector<sf::Keyboard::Key> special{};
-	bool keybutton_enable = true; // Use keyboard as controller
-	bool keyboard_enable = true; // Use keyboard to simulate touch keyboard
-	
-	//Display
-	sf::RenderWindow window;
-
-	//touch control
-	bool mouse_press = false;
-	int mouse_time = 0;
-	int mouse_x = 0;
-	int mouse_y = 0;
-
-	
 public:
 	PTCSystem();
 	
@@ -47,18 +29,14 @@ public:
 	
 	PTCSystem& operator=(const PTCSystem&) = delete;
 	
+	virtual ~PTCSystem(){}
+	
 	void set_option(std::string option, int state);
 	
-	// Runs whatever program is loaded.
+	/// Runs whatever program is loaded.
 	void start(){
 		program->run();
 	}
-	
-	bool is_ok(){
-		return window.isOpen();
-	}
-	
-	void update();
 	
 	std::shared_ptr<Resources> get_resources(){
 		return resources;
@@ -76,4 +54,49 @@ public:
 		return visual;
 	}
 	
+	std::shared_ptr<Input> get_input(){
+		return input;
+	}
+	
+	std::shared_ptr<Sound> get_sound(){
+		return sound;
+	}
+};
+
+/// Class that creates and displays a PTCSystem
+class PTCSystemDisplay : public PTCSystem {
+	//Extra for debugging
+	std::unique_ptr<Debugger> debug;
+	
+	//Display
+	sf::RenderWindow window;
+	
+	//Window and keyboard control
+//	std::vector<sf::Keyboard::Key> special{};
+	bool keybutton_enable = true; // Use keyboard as controller
+	bool keyboard_enable = true; // Use keyboard to simulate touch keyboard
+
+	//touch control
+	bool mouse_press = false;
+	int mouse_time = 0;
+	int mouse_x = 0;
+	int mouse_y = 0;
+	
+public:
+	/// Default constructor
+	PTCSystemDisplay();
+	
+	/// Copy constructor (deleted)
+	PTCSystemDisplay(const PTCSystemDisplay&) = delete;
+	
+	/// Copy assignment (deleted)
+	PTCSystemDisplay& operator=(const PTCSystemDisplay&) = delete;
+	
+	void set_option(std::string option, int state);
+	
+	bool is_ok(){
+		return window.isOpen();
+	}
+	
+	void update();
 };

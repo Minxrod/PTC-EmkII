@@ -60,9 +60,6 @@ class Program {
 	void sort_(const Args&);
 	void rsort_(const Args&);
 	
-	//actual program runner
-	void run_();
-	
 public:
 	Program(Evaluator&, const std::vector<Token>&);
 	
@@ -75,6 +72,7 @@ public:
 	void set_tokens(const std::vector<Token>&);
 	void loader();
 	void restart(); //restart current program
+	
 	/// Pauses or unpauses program execution on the next instruction.
 	/// @param p true=pause, false=unpause
 	void pause(bool p) { paused = p; };
@@ -89,6 +87,8 @@ public:
 	
 	//start thread
 	void run();
+	//actual program runner
+	void run_();
 	
 	void set_breakpoint(int line, bool enable = true);
 	

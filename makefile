@@ -27,13 +27,13 @@ endif
 
 # https://stackoverflow.com/questions/24096807/dso-missing-from-command-line
 CXXFLAGS = $(OFLAGS) -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -lpthread -lSSEQPlayer
-OBJECTS = Evaluator.o Vars.o Tokens.o Variables.o md5.o Resources.o FileLoader.o PTC2Console.o Program.o Visual.o Input.o Sound.o Graphics.o Panel.o TileMap.o Background.o Sprites.o SpriteArray.o PanelKeyboard.o PTCSystem.o Icon.o ResourceTypes.o Debugger.o
-TEST_OBJECTS = test_ptc_functions.o
+OBJECTS = BuiltinFuncs.o Evaluator.o Vars.o Tokens.o Variables.o md5.o Resources.o FileLoader.o PTC2Console.o Program.o Visual.o Input.o Sound.o Graphics.o Panel.o TileMap.o Background.o Sprites.o SpriteArray.o PanelKeyboard.o PTCSystem.o Icon.o ResourceTypes.o Debugger.o
+TEST_OBJECTS = test_ptc_functions.o test_performance.o
 
 objs = $(OBJECTS:%=$(BUILD)%)
 test_objs = $(TEST_OBJECTS:%=$(BUILD)%)
 
-ptc: $(objs)
+ptc: $(objs) $(BUILD)main.o
 	$(CXX) -o ptc $(BUILD)main.o $(objs) $(CXXFLAGS)
 
 $(BUILD)main.o: $(SOURCE)main.cpp
@@ -42,8 +42,8 @@ $(BUILD)main.o: $(SOURCE)main.cpp
 $(BUILD)%.o: $(SOURCE)%.cpp
 	$(CXX) $(OFLAGS) -c $< -o $@
 
-test: $(BUILD)tests.o $(test_objs)
-	$(CXX) -o test $(BUILD)tests.o $(test_objs) $(CXXFLAGS)
+test: $(BUILD)tests.o $(test_objs) $(objs)
+	$(CXX) -o test $(BUILD)tests.o $(test_objs) $(objs) $(CXXFLAGS)
 
 $(BUILD)tests.o: $(TESTS)tests.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@ -I$(SOURCE)
@@ -56,6 +56,8 @@ clean:
 	rm -f ptc
 	rm -rf $(objs)
 	rm -rf $(test_objs)
+	rm -rf $(BUILD)main.o
+	rm -rf $(BUILD)tests.o
 	rm $(BUILD)*.d
 
 # https://stackoverflow.com/questions/313778/generate-dependencies-for-a-makefile-for-a-project-in-c-c	
