@@ -19,7 +19,9 @@ const int PTC_OFS_PRG_SIZE = 0x38;
 
 const std::string PX01 = "PX01";
 const std::string MD5_PREFIX = "PETITCOM";
+
 const std::string MEM_TYPE = "PETC0200RMEM";
+const std::string CHR_TYPE = "PETC0100RCHR";
 
 void write_u32(int n, unsigned char* data){
 	data[0] = n & 0xff;
@@ -53,6 +55,9 @@ void Header::set_type(std::string type){
 	if (type == "MEM"){
 		type_str = MEM_TYPE;
 		type_num = 1;
+	} else if (type == "CHR"){
+		type_str = CHR_TYPE;
+		type_num = 3;
 	} else {
 		throw std::runtime_error{"Unsupported save type " + type};
 	}
@@ -92,7 +97,7 @@ std::string Header::get_type() const {
 std::ifstream get_filestream(std::string file){
 	std::ifstream ifs{file, std::ios::binary | std::ios::in};
 	if (!ifs)
-		throw std::runtime_error{file};
+		throw std::runtime_error{"Failed to open " + file + " for reading"};
 	return ifs;
 }
 

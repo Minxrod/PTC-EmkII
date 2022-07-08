@@ -151,16 +151,23 @@ void Resources::load(std::string type, std::string filename){
 void Resources::save(std::string type, std::string filename){
 	Header header{};
 	header.set_filename(filename);
-	header.set_type(type);
+	type = normalize_type(type);
+	std::vector<unsigned char> data;
 	
 	if (type == "MEM"){
 		header.set_size(12 + MEM::SIZE);
-		std::vector<unsigned char> data{mem.data};
+		header.set_type("MEM");
+		data = mem.data;
 		header.set_md5(data);
-		
-		auto fs = write_filestream("programs/"+filename+".PTC");
-		write_n(fs, header.data);
-		write_n(fs, data);
+	} else if (std::find(chr_resources.begin(), chr_resources.end(), type) != chr_resources.end()){
+		header.set_size(12 + CHR::SIZE);
+		header.set_type("CHR");
+		data = chr.at(type).data;
+		header.set_md5(data);
 	}
+	
+	auto fs = write_filestream("programs/"+filename+".PTC");
+	write_n(fs, header.data);
+	write_n(fs, data);
 }
 

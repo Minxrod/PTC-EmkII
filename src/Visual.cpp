@@ -422,8 +422,10 @@ void Visual::save_(const Args& a){
 	
 	if (type == "MEM"){
 		auto mem = *std::get<String*>(e.vars.get_var_ptr("MEM$"));
-		r.mem.set_mem(mem);
+		r.mem.set_mem(mem); //mem needs to set from variable
 		r.save(type, name);
+	} else {
+		r.save(type, name); //every other type is already stored in resources
 	}
 }
 
