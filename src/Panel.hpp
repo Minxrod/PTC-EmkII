@@ -50,7 +50,7 @@ public:
 	TileMap& draw_funckeys();
 	Icon& draw_icon();
 	
-	bool panel_on() { return pnltype; }
+	int panel_on() { return pnltype; }
 	PTC2Console& get_console() { return c; }
 	
 //	void draw(sf::RenderWindow&, sf::RenderStates&);

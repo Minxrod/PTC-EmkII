@@ -72,7 +72,9 @@ void Panel::pnlstr_(const Args& a){
 }
 
 void Panel::touch_keys(bool t, int x, int y){
-	keyboard.touch_keys(t,x,y);
+	if (pnltype > 1){
+		keyboard.touch_keys(t,x,y);
+	}
 	icon.update(t,x,y);
 }
 

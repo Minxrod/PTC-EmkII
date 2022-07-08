@@ -393,13 +393,19 @@ void Visual::load_(const Args& a){
 	auto name = info.substr(info.find(":")+1);
 	
 	type = r.normalize_type(type, b.get_page(), s.get_page());
-	r.load(type, name);
-	if (std::find(r.chr_resources.begin(), r.chr_resources.end(), type) != r.chr_resources.end()){
-		regen_chr(type);
-	} else if (std::find(r.col_resources.begin(), r.col_resources.end(), type) != r.col_resources.end()) {
-		regen_col();
-	} else if (type == "MEM"){
-		*std::get<String*>(e.vars.get_var_ptr("MEM$")) = r.mem.get_mem();
+	try {
+		r.load(type, name);
+		if (std::find(r.chr_resources.begin(), r.chr_resources.end(), type) != r.chr_resources.end()){
+			regen_chr(type);
+		} else if (std::find(r.col_resources.begin(), r.col_resources.end(), type) != r.col_resources.end()) {
+			regen_col();
+		} else if (type == "MEM"){
+			*std::get<String*>(e.vars.get_var_ptr("MEM$")) = r.mem.get_mem();
+		}
+		e.vars.write_sysvar("RESULT",1.0);
+	} catch (const std::runtime_error& ex){
+		std::cout << ex.what();
+		e.vars.write_sysvar("RESULT",0.0);
 	}
 }
 
