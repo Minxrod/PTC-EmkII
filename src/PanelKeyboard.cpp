@@ -222,28 +222,37 @@ void PanelKeyboard::update_key(SpriteInfo& key, int dir){
 void PanelKeyboard::touch_keys(bool t, int x, int y){
 	if (last_pressed)
 		update_key(*last_pressed, -1);
-	last_pressed = nullptr;
 	
-	if (!t)
+	auto touch_sprite = make_touch_sprite(x, y);
+	if (!t){ // no touch: reset all
+		last_pressed = nullptr;
+		last_pressed_timer.reset();
 		return;
-	//press keyboard keys
-	SpriteInfo touch_sprite{};
-	touch_sprite.active = true;
-	touch_sprite.w = 1;
-	touch_sprite.h = 1;
-	touch_sprite.pos.x = x;
-	touch_sprite.pos.y = y;
-	touch_sprite.hit.x = 0;
-	touch_sprite.hit.y = 0;
-	touch_sprite.hit.w = 2;
-	touch_sprite.hit.h = 2;
-	
-	for (SpriteInfo& key : keys){
-		if (is_hit(touch_sprite, key)){
-			update_key(key, 1);			
-			last_pressed = &key;
-			return;
+	} else if (t && last_pressed){ // touch and hold
+		if (!is_hit(touch_sprite, *last_pressed)){
+			 // moved away from held key -> release key
+			last_pressed = nullptr;
+		} else { 
+			// still holding old key
+			update_key(*last_pressed, 1);
+			last_pressed_timer.advance();
 		}
+		return; // don't search for new keys
+	} else if (last_pressed_timer.current_time > 0){ // was holding, but moved away from key (t && !last_pressed && timer is still active)
+		return; // don't update anything until touch is released (!t case)
+	} else {
+		//press keyboard keys (touching, no previous hold, no previous timer)
+		for (SpriteInfo& key : keys){
+			if (is_hit(touch_sprite, key)){
+				update_key(key, 1);
+				last_pressed = &key;
+				last_pressed_timer.advance();
+				return;
+			}
+		}
+		// no key pressed
+		last_pressed_timer.reset();
+		return;
 	}
 }
 
@@ -280,7 +289,7 @@ std::pair<int, int> PanelKeyboard::get_keycode_xy(int keycode){
 }
 
 int PanelKeyboard::get_last_keycode(){
-	if (!last_pressed)
+	if (!last_pressed || !last_pressed_timer.check())
 		return 0;
 	auto k = last_pressed->id;
 	if (k < 69)

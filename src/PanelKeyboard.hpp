@@ -4,6 +4,7 @@
 #include "Sprites.hpp"
 #include "SpriteArray.hpp"
 #include "TileMap.hpp"
+#include "Repeater.hpp"
 
 class PanelKeyboard {
 	TileMap func_keys;
@@ -16,6 +17,7 @@ class PanelKeyboard {
 	std::vector<std::vector<SpriteInfo*>> func;
 	
 	SpriteInfo* last_pressed;
+	Repeater last_pressed_timer;
 	
 	SpriteArray key_sp;
 	
