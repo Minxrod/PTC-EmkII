@@ -3,6 +3,7 @@
 #include "Vars.hpp"
 #include "Evaluator.hpp"
 #include "SpriteArray.hpp"
+#include "Repeater.hpp"
 
 class Icon : public sf::Drawable, public IPTCObject {
 	Evaluator& e;
@@ -16,6 +17,7 @@ class Icon : public sf::Drawable, public IPTCObject {
 	Number* iconpage;
 	
 	int last_icon_pressed = -1;
+	Repeater last_pressed_timer;
 	
 	void iconset_(const Args&);
 	void iconclr_(const Args&);
@@ -33,6 +35,6 @@ public:
 	std::map<Token, cmd_type> get_cmds() override;
 	std::map<Token, op_func> get_funcs() override;
 	
-	void update(bool touch, int x, int y);
+	void update(bool t, int x, int y);
 	void draw(sf::RenderTarget& target, sf::RenderStates rs) const override;
 };

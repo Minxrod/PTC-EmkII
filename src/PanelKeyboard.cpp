@@ -132,8 +132,10 @@ PanelKeyboard::PanelKeyboard() :
 			auto func_r = key_same(f*48 + 16, -1, 499);
 			func_r.w = 32;
 			func_r.h = 16;
+			func_r.hit.w = 32;
+			func_r.hit.h = 16;
 			func_r.id = FUNC_KEY_START + f * 2 + 1;
-
+			
 			func.push_back(std::vector<SpriteInfo*>{});
 			
 			keys.push_back(func_l);
@@ -158,7 +160,7 @@ PanelKeyboard::PanelKeyboard() :
 		auto edit_r = create_big_key(104,168,264,32);
 		edit_r.id = 344;
 		edit_r.pal = 15;
-
+		
 		keys.push_back(help);
 		keys.push_back(run_stop_l);
 		run.push_back(&keys.back());
@@ -257,24 +259,10 @@ void PanelKeyboard::touch_keys(bool t, int x, int y){
 }
 
 SpriteArray& PanelKeyboard::draw_keyboard(){
-//	SpriteArray sa{};
-//	key_sp.setPosition(0,384);
-//	if (pnltype > 1){
-//		key_sp.setPosition(0,192);
-//	}
-//	for (auto& k : keys){
-//		sa.add_sprite(k);
-//	}
 	return key_sp;
 }
 
 TileMap& PanelKeyboard::draw_funckeys(){
-//	if (pnltype > 1) //kya kym kyk
-//		func_keys.setPosition(0,192);
-//	else if (pnltype == 1) //pnl
-///		func_keys.setPosition(256,192);
-//	else //off
-//		func_keys.setPosition(0,192+256);
 	return func_keys;
 }
 

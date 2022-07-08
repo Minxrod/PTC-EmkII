@@ -55,7 +55,9 @@ void Icon::iconclr_(const Args& a){
 
 Var Icon::iconchk_(const Vals&){
 	//ICONCHK()
-	return Number(last_icon_pressed);
+	if (last_pressed_timer.check())
+		return Number(last_icon_pressed < -1 ? -1 : last_icon_pressed);
+	return Number(-1);
 }
 
 Icon::Icon(Evaluator& eval) : e{eval}{
@@ -66,10 +68,10 @@ Icon::Icon(Evaluator& eval) : e{eval}{
 		iconbutton(3,3),
 	};
 	
-	up = pagebutton(0, 60+256); //use SPK 60 (appended to end of 256 SPD)
+	up = pagebutton(-2, 60+256); //use SPK 60 (appended to end of 256 SPD)
 	up.pos.x = 144;
 	up.pos.y = 168;
-	down = pagebutton(0, 61+256); //SPK 61
+	down = pagebutton(-3, 61+256); //SPK 61
 	down.pos.x = 144;
 	down.pos.y = 180;
 	
@@ -91,33 +93,53 @@ std::map<Token, op_func> Icon::get_funcs(){
 	};
 }
 
-void Icon::update(bool touch, int x, int y){
-	last_icon_pressed = -1;
-	if (!touch)
+void Icon::update(bool t, int x, int y){
+	auto touch_sprite = make_touch_sprite(x, y);
+	if (!t){ // no touch: reset all
+		last_icon_pressed = -1;
+		last_pressed_timer.reset();
 		return;
-	
-	SpriteInfo touch_sprite{};
-	touch_sprite.active = true;
-	touch_sprite.w = 1;
-	touch_sprite.h = 1;
-	touch_sprite.pos.x = x;
-	touch_sprite.pos.y = y;
-	touch_sprite.hit.x = 0;
-	touch_sprite.hit.y = 0;
-	touch_sprite.hit.w = 2;
-	touch_sprite.hit.h = 2;
-	
-	if (*iconpuse){
-		//check collision with up/down keys
-	}
-	//check collision with icons
-	//deduplicate with PanelKeyboard eventually
-	
-	for (auto& s : sprites){
-		if (is_hit(s, touch_sprite)){
-			last_icon_pressed = s.id;
+	} else if (t && last_icon_pressed != -1){ // touch and hold
+		auto& s = last_icon_pressed > -1 ? sprites[last_icon_pressed] : 
+		         (last_icon_pressed == up.id ? up : down);
+		
+		if (!is_hit(touch_sprite, s)){
+			 // moved away from held icon -> release icon
+			last_icon_pressed = -1;
+		} else { 
+			// still holding previous icon
+			last_pressed_timer.advance();
 		}
+		return; // don't search for new icon
+	} else if (last_pressed_timer.current_time > 0){ // was holding, but moved away from icon (t && !last_pressed && timer is still active)
+		return; // don't update anything until touch is released (!t case)
+	} else {
+		//touch new icon (touching, no previous hold, no previous timer)
+		for (auto& s : sprites){
+			if (is_hit(s, touch_sprite)){
+				last_icon_pressed = s.id;
+				last_pressed_timer.advance();
+				return;
+			}
+		}
+		if (*iconpuse){
+			//check collision with up/down keys
+			if (is_hit(up, touch_sprite)){
+				last_icon_pressed = up.id;
+				*iconpage -= *iconpage > 0;
+				return;
+			} else if (is_hit(down, touch_sprite)){
+				last_icon_pressed = down.id;
+				*iconpage += *iconpage < *iconpmax;
+				return;
+			}
+		}
+		// none pressed
+		last_icon_pressed = -1;
+		last_pressed_timer.reset();
+		return;
 	}
+	//deduplicate with PanelKeyboard?
 }
 
 void Icon::draw(sf::RenderTarget& target, sf::RenderStates rs) const {
@@ -125,6 +147,9 @@ void Icon::draw(sf::RenderTarget& target, sf::RenderStates rs) const {
 	if (*iconpuse){
 		sa.add_sprite(up);
 		sa.add_sprite(down);
+		if (last_icon_pressed < -1){
+			sa.update_sprite_xy(last_icon_pressed == up.id ? up : down, 1, 1);
+		}
 	}
 	for (auto& si : sprites){
 		if (si.active){
