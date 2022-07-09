@@ -20,8 +20,13 @@ const int PTC_OFS_PRG_SIZE = 0x38;
 const std::string PX01 = "PX01";
 const std::string MD5_PREFIX = "PETITCOM";
 
-const std::string MEM_TYPE = "PETC0200RMEM";
-const std::string CHR_TYPE = "PETC0100RCHR";
+const std::string PRG_TYPE = "PETC0300RPRG"; //0
+const std::string MEM_TYPE = "PETC0200RMEM"; //1
+const std::string GRP_TYPE = "PETC0100RGRP"; //2
+const std::string CHR_TYPE = "PETC0100RCHR"; //3
+const std::string SCR_TYPE = "PETC0100RSCR"; //4
+const std::string COL_TYPE = "PETC0100RCOL"; //5
+
 
 void write_u32(int n, unsigned char* data){
 	data[0] = n & 0xff;
@@ -58,6 +63,9 @@ void Header::set_type(std::string type){
 	} else if (type == "CHR"){
 		type_str = CHR_TYPE;
 		type_num = 3;
+	} else if (type == "COL"){
+		type_str = COL_TYPE;
+		type_num = 5;
 	} else {
 		throw std::runtime_error{"Unsupported save type " + type};
 	}

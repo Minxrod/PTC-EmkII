@@ -172,6 +172,11 @@ void Resources::save(std::string type, std::string filename){
 		header.set_type("CHR");
 		data = chr.at(type).data;
 		header.set_md5(data);
+	} else if (std::find(col_resources.begin(), col_resources.end(), type) != col_resources.end()){
+		header.set_size(12 + COL::SIZE);
+		header.set_type("COL");
+		data = col.at(type).data;
+		header.set_md5(data);
 	}
 	
 	auto fs = write_filestream("programs/"+filename+".PTC");

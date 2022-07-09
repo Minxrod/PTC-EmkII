@@ -102,7 +102,7 @@ void PTCSystemDisplay::update(){
 		if (event.type == sf::Event::TextEntered){
 			unicode = event.text.unicode;
 			
-			std::cout << unicode << std::endl;
+//			std::cout << unicode << std::endl;
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RAlt)){
 				if (unicode < 0x80) //modify characters in ASCII range
 					unicode |= 0x80;
@@ -171,7 +171,7 @@ void PTCSystemDisplay::update(){
 		get_input()->touch(mouse_press, mouse_x, mouse_y);
 		get_visual()->p.touch_keys(mouse_time>0, mouse_x, mouse_y);
 		get_input()->touch_key(get_visual()->p.get_last_keycode());
-	} else if (unicode){
+	} else if (keyboard_enable && unicode && get_visual()->p.panel_on() > 1){
 		// keyboard write directly to inkey buffer (no screen touch)
 		get_input()->type(unicode);
 /*	} else if (keyboard_enable && k != sf::Keyboard::Key::Unknown && get_visual()->p.panel_on() > 1){
