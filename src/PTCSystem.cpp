@@ -89,6 +89,7 @@ void PTCSystemDisplay::update(){
 	//Check SFML events
 	sf::Event event;
 	sf::Keyboard::Key k = sf::Keyboard::Key::Unknown;
+	int unicode = 0;
 	while (window.isOpen() && window.pollEvent(event))
 	{
 		if (event.type == sf::Event::Closed){
@@ -97,6 +98,15 @@ void PTCSystemDisplay::update(){
 		}
 		if (event.type == sf::Event::KeyPressed){
 			k = event.key.code;
+		}
+		if (event.type == sf::Event::TextEntered){
+			unicode = event.text.unicode;
+			
+			std::cout << unicode << std::endl;
+			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RAlt)){
+				if (unicode < 0x80) //modify characters in ASCII range
+					unicode |= 0x80;
+			}
 		}
 	}
 	
@@ -161,7 +171,10 @@ void PTCSystemDisplay::update(){
 		get_input()->touch(mouse_press, mouse_x, mouse_y);
 		get_visual()->p.touch_keys(mouse_time>0, mouse_x, mouse_y);
 		get_input()->touch_key(get_visual()->p.get_last_keycode());
-	} else if (keyboard_enable && k != sf::Keyboard::Key::Unknown && get_visual()->p.panel_on() > 1){
+	} else if (unicode){
+		// keyboard write directly to inkey buffer (no screen touch)
+		get_input()->type(unicode);
+/*	} else if (keyboard_enable && k != sf::Keyboard::Key::Unknown && get_visual()->p.panel_on() > 1){
 		//Simluate touchscreen tap by physical keyboard presses
 		int keycode = get_input()->keyboard_to_keycode(k);
 		if (keycode != 0){
@@ -170,7 +183,7 @@ void PTCSystemDisplay::update(){
 			get_input()->touch(true, x, y);
 			get_visual()->p.touch_keys(true, x, y);
 			get_input()->touch_key(keycode);
-		}
+		}*/
 	} else {
 		get_visual()->p.touch_keys(false, -1, -1);
 		get_input()->touch(mouse_press, mouse_x, mouse_y);

@@ -164,6 +164,11 @@ public:
 	/// @param keycode Location of key pressed
 	void touch_key(int keycode);
 	
+	/// Maps a unicode character to the matching PTC character if possible, and writes it to the `INKEY$()` buffer.
+	/// 
+	/// @param unicode Character code
+	void type(int unicode);
+	
 	/// Converts a sf::Keyboard::Key to a `KEYBOARD` keycode.
 	/// 
 	/// @param SFML keycode

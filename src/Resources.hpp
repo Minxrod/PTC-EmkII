@@ -59,6 +59,11 @@ struct Resources{
 	void load_program(std::string name);
 	/// Loads all default PTC resources.
 	void load_default();
+	/// Loads a set of keyboard key sprites.
+	/// Replaces SPK2 and SPK3 resources.
+	/// 
+	/// @param filename File to load key sprites from
+	void load_keyboard(std::string filename);
 	
 	/// Loads a resource of the given type and name.
 	/// 

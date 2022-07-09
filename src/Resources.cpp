@@ -96,6 +96,14 @@ void Resources::load_default(){
 	mem.generate_encoding();
 }
 
+void Resources::load_keyboard(std::string filename){
+	auto fs = get_filestream(filename);
+	std::vector<unsigned char> dummy{};
+	read_n(fs, dummy, 48); //dummy read to skip NCGR header
+	read_n(fs, chr.at("SPK2").data, CHR::SIZE);
+	read_n(fs, chr.at("SPK3").data, CHR::SIZE);
+}
+
 std::string Resources::normalize_type(std::string type, int bg, int sp, int gp){
 	if (type == "MEM")
 		return type;

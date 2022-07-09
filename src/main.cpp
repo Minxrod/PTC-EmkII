@@ -11,7 +11,7 @@ bool option(std::string option, int option_count, char** options){
 }
 
 int main(int argc, char**argv){
-	PTCSystemDisplay system = PTCSystemDisplay{};
+	PTCSystemDisplay system{};
 	
 	system.set_option("-s", !option("-s",argc,argv));
 	system.set_option("-a", option("-a",argc,argv));
