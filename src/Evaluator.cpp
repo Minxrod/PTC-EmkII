@@ -374,7 +374,7 @@ Var Evaluator::call_op(const Token& op, std::stack<Var>& values){
 //		op_val += op.text.at(1) << 8;
 	
 	std::vector<Var> vals;
-	if (op.text == "!" || op.text == "0-"){
+	if (op.text == "!" || op.text == "0-" || op.text == "NOT"){
 		Var a = values.top();
 		values.pop();
 		

@@ -84,3 +84,30 @@ TEST_CASE("LEFT$", "ptc_func"){
 	CHECK(left("HELLO WORLD", 15) == "HELLO WORLD");
 }
 
+//technically an operator but whatever
+TEST_CASE("NOT", "ptc_operator"){
+	auto bnot = [](double n) -> Number {
+		return std::get<Number>(ptc::bnot({n}));
+	};
+	
+	//random
+	CHECK(bnot(6172) == Approx(-6173));
+	CHECK(bnot(4822) == Approx(-4823));
+	CHECK(bnot(4519) == Approx(-4520));
+	CHECK(bnot(7635) == Approx(-7636));
+	CHECK(bnot(8169) == Approx(-8170));
+	
+	//random negative
+	CHECK(bnot(-8084) == Approx(8083));
+	CHECK(bnot(-5273) == Approx(5272));
+	CHECK(bnot(-7744) == Approx(7743));
+	CHECK(bnot(-1320) == Approx(1319));
+	CHECK(bnot(-1784) == Approx(1783));
+	
+	//edges
+	CHECK(bnot(0) == Approx(-1));
+	CHECK(bnot(-1) == Approx(0));
+	CHECK(bnot(524286) == Approx(-524287));
+	CHECK(bnot(524287) == Approx(-0));
+}
+
