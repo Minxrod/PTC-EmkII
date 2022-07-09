@@ -114,7 +114,9 @@ Special keys:
 - F11: Disable/Enable keyboard 
 - F12: Open debugger window
 
-KEYBOARD and INKEY$() are approximated by typing on the keyboard. The touch keyboard is partially functional, but the different keyboards are not yet implemented.
+INKEY$() is approximated by typing on the keyboard, and most characters should be typed as expected. Holding Alt should allow you to type codes in the upper half of the range. If you have a japanese keyboard layout/can type katakana, this should also work.
+
+The touch keyboard is partially functional, but the different keyboards are not yet implemented.
 
 ## Debugger
 
