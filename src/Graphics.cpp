@@ -2,6 +2,8 @@
 #include "Visual.hpp"
 
 #include <cmath>
+#include <stack>
+#include <set>
 
 Graphics::Graphics(Evaluator& ev, std::map<std::string, GRP>& grps, Resources& res, Visual* vis) : 
 	e{ev},
@@ -31,6 +33,7 @@ std::map<Token, cmd_type> Graphics::get_cmds(){
 		std::pair<Token, cmd_type>("GPUTCHR"_TC, getfunc(this, &Graphics::gputchr_)),
 		std::pair<Token, cmd_type>("GPRIO"_TC, getfunc(this, &Graphics::gprio_)),
 		std::pair<Token, cmd_type>("GCOPY"_TC, getfunc(this, &Graphics::gcopy_)),
+		std::pair<Token, cmd_type>("GPAINT"_TC, getfunc(this, &Graphics::gpaint_)),
 	};
 }
 
@@ -232,7 +235,7 @@ void Graphics::gcircle_(const Args& a){
 }
 
 /// PTC command to flood fill a region starting from a point.
-/// @warning Not yet implemented.
+/// @note Does not attempt to implement the same bugs that `GPAINT` has in PTC.
 /// 
 /// Format: 
 /// * `GPAINT x,y[,color]`
@@ -243,8 +246,66 @@ void Graphics::gcircle_(const Args& a){
 /// * color: Color to fill (default = gcolor)
 /// 
 /// @param a Arguments
-void Graphics::gpaint_(const Args&){
+void Graphics::gpaint_(const Args& a){
 	//GPAINT x y [c]
+	auto col = a.size() == 3 ? gcolor : static_cast<int>(std::get<Number>(e.evaluate(a[3])));
+	int x = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+	int y = static_cast<int>(std::get<Number>(e.evaluate(a[2])));
+	
+	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
+	auto& i = image[drawpage[screen]];
+	
+	auto pixel = [i](auto pos, int xofs, int yofs) -> int{
+		if (pos.first + xofs < 0 || pos.first + xofs > 255 || pos.second + yofs < 0 || pos.second + yofs > 191)
+			return -1;
+		return i[4*(pos.first+xofs+256*(pos.second+yofs))];
+	};
+	
+	std::stack<std::pair<int, int>> oldpos;
+	std::set<std::pair<int, int>> pos_added;
+	oldpos.push({x,y});
+	pos_added.insert({x,y});
+	
+	auto replace = pixel(oldpos.top(), 0, 0);
+	if (replace == col){
+		return;
+	}
+	
+	while (!oldpos.empty()){
+		auto pos = oldpos.top();
+		oldpos.pop();
+		
+		draw_pixel(i,g,pos.first,pos.second,col);
+		
+		if (pixel(pos, 1, 0) == replace){
+			std::pair<int,int> p = {pos.first+1, pos.second};
+			if (!pos_added.count(p)){
+				oldpos.push(p);
+				pos_added.insert(p);
+			}
+		}
+		if (pixel(pos, 0, 1) == replace){
+			std::pair<int,int> p = {pos.first, pos.second+1};
+			if (!pos_added.count(p)){
+				oldpos.push(p);
+				pos_added.insert(p);
+			}
+		}
+		if (pixel(pos, -1, 0) == replace){
+			std::pair<int,int> p = {pos.first-1, pos.second};
+			if (!pos_added.count(p)){
+				oldpos.push(p);
+				pos_added.insert(p);
+			}
+		}
+		if (pixel(pos, 0, -1) == replace){
+			std::pair<int,int> p = {pos.first, pos.second-1};
+			if (!pos_added.count(p)){
+				oldpos.push(p);
+				pos_added.insert(p);
+			}
+		}
+	}
 }
 
 /// PTC command to draw an unfilled box.
