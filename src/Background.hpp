@@ -97,4 +97,6 @@ public:
 	
 	/// Gets the current BG page.
 	int get_page() { return page; }
+	
+	sf::View get_clip(int sc);
 };

@@ -475,6 +475,14 @@ void Background::reset(){
 	}
 }
 
+sf::View Background::get_clip(int sc){
+	auto source = sf::FloatRect{bgclip_x1*8.f,bgclip_y1*8.f,(bgclip_x2-bgclip_x1+1)*8.f,(bgclip_y2-bgclip_y1+1)*8.f};
+	auto viewport = sf::FloatRect{bgclip_x1/32.f,0.5f * sc + bgclip_y1/48.f,(bgclip_x2-bgclip_x1+1)/32.f,(bgclip_y2-bgclip_y1+1)/48.f};
+	sf::View bgclip{source};
+	bgclip.setViewport(viewport);
+	return bgclip;
+}
+
 TileMap& Background::draw(int screen, int layer){
 	auto& bgl = bg_layers[2*screen+layer];
 	bgl.setPosition(-(int)bg_info[2*screen+layer].x % (64*8), -(int)bg_info[2*screen+layer].y % (64*8));

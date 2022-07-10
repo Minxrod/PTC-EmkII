@@ -509,6 +509,7 @@ void Visual::draw(sf::RenderWindow& w){
 		//bg
 		for (int l = 1; l >= 0; --l){
 			auto state = set_state(Tex::BGU_U + chr_l, COL_BG);
+			w.setView(b.get_clip(sc));
 			
 			auto& bg = b.draw(sc, l);
 			auto pos = bg.getPosition();
