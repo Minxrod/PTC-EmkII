@@ -34,7 +34,7 @@ class Background : public IPTCObject {
 	/// Evaluator object
 	Evaluator& e;
 	/// SCR objects (contains all actual tile data)
-	std::map<std::string, SCR> scr;
+	std::map<std::string, SCR>& scr;
 	/// TileMap objects (used for rendering)
 	std::vector<TileMap> bg_layers;
 	/// BGInfo objects (position and animation data)
@@ -99,4 +99,6 @@ public:
 	int get_page() { return page; }
 	
 	sf::View get_clip(int sc);
+	
+	void regen_scr(int page, int layer);
 };

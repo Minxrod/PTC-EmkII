@@ -15,8 +15,6 @@ class TileMap : public sf::Drawable, public sf::Transformable {
 	int height;
 	/// VertexArray to store the polygons used by SFML for rendering.
 	sf::VertexArray va;
-	/// View used to set clipping bounds.
-	sf::View view;
 	
 public:
 	/// Constructor

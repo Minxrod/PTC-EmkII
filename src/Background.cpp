@@ -483,6 +483,22 @@ sf::View Background::get_clip(int sc){
 	return bgclip;
 }
 
+void Background::regen_scr(int p, int l){
+	std::string name = "SCU";
+	std::string screen = p ? "L" : "U";
+	name += std::to_string(l) + screen;
+	auto& scu = scr.at(name);
+	auto& bgl = bg_layers.at(2*p+l);
+	
+	for (int x = 0; x < 64; ++x){
+		for (int y = 0; y < 64; ++y){
+			auto d = get_tile(scu, x, y);
+			bgl.tile(x,y,get_chr(d),get_h(d),get_v(d));
+			bgl.palette(x,y,16*get_pal(d));
+		}
+	}
+}
+
 TileMap& Background::draw(int screen, int layer){
 	auto& bgl = bg_layers[2*screen+layer];
 	bgl.setPosition(-(int)bg_info[2*screen+layer].x % (64*8), -(int)bg_info[2*screen+layer].y % (64*8));

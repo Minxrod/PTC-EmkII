@@ -116,7 +116,7 @@ std::string Resources::normalize_type(std::string type, int bg, int sp, int gp){
 			return type.substr(0,3) + "0" + type[3];
 		}
 		auto t = type.substr(0,3);
-		if (t == "BGF" || t == "BGU" || t == "BGD" || type == "COL0")
+		if (t == "BGF" || t == "BGU" || t == "BGD" || type == "COL0" || t == "SCU")
 			type += bg ? "L" : "U";
 		else if (t == "SPS" || type == "COL1")
 			type += sp ? "L" : "U";

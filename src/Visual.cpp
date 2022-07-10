@@ -406,6 +406,8 @@ void Visual::load_(const Args& a){
 			*std::get<String*>(e.vars.get_var_ptr("MEM$")) = r.mem.get_mem();
 		} else if (type.substr(0,3) == "GRP"){
 			g.regen_grp(type[3]-'0');
+		} else if (type.substr(0,3) == "SCU"){
+			b.regen_scr(type[4]=='L', type[3]-'0');
 		}
 		e.vars.write_sysvar("RESULT",1.0);
 	} catch (const std::runtime_error& ex){

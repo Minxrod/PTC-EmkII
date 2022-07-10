@@ -49,7 +49,5 @@ void TileMap::palette(int x, int y, int pal, int bg){
 
 void TileMap::draw(sf::RenderTarget& t, sf::RenderStates s) const {
 	s.transform *= getTransform();
-//	t.setView(view);
 	t.draw(va, s);
-//	t.setView(t.getDefaultView());
 }
