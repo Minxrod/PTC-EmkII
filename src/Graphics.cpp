@@ -156,6 +156,7 @@ void Graphics::draw_line(std::array<unsigned char, 256*192*4>& i, std::vector<un
 	} else {
 		int dir_x = x2>x1 ? 1 : -1;
 		double m = static_cast<double>(y2-y1)/(static_cast<double>(x1-x2)*(dir_x));
+		draw_pixel(i,g,x1,y1,c);
 		
 		double y = y1;
 		double ystep = 0;
@@ -171,7 +172,11 @@ void Graphics::draw_line(std::array<unsigned char, 256*192*4>& i, std::vector<un
 			} else {
 				draw_pixel(i,g,x,y,c);
 			}
-		}	
+		}
+		int dir_y = y2>y1 ? 1 : -1;
+		for ( ; y != y2; y+=dir_y){
+			draw_pixel(i,g,x2,y,c);
+		}
 	}
 }
 
