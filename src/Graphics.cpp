@@ -461,7 +461,7 @@ void Graphics::gdrawmd_(const Args& a){
 /// 
 /// @param a Arguments
 void Graphics::gprio_(const Args& a){
-	// GRPIO priority
+	// GPRIO priority
 	int p = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
 	prio[screen] = p;
 }

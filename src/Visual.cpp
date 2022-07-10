@@ -9,6 +9,10 @@ const float COL_GRP = 2.1;
 const float COL_BG_L = 3.1;
 const float COL_SP_L = 4.1;
 
+enum Visible {
+	CON, PNL, BG0, BG1, SPR, GRP
+};
+
 /// Enum used for naming textures in resource_tex
 enum Tex {
 	BGF_U = 0, BGU_U, SPU, SPS_U, UNUSED_1, BGD_U,
@@ -112,7 +116,6 @@ std::map<Token, op_func> Visual::get_funcs(){
 }
 
 /// PTC command to set the visible status of different components.
-/// @note This function is implemented, but the results are currently ignored.
 /// 
 /// Format: 
 /// * `VISIBLE con,pnl,bg0,bg1,sp,grp`
@@ -495,10 +498,12 @@ void Visual::draw(sf::RenderWindow& w){
 		//grp prio=3
 		if (g.get_prio(sc) == 3){
 //			bgsp_shader.setUniform("colbank", COL_GRP + col_l);
-			w.draw(grp, grp_state());
+			if (visible[Visible::GRP])
+				w.draw(grp, grp_state());
 		}
 		//sprites prio=3
-		w.draw(s.draw(sc,3), sprite_state());
+		if (visible[Visible::SPR])
+			w.draw(s.draw(sc,3), sprite_state());
 		//bg
 		for (int l = 1; l >= 0; --l){
 			auto state = set_state(Tex::BGU_U + chr_l, COL_BG);
@@ -511,25 +516,31 @@ void Visual::draw(sf::RenderWindow& w){
 			pos.y += 192*sc;
 			if (pos.x > 0){
 				bg.setPosition(pos.x - 64*8, pos.y);
-				w.draw(bg, state);
+				if (visible[Visible::BG0 + l])
+					w.draw(bg, state);
 			}
 			if (pos.y > 192*sc){
 				bg.setPosition(pos.x, pos.y - 64*8);
-				w.draw(bg, state);
+				if (visible[Visible::BG0 + l])
+					w.draw(bg, state);
 			}
 			if (pos.x > 0 && pos.y > 0){
 				bg.setPosition(pos.x - 64*8, pos.y - 64*8);
-				w.draw(bg, state);
+				if (visible[Visible::BG0 + l])
+					w.draw(bg, state);
 			}
 			bg.setPosition(pos);
-			w.draw(bg, state);
+			if (visible[Visible::BG0 + l])
+				w.draw(bg, state);
 			
 			// grp prio=2,1
 			if (g.get_prio(sc) == 1+l){
-				w.draw(grp, grp_state());
+				if (visible[Visible::GRP])
+					w.draw(grp, grp_state());
 			}
 			// sprite prio=2,1
-			w.draw(s.draw(sc,1+l), sprite_state());
+			if (visible[Visible::SPR])
+				w.draw(s.draw(sc,1+l), sprite_state());
 		}
 		
 		//console + panel console
@@ -538,20 +549,27 @@ void Visual::draw(sf::RenderWindow& w){
 		if (sc){
 			console.setPosition(sf::Vector2f{0,192});
 		}
-		w.draw(console, console_state);
+		//panel console is always visible for some reason
+		if (visible[Visible::CON] || sc)
+			w.draw(console, console_state);
 		//grp prio=0
 		if (g.get_prio(sc) == 0){
-			w.draw(grp, grp_state());
+			if (visible[Visible::GRP])
+				w.draw(grp, grp_state());
 		}
 		//sprite prio=0
-		w.draw(s.draw(sc,0), sprite_state());
+		if (visible[Visible::SPR])
+			w.draw(s.draw(sc,0), sprite_state());
 	}
 	
-	if (p.panel_on()){
+	if (p.panel_on() && visible[Visible::PNL]){
 		w.draw(p.draw_panel(), set_state(Tex::BGD_L, COL_BG_L));
 		w.draw(p.draw_keyboard(), set_state(Tex::SPD, COL_SP_L));
-		w.draw(p.draw_funckeys(), set_state(Tex::BGF_L, COL_BG_L));
+		w.draw(p.draw_icon(), set_state(Tex::SPD, COL_SP_L));
 	}
-	// icon probably draws over EVERYTHING so it's at the end
-	w.draw(p.draw_icon(), set_state(Tex::SPD, COL_SP_L));
+	// you cannot hide the function key text if the panel is on.
+	// this, the panel console, and the INPUT cursor cannot be hidden.
+	if (p.panel_on())
+		w.draw(p.draw_funckeys(), set_state(Tex::BGF_L, COL_BG_L));
+	
 }
