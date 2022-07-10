@@ -183,6 +183,11 @@ void Resources::save(std::string type, std::string filename){
 		header.set_type("GRP");
 		data = grp.at(type).data;
 		header.set_md5(data);
+	} else if (std::find(scr_resources.begin(), scr_resources.end(), type) != scr_resources.end()){
+		header.set_size(12 + SCR::SIZE);
+		header.set_type("SCR");
+		data = scr.at(type).data;
+		header.set_md5(data);
 	}
 	
 	auto fs = write_filestream("programs/"+filename+".PTC");

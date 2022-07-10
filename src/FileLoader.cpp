@@ -66,6 +66,9 @@ void Header::set_type(std::string type){
 	} else if (type == "CHR"){
 		type_str = CHR_TYPE;
 		type_num = 3;
+	} else if (type == "SCR"){
+		type_str = SCR_TYPE;
+		type_num = 4;
 	} else if (type == "COL"){
 		type_str = COL_TYPE;
 		type_num = 5;
