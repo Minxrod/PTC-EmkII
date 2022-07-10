@@ -10,14 +10,17 @@
 #include "BaseConsole.hpp"
 #include "IPTCObject.hpp"
 
+class Visual;
+
 const int PTC2_CONSOLE_WIDTH = 32;
 const int PTC2_CONSOLE_HEIGHT = 24;
 
 class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT>,
 					public IPTCObject {
+	Visual* v;
+	
 	Input& in;
 	Evaluator& e;
-	CHR& c;
 	TileMap tm;
 	
 	Number* csrx;
@@ -25,17 +28,6 @@ class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HE
 	Number* tabstep;
 	
 	bool inTheStupidCorner = false;
-//	BaseConsole<char, WIDTH, HEIGHT> internal_console;
-	
-/*	char cur_fg_color = 0;*/
-/*	char cur_bg_color = 0;*/
-/*	Number* cur_x;*/
-/*	Number* cur_y;*/
-/*	Number* tabstep;*/
-	
-/*	std::array<unsigned char, WIDTH*HEIGHT> bg_color;*/
-/*	std::array<unsigned char, WIDTH*HEIGHT> fg_color;*/
-/*	std::array<unsigned char, WIDTH*HEIGHT> text;*/
 	
 	//These are also methods in BaseConsole.
 	//These are not proper overrides, but they are used as extensions of
@@ -59,7 +51,7 @@ class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HE
 	void ok(const Args&);
 	
 public:
-	PTC2Console(Evaluator&, CHR&, Input&);
+	PTC2Console(Evaluator&, Input&, Visual*);
 	
 	PTC2Console() = delete;
 	

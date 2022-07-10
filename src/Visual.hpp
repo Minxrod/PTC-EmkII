@@ -42,11 +42,11 @@ struct Visual : public IPTCObject {
 	/// PTC panel, keyboard and icon management.
 	Panel p;
 	
-	/// Determines which components are visible. (Currently ignored)
+	/// Determines which components are visible.
 	bool visible[6]; //CON, PNL, FG, BG, SP, GRP
 	/// Frames since launching, lower half
 	volatile Number* maincntl;
-	/// Frames since launching, upper half (currently unimplemented)
+	/// Frames since launching, upper half
 	volatile Number* maincnth;
 	
 	/// Shader to handle rendering textures with palette.

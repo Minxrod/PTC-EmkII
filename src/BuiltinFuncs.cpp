@@ -314,4 +314,8 @@ namespace ptc {
 		
 		return Var(std::pow(base, exponent));
 	}
+	
+	Var sqr(const Vals& vals){
+		return Var(std::sqrt(std::get<Number>(vals.at(0))));
+	}
 }

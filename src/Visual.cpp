@@ -22,7 +22,7 @@ enum Tex {
 Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 	e{ev},
 	r{rs},
-	c{ev, r.chr.at("BGF0U"), i},
+	c{ev, i, this},
 	b{ev, r.scr},
 	s{ev},
 	g{ev, r.grp, r, this},

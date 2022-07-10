@@ -68,7 +68,7 @@ std::map<Token, op_func> Evaluator::get_funcs() {
 		func_map{"POW"_TF, ptc::pow},
 		func_map{"RND"_TF, ptc::rnd},
 		func_map{"SGN"_TF, ptc::sgn},
-		//func_map{"SQR"_TF, ptc::sqr},
+		func_map{"SQR"_TF, ptc::sqr},
 		func_map{"STR$"_TF, ptc::str},
 		func_map{"SUBST$"_TF, ptc::subst},
 		func_map{"VAL"_TF, ptc::val},

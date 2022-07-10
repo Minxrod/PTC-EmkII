@@ -1,7 +1,9 @@
 #include "PTC2Console.hpp"
 
-PTC2Console::PTC2Console(Evaluator& eval, CHR& chr, Input& i) : BaseConsole(),
-in{i}, e{eval}, c{chr}, tm{PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT} {
+#include "Visual.hpp"
+
+PTC2Console::PTC2Console(Evaluator& eval, Input& i, Visual* vis) : BaseConsole(), v{vis},
+in{i}, e{eval}, tm{PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT} {
 	csrx = std::get<Number*>(e.vars.get_var_ptr("CSRX"));
 	csry = std::get<Number*>(e.vars.get_var_ptr("CSRY"));
 	tabstep = std::get<Number*>(e.vars.get_var_ptr("TABSTEP"));
@@ -129,6 +131,11 @@ void PTC2Console::print_(const Var& v){
 }
 
 std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args& a){
+	auto pnltype = v->p.panel_on();
+	if (pnltype <= 1){
+		v->p.panel_override();
+	}
+	
 	auto& guide = a[1];
 	auto str = std::vector<Token>(guide.begin(), std::find(guide.begin(), guide.end(), ";"_TO));
 	auto semicolon = std::find(guide.begin(), guide.end(), ";"_TO);
@@ -162,6 +169,7 @@ std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args&
 	}
 	newline();
 	
+	v->p.panel_override(pnltype);
 	return std::pair(var, res);
 }
 

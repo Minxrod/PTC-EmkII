@@ -51,6 +51,8 @@ public:
 	Icon& draw_icon();
 	
 	int panel_on() { return pnltype; }
+	//TODO: override with previous keyboard type
+	void panel_override(int type = 2) { pnltype = type; }
 	PTC2Console& get_console() { return c; }
 	
 //	void draw(sf::RenderWindow&, sf::RenderStates&);

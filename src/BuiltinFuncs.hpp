@@ -82,4 +82,6 @@ namespace ptc {
 	Var hex(const Vals& vals);
 	
 	Var pow(const Vals& vals);
+	
+	Var sqr(const Vals& vals);
 }

@@ -2,7 +2,7 @@
 
 Panel::Panel(Evaluator& ev, Resources& r, Input& i) : 
 	e{ev},
-	c{ev, r.chr.at("BGF0L"), i},
+	c{ev, i, nullptr},
 	panel_bg{64, 64},
 	icon{ev},
 	keyboard{}
