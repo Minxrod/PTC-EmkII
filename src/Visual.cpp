@@ -26,10 +26,10 @@ Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 	visible{true,true,true,true,true,true}
 {
 	if (!sf::Shader::isAvailable()){
-		std::cout << "Error: Shaders are unavailable";
+		throw std::runtime_error{"Error: Shaders are unavailable"};
 	} else {
 		if (!bgsp_shader.loadFromFile("resources/shaders/bgsp.frag", sf::Shader::Fragment)){
-			std::cout << "Error: Shader could not be loaded";
+			std::cout << "Error: Shader bgsp.frag could not be loaded";
 		}
 	}
 	maincntl = std::get<Number*>(e.vars.get_var_ptr("MAINCNTL"));

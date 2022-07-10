@@ -133,7 +133,7 @@ std::vector<unsigned char> COL::COL_to_RGBA(){
 		cols[4 * i] = 8 * red;
 		cols[4 * i + 1] = 8 * green;
 		cols[4 * i + 2] = 8 * blue;
-		cols[4 * i + 3] = (i % 16 == 0) ? 0 : 255;
+		cols[4 * i + 3] = (i == 0) ? 0 : 255;
 	}
 	return cols;
 }
