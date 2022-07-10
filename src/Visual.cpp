@@ -395,7 +395,7 @@ void Visual::load_(const Args& a){
 	auto type = info.substr(0,info.find(":"));
 	auto name = info.substr(info.find(":")+1);
 	
-	type = r.normalize_type(type, b.get_page(), s.get_page());
+	type = r.normalize_type(type, b.get_page(), s.get_page(), g.get_page());
 	try {
 		r.load(type, name);
 		if (std::find(r.chr_resources.begin(), r.chr_resources.end(), type) != r.chr_resources.end()){
@@ -415,7 +415,7 @@ void Visual::load_(const Args& a){
 }
 
 /// PTC command to save to a file.
-/// @warning Only MEM save is currently implemented.
+/// @warning SCR save not implemented.
 /// 
 /// Format: 
 /// * `SAVE filename`
@@ -429,7 +429,7 @@ void Visual::save_(const Args& a){
 	auto type = info.substr(0,info.find(":"));
 	auto name = info.substr(info.find(":")+1);
 	
-	type = r.normalize_type(type, b.get_page(), s.get_page());
+	type = r.normalize_type(type, b.get_page(), s.get_page(), g.get_page());
 	
 	if (type == "MEM"){
 		auto mem = *std::get<String*>(e.vars.get_var_ptr("MEM$"));
