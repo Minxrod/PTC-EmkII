@@ -160,6 +160,5 @@ void Icon::draw(sf::RenderTarget& target, sf::RenderStates rs) const {
 		}
 	}
 	
-	sa.setPosition(0,192);
 	target.draw(sa, rs);
 }

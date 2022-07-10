@@ -165,16 +165,16 @@ void Background::bgclr_(const Args& a){
 /// @param a Arguments
 void Background::bgclip_(const Args& a){
 	//BGCLIP x1 y1 x2 y2
-	int bgclip_x1 = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
-	int bgclip_y1 = static_cast<int>(std::get<Number>(e.evaluate(a[2])));
-	int bgclip_x2 = static_cast<int>(std::get<Number>(e.evaluate(a[3])));
-	int bgclip_y2 = static_cast<int>(std::get<Number>(e.evaluate(a[4])));
+	bgclip_x1 = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+	bgclip_y1 = static_cast<int>(std::get<Number>(e.evaluate(a[2])));
+	bgclip_x2 = static_cast<int>(std::get<Number>(e.evaluate(a[3])));
+	bgclip_y2 = static_cast<int>(std::get<Number>(e.evaluate(a[4])));
 
-	auto& fg = bg_layers.at(2*page+0);
-	auto& bg = bg_layers.at(2*page+1);
+	//auto& fg = bg_layers.at(2*page+0);
+	//auto& bg = bg_layers.at(2*page+1);
 	
-	fg.clip(bgclip_x1,bgclip_y1,bgclip_x2,bgclip_y2);
-	bg.clip(bgclip_x1,bgclip_y1,bgclip_x2,bgclip_y2);
+	//fg.clip(bgclip_x1,bgclip_y1,bgclip_x2,bgclip_y2);
+	//bg.clip(bgclip_x1,bgclip_y1,bgclip_x2,bgclip_y2);
 }
 
 /// PTC command to set the offset of a BG layer. 
@@ -460,9 +460,13 @@ void Background::reset(){
 	bgclr_({});
 	page = oldpage;
 	//BGCLIP 0,0,31,23 (both screens)
-	for (auto& l : bg_layers){
-		l.clip(0,0,31,23);
-	}
+	bgclip_x1 = 0;
+	bgclip_y1 = 0;
+	bgclip_x2 = 31;
+	bgclip_y2 = 23;
+	//for (auto& l : bg_layers){
+	//	l.clip(0,0,31,23);
+	//}
 	//BGOFS (all),0,0
 	for (auto& i : bg_info){
 		i.x = 0;

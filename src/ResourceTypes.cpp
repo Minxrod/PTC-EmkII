@@ -123,7 +123,7 @@ int COL::get_col_b(int i){
 //Used to create/update color texture
 std::vector<unsigned char> COL::COL_to_RGBA(){
 	std::vector<unsigned char> cols;
-	cols.resize(256*4);
+	cols.resize(1024);
 	
 	for (int i = 0; i < 256; ++i){
 		int col = (data[2*i] << 8) + data[2*i+1];

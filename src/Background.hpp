@@ -26,6 +26,11 @@ class Background : public IPTCObject {
 		int time;
 	};
 	
+	int bgclip_x1 = 0;
+	int bgclip_y1 = 0;
+	int bgclip_x2 = 31;
+	int bgclip_y2 = 23;
+	
 	/// Evaluator object
 	Evaluator& e;
 	/// SCR objects (contains all actual tile data)

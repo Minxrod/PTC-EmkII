@@ -480,6 +480,10 @@ void Visual::draw(sf::RenderWindow& w){
 	bgsp_shader.setUniform("texture", sf::Shader::CurrentTexture);
 	//screens
 	for (int sc = 0; sc < 2; ++sc){
+		sf::View view{sf::FloatRect{0, 0, 256, 192}};
+		view.setViewport(sf::FloatRect{0, 0.5f * sc, 1, 0.5f});
+		w.setView(view);
+		
 		float col_l = 3.0f * sc;
 		int chr_l = 6 * sc;
 		// state functions
@@ -493,11 +497,9 @@ void Visual::draw(sf::RenderWindow& w){
 		sf::Sprite grp;
 		grp_tex.update(g.draw(sc).data());
 		grp.setTexture(grp_tex);
-		grp.setPosition(0,192*sc);
 		grp.setColor(sf::Color(0));
 		//grp prio=3
 		if (g.get_prio(sc) == 3){
-//			bgsp_shader.setUniform("colbank", COL_GRP + col_l);
 			if (visible[Visible::GRP])
 				w.draw(grp, grp_state());
 		}
@@ -507,19 +509,18 @@ void Visual::draw(sf::RenderWindow& w){
 		//bg
 		for (int l = 1; l >= 0; --l){
 			auto state = set_state(Tex::BGU_U + chr_l, COL_BG);
-//			bgsp_shader.setUniform("colbank", COL_BG + col_l);
-//			rs.texture = &resource_tex[1];
+			
 			auto& bg = b.draw(sc, l);
 			auto pos = bg.getPosition();
 			pos.x = (int)pos.x & 0x1ff;
 			pos.y = (int)pos.y & 0x1ff;
-			pos.y += 192*sc;
+			
 			if (pos.x > 0){
 				bg.setPosition(pos.x - 64*8, pos.y);
 				if (visible[Visible::BG0 + l])
 					w.draw(bg, state);
 			}
-			if (pos.y > 192*sc){
+			if (pos.y > 0){
 				bg.setPosition(pos.x, pos.y - 64*8);
 				if (visible[Visible::BG0 + l])
 					w.draw(bg, state);
@@ -546,9 +547,6 @@ void Visual::draw(sf::RenderWindow& w){
 		//console + panel console
 		auto console_state = set_state(BGF_U + chr_l, COL_BG + col_l);
 		auto& console = sc ? p.get_console().draw() : c.draw();
-		if (sc){
-			console.setPosition(sf::Vector2f{0,192});
-		}
 		//panel console is always visible for some reason
 		if (visible[Visible::CON] || sc)
 			w.draw(console, console_state);
@@ -565,8 +563,9 @@ void Visual::draw(sf::RenderWindow& w){
 	if (p.panel_on() && visible[Visible::PNL]){
 		w.draw(p.draw_panel(), set_state(Tex::BGD_L, COL_BG_L));
 		w.draw(p.draw_keyboard(), set_state(Tex::SPD, COL_SP_L));
-		w.draw(p.draw_icon(), set_state(Tex::SPD, COL_SP_L));
 	}
+	if (visible[Visible::PNL])
+		w.draw(p.draw_icon(), set_state(Tex::SPD, COL_SP_L));
 	// you cannot hide the function key text if the panel is on.
 	// this, the panel console, and the INPUT cursor cannot be hidden.
 	if (p.panel_on())

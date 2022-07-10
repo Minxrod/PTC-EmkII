@@ -62,7 +62,7 @@ public:
 	/// @param y1 Cornet 1 y location (upper left)
 	/// @param x2 Corner 2 x location
 	/// @param y2 Cornet 2 y location
-	void clip(int x1, int y1, int x2, int y2);
+//	void clip(int x1, int y1, int x2, int y2);
 	
 	/// Draws this tilemap.
 	///

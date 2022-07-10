@@ -80,19 +80,19 @@ void Panel::touch_keys(bool t, int x, int y){
 
 TileMap& Panel::draw_panel(){
 	if (pnltype > 1) //kya kym kyk
-		panel_bg.setPosition(0,192);
+		panel_bg.setPosition(0,0);
 	else if (pnltype == 1) //pnl
-		panel_bg.setPosition(256,192);
+		panel_bg.setPosition(256,0);
 	else //off
-		panel_bg.setPosition(0,192+256);
+		panel_bg.setPosition(0,256);
 	return panel_bg;
 }
 
 SpriteArray& Panel::draw_keyboard(){
 	SpriteArray& key_sp = keyboard.draw_keyboard();
-	key_sp.setPosition(0,384);
+	key_sp.setPosition(0,192);
 	if (pnltype > 1){
-		key_sp.setPosition(0,192);
+		key_sp.setPosition(0,0);
 	}
 	return key_sp;
 }
@@ -100,11 +100,11 @@ SpriteArray& Panel::draw_keyboard(){
 TileMap& Panel::draw_funckeys(){
 	TileMap& func_keys = keyboard.draw_funckeys();
 	if (pnltype > 1) //kya kym kyk
-		func_keys.setPosition(0,192);
+		func_keys.setPosition(0,0);
 	else if (pnltype == 1) //pnl
-		func_keys.setPosition(256,192);
+		func_keys.setPosition(256,0);
 	else //off
-		func_keys.setPosition(0,192+256);
+		func_keys.setPosition(0,256);
 	return func_keys;
 }
 

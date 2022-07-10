@@ -1,8 +1,7 @@
 #include "TileMap.hpp"
 
-TileMap::TileMap(int w, int h/*, sf::Texture t*/) : width{w}, height{h}/*, tex{t}*/{
+TileMap::TileMap(int w, int h) : width{w}, height{h}{
 	va = sf::VertexArray(sf::Quads, w*h*4);
-	view = sf::View{sf::FloatRect(0.f, 0.f, 256.f, 192.f)};
 	
 	for (int y = 0; y < h; ++y){
 		for (int x = 0; x < w; ++x){
@@ -48,11 +47,13 @@ void TileMap::palette(int x, int y, int pal, int bg){
 	va[4*(x+width*y)+3].color = sf::Color(pal,bg,0);
 }
 
-void TileMap::clip(int x1, int y1, int x2, int y2){
-	view.setViewport(sf::FloatRect(x1/32.0,y1/24.0,(x2-x1+1)/32.0,(y2-y1+1)/24.0));
-}
+//void TileMap::clip(int x1, int y1, int x2, int y2){
+//	view.setViewport(sf::FloatRect(x1/32.0,y1/24.0,(x2-x1+1)/32.0,(y2-y1+1)/24.0));
+//}
 
 void TileMap::draw(sf::RenderTarget& t, sf::RenderStates s) const {
 	s.transform *= getTransform();
+//	t.setView(view);
 	t.draw(va, s);
+//	t.setView(t.getDefaultView());
 }
