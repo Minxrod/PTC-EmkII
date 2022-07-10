@@ -535,6 +535,7 @@ void Visual::draw(sf::RenderWindow& w){
 			if (visible[Visible::BG0 + l])
 				w.draw(bg, state);
 			
+			w.setView(view);
 			// grp prio=2,1
 			if (g.get_prio(sc) == 1+l){
 				if (visible[Visible::GRP])

@@ -55,14 +55,6 @@ public:
 	/// @param pal Palette number
 	/// @param bg Background color (default=0)
 	void palette(int x, int y, int pal, int bg = 0);
-	/// Sets the clipping rectangle for this TileMap.
-	/// @note Rectangle is inclusive of tiles along x=x2 or y=y2.
-	/// 
-	/// @param x1 Corner 1 x location (upper left)
-	/// @param y1 Cornet 1 y location (upper left)
-	/// @param x2 Corner 2 x location
-	/// @param y2 Cornet 2 y location
-//	void clip(int x1, int y1, int x2, int y2);
 	
 	/// Draws this tilemap.
 	///
