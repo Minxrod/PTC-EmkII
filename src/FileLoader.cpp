@@ -60,6 +60,9 @@ void Header::set_type(std::string type){
 	if (type == "MEM"){
 		type_str = MEM_TYPE;
 		type_num = 1;
+	} else if (type == "GRP"){
+		type_str = GRP_TYPE;
+		type_num = 2;
 	} else if (type == "CHR"){
 		type_str = CHR_TYPE;
 		type_num = 3;

@@ -116,4 +116,9 @@ public:
 	/// 
 	/// @return Current graphics screen
 	int get_page() { return screen; };
+	
+	/// Regenerates image texture from GRP data.
+	/// 
+	/// @param page GRP page to regenerate
+	void regen_grp(int page);
 };

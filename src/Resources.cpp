@@ -130,19 +130,19 @@ void Resources::load(std::string type, std::string filename){
 	if (std::find(chr_resources.begin(), chr_resources.end(), type) != chr_resources.end()){
 		auto fs = get_filestream("programs/"+filename+".PTC");
 		read_n(fs, chr.at(type).data, 48); //dummy read to skip header
-		read_n(fs, chr.at(type).data, CHR::SIZE);		
+		read_n(fs, chr.at(type).data, CHR::SIZE);
 	} else if (std::find(col_resources.begin(), col_resources.end(), type) != col_resources.end()){
 		auto fs = get_filestream("programs/"+filename+".PTC");
 		read_n(fs, col.at(type).data, 48); //dummy read to skip header
-		read_n(fs, col.at(type).data, COL::SIZE);		
+		read_n(fs, col.at(type).data, COL::SIZE);
 	} else if (std::find(grp_resources.begin(), grp_resources.end(), type) != grp_resources.end()){
 		auto fs = get_filestream("programs/"+filename+".PTC");
 		read_n(fs, grp.at(type).data, 48); //dummy read to skip header
-		read_n(fs, grp.at(type).data, GRP::SIZE);		
+		read_n(fs, grp.at(type).data, GRP::SIZE);
 	} else if (std::find(scr_resources.begin(), scr_resources.end(), type) != scr_resources.end()){
 		auto fs = get_filestream("programs/"+filename+".PTC");
 		read_n(fs, scr.at(type).data, 48); //dummy read to skip header
-		read_n(fs, scr.at(type).data, SCR::SIZE);		
+		read_n(fs, scr.at(type).data, SCR::SIZE);
 	} else if (type == "MEM"){
 		try {
 			auto fs = get_filestream("programs/"+filename+".PTC");
@@ -152,6 +152,7 @@ void Resources::load(std::string type, std::string filename){
 			std::cout << "Failed to load: " << e.what() << "\n";
 			mem.data.resize(MEM::SIZE);
 			std::fill(mem.data.begin(), mem.data.end(), 0);
+			throw e;
 		}
 	}
 }
@@ -176,6 +177,11 @@ void Resources::save(std::string type, std::string filename){
 		header.set_size(12 + COL::SIZE);
 		header.set_type("COL");
 		data = col.at(type).data;
+		header.set_md5(data);
+	} else if (std::find(grp_resources.begin(), grp_resources.end(), type) != grp_resources.end()){
+		header.set_size(12 + GRP::SIZE);
+		header.set_type("GRP");
+		data = grp.at(type).data;
 		header.set_md5(data);
 	}
 	

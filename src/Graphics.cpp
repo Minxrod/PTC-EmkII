@@ -549,6 +549,14 @@ void Graphics::reset(){
 	}
 }
 
+void Graphics::regen_grp(int page){
+	for (int x = 0; x < 256; ++x){
+		for (int y = 0; y < 192; ++y){
+			image[page][4*(x+256*y)] = grp.at("GRP"+std::to_string(page)).data[to_chr_coords(x,y)];
+		}
+	}
+}
+
 int Graphics::get_prio(int screen){
 	return prio[screen];
 }
