@@ -2,6 +2,15 @@
 
 #include "Visual.hpp"
 
+#include <regex>
+
+/// Regex matching valid numeric INPUT.
+const std::regex number{ R"(-?[0-9]+\.?[0-9]*)" };
+/// Regex matching invalid INPUT for numeric variables.
+///
+/// These inputs are known to cause Overflow errors instead of the ?Redo from start prompt.
+const std::regex bad_number{ R"([\-0-9]?\.[0-9]*\.)" };
+
 PTC2Console::PTC2Console(Evaluator& eval, Input& i, Visual* vis) : BaseConsole(), v{vis},
 in{i}, e{eval}, tm{PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT} {
 	csrx = std::get<Number*>(e.vars.get_var_ptr("CSRX"));
@@ -140,34 +149,79 @@ std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args&
 	auto str = std::vector<Token>(guide.begin(), std::find(guide.begin(), guide.end(), ";"_TO));
 	auto semicolon = std::find(guide.begin(), guide.end(), ";"_TO);
 	auto var = std::vector<Token>(semicolon+(semicolon != guide.end()), guide.end());
-	if (var.empty())
+	if (var.empty()){
 		var = str; //no semicolon means a[1] only contains <varname>
+	}
 	
-	print_(e.evaluate(str));
-	print_(Var(String("?")));
-	newline();
-	
-	auto old_x = get_x();
-	auto old_y = get_y();
-	
-	//do inputs loop
-	char lastpress = '\0';
-	std::string res = "";
-	while (lastpress != '\r'){
-		lastpress = in.inkey_internal();
+	bool valid = false;
+	std::string res;
+	while (!valid){
+		if (semicolon != guide.end())
+			print_(e.evaluate(str));
+		print_(Var(String("?")));
+		newline();
 		
-		if (lastpress == '\b'){
-			res = res.substr(0, res.size()-1);
-//			--*cur_x;
-//			print_str(" ");
-		} else if (lastpress != '\0' && lastpress != '\r' && lastpress != '\b' && res.size() < PTC2_CONSOLE_WIDTH) {
-			res += lastpress;
+		auto old_x = get_x();
+		auto old_y = get_y();
+		
+		//do inputs loop
+		char lastpress = '\0';
+		// INPUT uses currently existing console text as input...
+		for (int x = 0; x < PTC2_CONSOLE_WIDTH; ++x){
+			auto c = chkchr(x,old_y);
+			if (c)
+				res += c;
+		}
+		// TODO: cursor should start at x=zero, even if text is pre-filled
+		// TODO: cursor should be movable with left/right, and A/Y button should work as enter/backspace, L/R shift
+		// TODO: shift+backspace clears line
+		while (lastpress != '\r'){
+			lastpress = in.inkey_internal();
+			
+			if (lastpress == '\b'){
+				res = res.substr(0, res.size()-1);
+			} else if (lastpress != '\0' && lastpress != '\r' && lastpress != '\b' && res.size() < PTC2_CONSOLE_WIDTH) {
+				res += lastpress;
+			}
+			
+			locate(old_x, old_y);
+			print_str(res + (lastpress == '\b' ? " " : ""));
+		}
+		newline();
+		
+		valid = true;
+		std::size_t commas = 0;
+		for (auto c : res)
+			commas += c == ',';
+		//check number of vars passed
+		if (commas != a.size()-2)
+			valid = false;
+		// validate types
+		auto itr = res.begin();
+		for (auto i = 1; i < (int)a.size(); ++i){
+			auto& name_exp = (i==1 ? var : a[i]);
+			// string,3424,3423.432,,
+			auto sub_res = std::string(itr, std::find(itr, res.end(), ','));
+			itr = std::find(itr+1, res.end(), ',');
+			if (itr != res.end()) //next character past comma
+				++itr;
+			
+			if (std::holds_alternative<Number>(e.evaluate(name_exp))){
+				if (!std::regex_match(sub_res, number)){
+					valid = false;
+					if (std::regex_match(sub_res, bad_number)){
+						throw std::logic_error{"Overflow (INPUT)"};
+					}
+				}
+			}
 		}
 		
-		locate(old_x, old_y);
-		print_str(res + (lastpress == '\b' ? " " : ""));
+		if (!valid){
+			print_(Var(String("?Redo from start")));
+			newline();
+			res = "";
+		}
 	}
-	newline();
 	
 	v->p.panel_override(pnltype);
 	return std::pair(var, res);

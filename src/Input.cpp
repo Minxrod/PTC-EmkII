@@ -154,7 +154,9 @@ char Input::inkey_internal(){
 /// @return String containing character typed, or empty string if nothing was typed
 Var Input::inkey_(const Vals&){
 	std::string res = "";
-	res += inkey_internal();
+	auto c = inkey_internal();
+	if (c)
+		res += c;
 	return Var(res);
 }
 
