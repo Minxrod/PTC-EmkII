@@ -69,11 +69,16 @@ void Program::exec_(const Args& a){
 	std::string prgname = std::get<String>(e.evaluate(a[1]));
 	
 	PRG prg;
-	prg.load("programs/"+prgname+".PTC");
-	
-	auto t = tokenize(prg);
-	set_tokens(t);
-	//RESULt = 0 if failed, else 1
+	try {
+		prg.load("programs/"+prgname+".PTC");
+		auto t = tokenize(prg);
+		set_tokens(t);
+		e.vars.write_sysvar("RESULT", 1.0);
+	} catch (const std::runtime_error& ex){
+		//load failed for some reason
+		std::cout << ex.what();
+		e.vars.write_sysvar("RESULT", 0.0);
+	}
 }
 
 void Program::loader(){
