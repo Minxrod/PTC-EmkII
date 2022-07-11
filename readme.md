@@ -4,11 +4,80 @@ PTC Interpreter, attempt two!
 
 This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC programs on PC. The end goal is to support all commands and functions that are usable from programs. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLSET bug/crash will not work the same.
 
-Please note that this is heavily a WIP and nowhere near finished, so don't be surprised if something breaks.
+Please note that this is a WIP, so don't be surprised if something breaks. If it does, please create an issue describing the problem, and either provide the crashing/broken program or an example that demonstrates the problem.
 
 ### Current support
 
 The current project has some amount of support for SAMPLE1-SAMPLE12, and GAME1-GAME5. See https://github.com/Minxrod/PTC-EmkII/projects/1 or https://github.com/Minxrod/PTC-EmkII/projects/2 for more info.
+
+# Usage
+
+## First time setup
+
+Place a PTC .nds file in the resources/ directory, then from a terminal/console run
+
+### Linux
+```
+cd resources/
+./nds_extract <ptc_file>.nds
+```
+### Windows
+```
+cd resources/
+nds_extract.bat <ptc_file>.nds
+```
+
+This should automatically extract all required graphics and sound resources to the correct locations. Note that if you put more than one .nds in the resources directory, it will not work.
+
+If the precompiled versions of ndstool or sdatxtract do not work, see the Tools link below and compile/download the binaries yourself, and replace the copies in resources/tools/.
+
+Put any PTC files you want to run or load in the programs/ folder. This includes resources, such as CHR or GRP files.
+You will be prompted to enter a filename when launching PTC-EmkII.
+
+## Controls
+
+Buttons:
+- WASD = dpad
+- Arrow Keys = ABXY
+- Q = L
+- E = R
+- Enter = Start
+- RShift = Select
+
+Special keys:
+- F1: Zoom x1
+- F2: Zoom x2
+- F5: Restart current program (Note: Will wait until end of current instruction to take effect, will not work if program has already terminated)
+- F10: Disable/Enable keyboard buttons
+- F11: Disable/Enable keyboard 
+- F12: Open debugger window
+
+KEYBOARD and INKEY$() are approximated by typing on the keyboard, and most characters should be typed as expected. Holding Alt should allow you to type codes in the upper half of the range. If you have a japanese keyboard layout/can type katakana, this should also work.
+
+The touch keyboard is partially functional, but the different keyboards are not yet implemented.
+
+## Execution options
+
+* -s Disable sound system entirely. This also disables BGMCHK and the like, so is not recommended if your program needs this.
+* -d Opens a debugger immediately after starting.
+* -a Enable automatic reload on program exit. When a PTC program ends, this will reload the startup loader program.
+
+## Debugger
+
+The debugger is a second window that can be opened on execution with the -d option, or opened with F12 while running programs.
+Currently, lets you track simple variables, set breakpoints, and view CHR resource textures.
+
+Currently, the options are as follows:
+
+* `tr expression` - Add an expression to the list
+* `rm expression` - Remove an expression from the list
+* `exit` - Close the debugger window
+* `br line` - Sets a breakpoint at line
+* `clear line` - Removes a breakpoint at line
+* `c` - Continue if program execution is paused from a breakpoint
+* `tex index` - Displays the resource corresponding to the given index.
+
+Note that expressions are updated per-frame, not as values change. Also, note that functions, operations and variable access will work in these expressions, but that attempting to create a new variable is not currently supported and will likely crash due to thread-safety issues.
 
 # Building
 
@@ -62,78 +131,6 @@ doxygen doxyconfig
 ```
 
 Note that this is only documentation for the source code, and it is not yet complete.
-
-# Usage
-
-## Linux setup
-
-Place a PTC .nds file in the resources/ directory, then run
-```
-cd resources/
-./nds_extract <ptc_file>.nds
-```
-
-This should automatically extract all required graphics and sound resources to the correct locations. Note that if you put more than one .nds in the resources directory, it will not work.
-
-If the precompiled versions of ndstool or sdatxtract do not work, see the Tools link below and compile/download the binaries yourself, and replace the copies in resources/tools/.
-
-## Windows setup
-
-Place a PTC .nds file in the resources/ directory, then run
-```
-cd resources/
-nds_extract.bat <ptc_file>.nds
-```
-
-If the precompiled versions of ndstool or sdatxtract do not work, see the Tools link below and compile/download the binaries yourself, and replace the copies in resources/tools/.
-
-Put any PTC files you want to run or load in the programs/ folder. This includes resources, such as CHR or GRP files.
-You will be prompted to enter a filename when launching PTC-EmkII.
-
-## Execution options
-
-* -s Disable sound system entirely. This also disables BGMCHK and the like, so is not recommended if your program needs this.
-* -d Opens a debugger immediately after starting.
-* -a Enable automatic reload on program exit. When a PTC program ends, this will reload the startup loader program.
-
-## Controls
-
-Buttons:
-- WASD = dpad
-- Arrow Keys = ABXY
-- Q = L
-- E = R
-- Enter = Start
-- RShift = Select
-
-Special keys:
-- F1: Zoom x1
-- F2: Zoom x2
-- F5: Restart current program (Note: Will wait until end of current instruction to take effect, will not work if program has already terminated)
-- F10: Disable/Enable keyboard buttons
-- F11: Disable/Enable keyboard 
-- F12: Open debugger window
-
-INKEY$() is approximated by typing on the keyboard, and most characters should be typed as expected. Holding Alt should allow you to type codes in the upper half of the range. If you have a japanese keyboard layout/can type katakana, this should also work.
-
-The touch keyboard is partially functional, but the different keyboards are not yet implemented.
-
-## Debugger
-
-The debugger is a second window that can be opened on execution with the -d option, or opened with F12 while running programs.
-Currently, lets you track simple variables, set breakpoints, and view CHR resource textures.
-
-Currently, the options are as follows:
-
-* `tr expression` - Add an expression to the list
-* `rm expression` - Remove an expression from the list
-* `exit` - Close the debugger window
-* `br line` - Sets a breakpoint at line
-* `clear line` - Removes a breakpoint at line
-* `c` - Continue if program execution is paused from a breakpoint
-* `tex index` - Displays the resource corresponding to the given index.
-
-Note that expressions are updated per-frame, not as values change. Also, note that functions, operations and variable access will work in these expressions, but that attempting to create a new variable is not currently supported and will likely crash due to thread-safety issues.
 
 # Resources
 ## Tools used
