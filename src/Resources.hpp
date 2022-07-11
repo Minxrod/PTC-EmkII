@@ -30,7 +30,7 @@ struct Resources{
 	
 	//should contain all required resources
 	/// Program header
-	Header prg_info;
+	Header header;
 	/// PRG resource
 	PRG prg;
 	/// MEM resource
@@ -44,8 +44,8 @@ struct Resources{
 	/// COL resources
 	std::map<std::string, COL> col; //col0-2*2 //ul only
 	
-	/// Default constructor (default)
-	Resources() = default;
+	/// Default constructor
+	Resources();
 	
 	/// Copy constructor (deleted)
 	Resources(const Resources&) = delete;
@@ -69,7 +69,7 @@ struct Resources{
 	/// 
 	/// @param type PTC resource type (MEM, BGU0L, etc.)
 	/// @param filename Name of file to load
-	void load(std::string type, std::string filename);
+	void load(std::string type, std::string filename, int header_size = 48);
 	/// Saves a resource of the given type with the given name.
 	/// 
 	/// @param type PTC resource type (MEM, BGU0L, etc.)

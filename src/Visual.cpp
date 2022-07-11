@@ -40,15 +40,22 @@ Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 	maincnth = std::get<Number*>(e.vars.get_var_ptr("MAINCNTH"));
 	//creates a color texture from all colors COL0U to COL2L
 	col_tex.create(256,6);
-	regen_col();
 	//create all CHR resource textures
-	std::vector<std::string> type{"BGF", "BGU", "SPU", "SPS", "SPD", "BGD"};
-	std::vector<int> banks{1, 4, 8, 2, 4, 2};
-	
 	resource_tex = std::vector<sf::Texture>{12, sf::Texture{}};
+	for (int i = 0; i < (int)resource_tex.size(); ++i)
+		resource_tex[i].create(256, 64*(i != 10 ? BANKS[i%6] : 8)); //exception is to add SPK to end of SPD
+	
+	regen_all();
+	
+	grp_tex.create(256,192);
+}
+
+void Visual::regen_all(){
+	regen_col();
+	// generate CHR textures
+	const std::vector<std::string> type{"BGF", "BGU", "SPU", "SPS", "SPD", "BGD"};
 	
 	for (int i = 0; i < (int)resource_tex.size(); ++i){
-		resource_tex[i].create(256, 64*(i != 10 ? banks[i%6] : 8));
 		if (i == 8 || i == 4){
 			continue;
 		}
@@ -57,14 +64,18 @@ Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 			screen = "";
 		}
 		
-		for (int b = 0; b < banks[i%6]; ++b)
+		for (int b = 0; b < BANKS[i%6]; ++b)
 			resource_tex[i].update(r.chr.at(type[i%6]+std::to_string(b)+screen).get_array().data(), 256, 64, 0, b*64);
 	}
-	//append SPK to SPD
+	//SPK
 	for (int b = 4; b < 8; ++b)
 		resource_tex[10].update(r.chr.at("SPK"+std::to_string(b-4)).get_array().data(), 256, 64, 0, b*64);
 	
-	grp_tex.create(256,192);
+	// regen SCU and GRP
+	for (int i = 0; i < 4; ++i){
+		g.regen_grp(i);
+		b.regen_scr(i%2, i/2);
+	}
 }
 
 void Visual::regen_chr(std::string type){

@@ -53,6 +53,12 @@ struct Header {
 	/// @return MD5 hash.
 	std::string get_md5() const;
 	
+	/// Checks if the given bit is set in the package string.
+	/// 
+	/// @param index Bit to check
+	/// @return package bit at index
+	bool is_packed(int index) const;
+	
 	/// Default constructor
 	Header();
 };

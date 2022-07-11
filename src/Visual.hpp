@@ -25,6 +25,8 @@ struct Visual : public IPTCObject {
 	const static int WIDTH = 256;
 	/// Height of screen, in pixels.
 	const static int HEIGHT = 192;
+	/// Number of banks for each resource type.
+	const std::vector<int> BANKS{1, 4, 8, 2, 4, 2};
 	
 	/// Evaluator used for PTC functions.
 	Evaluator& e;
@@ -80,6 +82,9 @@ struct Visual : public IPTCObject {
 	/// Regenerates the character texture corresponding to the given type.
 	/// Used after something like LOAD or CHRSET. 
 	void regen_chr(std::string type);
+	
+	/// Regenerates all resources. Used after loading a program (that may potentially be a package)
+	void regen_all();
 	
 public:
 	/// Constructor

@@ -12,6 +12,7 @@ PTCSystem::PTCSystem() {
 	//Create objects for system
 	resources = std::make_shared<Resources>();
 	resources->load_default();
+//	resources->load_program("resources/misc/TESTPKG.PTC"); //package program that contains every default resource
 	
 	evaluator = std::make_shared<Evaluator>();
 	
@@ -27,7 +28,7 @@ PTCSystem::PTCSystem() {
 	
 	// load default controls
 	{
-		std::ifstream controls{"config/controls.txt"};
+		std::ifstream controls{"resources/config/controls.txt"};
 		int code;
 //		for (int b = 0; b < 4; ++b){
 //			controls >> code;
@@ -49,13 +50,17 @@ PTCSystem::PTCSystem() {
 		}
 	}
 	
-	PRG prg;
-	prg.load("resources/misc/LOADER.PTC");
-	program = std::make_shared<Program>(*evaluator, tokenize(prg));
+	get_resources()->load_program("resources/misc/LOADER.PTC");
+	program = std::make_shared<Program>(this);
 	
 	program->add_cmds(visual->get_cmds());
 	program->add_cmds(input->get_cmds());
 	program->add_cmds(sound->get_cmds());
+}
+
+void PTCSystem::load_program(std::string filename){
+	resources->load_program(filename);
+	program->set_tokens(tokenize(resources->prg));
 }
 
 void PTCSystem::set_option(std::string option, int state){

@@ -33,11 +33,16 @@ public:
 	
 	void set_option(std::string option, int state);
 	
+	/// Loads a new program, updating all resources required.
+	void load_program(std::string filename);
+	
 	/// Runs whatever program is loaded.
 	void start(){
 		program->run();
 	}
 	
+	/// Check if program is currently running.
+	/// TODO: Check if this is correct
 	bool is_running(){
 		return !program->at_eof();
 	}
@@ -66,6 +71,7 @@ public:
 		return sound;
 	}
 	
+	/// Run each frame to update time based events.
 	void update();
 };
 
@@ -104,5 +110,6 @@ public:
 		return window.isOpen();
 	}
 	
+	/// Runs approximately once each frame and handles rendering.
 	void update();
 };

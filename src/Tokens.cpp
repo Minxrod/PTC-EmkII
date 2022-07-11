@@ -33,7 +33,7 @@ const std::regex binary{ R"(\&B[01]*)" }; //does not allow decimal points
 const std::regex separator{ R"([:\r])" };
 const std::regex variable{ R"([A-Z_][A-Z0-9_]*\$?)" };
 const std::regex label{ R"(\@[A-Z0-9_]+)" };
-const std::regex comment{ R"(('|REM).*\r)" };
+const std::regex comment{ R"(('|REM)[^\r]*\r)" };
 const std::string first_char_ops = ",;[]()+-*/%!<>="; //single character operations or leading characters
 const std::string second_char_ops = "="; //second character of operations
 

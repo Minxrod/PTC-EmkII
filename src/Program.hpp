@@ -12,9 +12,12 @@
 #include "Resources.hpp"
 #include "IPTCObject.hpp"
 
+class PTCSystem;
+
 class Program {
 	friend class Debugger; //useful for access to breakpoints, current location, stack, etc.
 	
+	PTCSystem* system;
 	Evaluator& e;
 	
 	std::vector<Token> tokens;
@@ -61,7 +64,7 @@ class Program {
 	void rsort_(const Args&);
 	
 public:
-	Program(Evaluator&, const std::vector<Token>&);
+	Program(PTCSystem*);
 	
 	Program() = delete;
 	

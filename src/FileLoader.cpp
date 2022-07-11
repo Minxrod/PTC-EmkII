@@ -9,11 +9,11 @@
 
 const int PTC_OFS_PX01 = 0x0;
 const int PTC_OFS_SIZE_AFTER_MD5 = 0x4;
-const int PTC_OFS_UNKNOWN = 0x8; //might be a type identifier of some kind? 0x00 - PRG, 0x01 - MEM, 0x03 - CHR, 0x05 - COL?
+const int PTC_OFS_TYPE = 0x8;
 const int PTC_OFS_FILENAME = 0xc;
 const int PTC_OFS_MD5 = 0x14;
 const int PTC_OFS_TYPE_STR = 0x24;
-const int PTC_OFS_PRG_UNKNOWN = 0x30; //possibly extended package info or something
+const int PTC_OFS_PRG_PACKAGE_HIGH = 0x30;
 const int PTC_OFS_PRG_PACKAGE = 0x34;
 const int PTC_OFS_PRG_SIZE = 0x38;
 
@@ -76,7 +76,7 @@ void Header::set_type(std::string type){
 		throw std::runtime_error{"Unsupported save type " + type};
 	}
 	
-	write_u32(type_num, &data[PTC_OFS_UNKNOWN]);
+	write_u32(type_num, &data[PTC_OFS_TYPE]);
 	write_str(12, type_str, &data[PTC_OFS_TYPE_STR]);
 }
 
@@ -90,9 +90,18 @@ void Header::set_md5(std::vector<unsigned char>& d){
 
 int Header::get_prg_size() const {
 	if (data.size() != 60){
-		throw std::runtime_error{"Error: Attempted to get program size from non-program header"};
+		throw std::logic_error{"Error: Attempted to get program size from non-program header"};
 	}
-	return data[0x38] + ((unsigned int)data[0x39] << 8) + ((unsigned int)data[0x3a] << 16);
+	return data[PTC_OFS_PRG_SIZE] + ((unsigned int)data[PTC_OFS_PRG_SIZE+1] << 8) + ((unsigned int)data[PTC_OFS_PRG_SIZE+2] << 16);
+}
+
+bool Header::is_packed(int index) const {
+	if (data.size() != 60){
+		throw std::logic_error{"Error: Attempted to get package information from non-program header"};
+	}
+	int byte_index = PTC_OFS_PRG_PACKAGE_HIGH + ((index / 8) ^ 4);
+	return data[byte_index] & (1<<(index%8));
+	
 }
 
 std::string Header::get_md5() const {

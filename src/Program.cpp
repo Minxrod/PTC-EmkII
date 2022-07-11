@@ -1,10 +1,12 @@
 #include "Program.hpp"
 
+#include "PTCSystem.hpp"
+
 #include <thread>
 #include <chrono>
 
-Program::Program(Evaluator& eval, const std::vector<Token>& t) : e{eval}{
-	set_tokens(t);
+Program::Program(PTCSystem* s) : system{s}, e{*system->get_evaluator()}{
+	set_tokens(tokenize(system->get_resources()->prg));
 	
 	commands = std::map<Token, cmd_type>{
 		cmd_map("FOR"_TC, getfunc(this, &Program::for_)),
@@ -68,11 +70,8 @@ void Program::exec_(const Args& a){
 	//EXEC progname
 	std::string prgname = std::get<String>(e.evaluate(a[1]));
 	
-	PRG prg;
 	try {
-		prg.load("programs/"+prgname+".PTC");
-		auto t = tokenize(prg);
-		set_tokens(t);
+		system->load_program("programs/"+prgname+".PTC");
 		e.vars.write_sysvar("RESULT", 1.0);
 	} catch (const std::runtime_error& ex){
 		//load failed for some reason

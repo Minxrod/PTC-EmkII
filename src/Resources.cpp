@@ -48,44 +48,71 @@ const std::vector<std::string> spk_files{
 	"resources/ui/makeKANA_SHIFT.NCGR"
 };
 
-void Resources::load_program(std::string name){
-	auto fs = get_filestream(name);
-	read_n(fs, prg_info.data, 60);
-	read_n(fs, prg.data, prg_info.get_prg_size());
+// this ordering taken from the program post here:
+// https://gamefaqs.gamespot.com/boards/663843-petit-computer/69602216
+// credit to @NeatNit for doing the research
+const std::vector<std::string> package_resources{
+	"SPU0", "SPU1", "SPU2", "SPU3", "SPU4", "SPU5", "SPU6", "SPU7",
+	"BGU0U", "BGU1U", "BGU2U", "BGU3U",
+	"BGF0U",
+	"COL0U", "COL1U", "COL2U",
+	"SCU0U", "SCU1U",
+	"GRP0", "GRP1", "GRP2", "GRP3",
+	"MEM",
+	"SPD0", "SPD1", "SPD2", "SPD3",
+	"BGU0L", "BGU1L", "BGU2L", "BGU3L",
+	"BGF0L",
+	"COL0L", "COL1L", "COL2L",
+	"SCU0L", "SCU1L",
+	"SPS0U", "SPS1U",
+	"BGD0U", "BGD1U",
+	"SPS0L", "SPS1L",
+	"BGD0L", "BGD1L",
+};
+
+void load_pkg(std::ifstream& fs, std::vector<unsigned char>& data, int size){
+	read_n(fs, data, 12);
+	read_n(fs, data, size);
 }
 
-void Resources::load_default(){
-	for (auto r : chr_resources){
-		auto fs = get_filestream("resources/graphics/"+r.substr(0,4)+".PTC");
-		chr.insert(std::pair(r, CHR()));
-		read_n(fs, chr.at(r).data, 48); //dummy read to skip header
-		read_n(fs, chr.at(r).data, CHR::SIZE);
-	}
-	//Keyboard sprites
-	{
-		auto fs = get_filestream("resources/ui/partsSPDK.NCGR");
-		std::vector<unsigned char> dummy{};
-		read_n(fs, dummy, 48+4*(256*64/2)); //dummy read to skip header, SPD0-3
-		for (int i = 0; i < 4; ++i){
-			chr.insert(std::pair("SPK" + std::to_string(i), CHR()));
-			read_n(fs, chr.at("SPK" + std::to_string(i)).data, CHR::SIZE);
+void Resources::load_program(std::string name){
+	auto fs = get_filestream(name);
+	read_n(fs, header.data, 60);
+	read_n(fs, prg.data, header.get_prg_size());
+	
+	auto load_type_pkg = [this](std::ifstream& fs, std::string type){
+		if (std::find(chr_resources.begin(), chr_resources.end(), type) != chr_resources.end()){
+			load_pkg(fs, chr.at(type).data, CHR::SIZE);
+		} else if (std::find(col_resources.begin(), col_resources.end(), type) != col_resources.end()){
+			load_pkg(fs, col.at(type).data, COL::SIZE);
+		} else if (std::find(grp_resources.begin(), grp_resources.end(), type) != grp_resources.end()){
+			load_pkg(fs, grp.at(type).data, GRP::SIZE);
+		} else if (std::find(scr_resources.begin(), scr_resources.end(), type) != scr_resources.end()){
+			load_pkg(fs, scr.at(type).data, SCR::SIZE);
+		} else if (type == "MEM"){
+			load_pkg(fs, mem.data, MEM::SIZE);
 		}
-	}
+	};
 	
-	for (auto c : col_resources){
+	for (std::size_t r = 0; r < package_resources.size(); ++r){
+		if (header.is_packed(r))
+			load_type_pkg(fs, package_resources[r]);
+	}
+}
+
+Resources::Resources() : header{}, prg{}, mem{}, grp{}, chr{}, scr{}, col{}{
+	for (auto r : chr_resources)
+		chr.insert(std::pair(r, CHR()));
+	for (int i = 0; i < 4; ++i)
+		chr.insert(std::pair("SPK" + std::to_string(i), CHR()));
+	for (auto c : col_resources)
 		col.insert({c, COL()});
-		col.at(c).load("resources/graphics/"+c.substr(0,4)+".PTC");
-	}
-	
-	for (auto g : grp_resources){
+	for (auto g : grp_resources)
 		grp.insert(std::pair(g, GRP()));
-		grp.at(g).data = std::vector<unsigned char>(GRP::SIZE, 0);
-	}
-	
-	for (auto s : scr_resources){
+	for (auto s : scr_resources)
 		scr.insert(std::pair(s, SCR()));
-		scr.at(s).data = std::vector<unsigned char>(SCR::SIZE, 0);
-	}
+	scr.insert(std::pair("PNL", SCR()));
+	scr.insert(std::pair("KEY", SCR()));
 	
 	//Panel SCRs
 	scr.insert(std::pair("PNL", SCR()));
@@ -102,6 +129,47 @@ void Resources::load_default(){
 	read_n(memfs, mem.data_enc, 48);
 	read_n(memfs, mem.data_enc, MEM::SIZE);
 	mem.generate_encoding();
+	
+	{
+		auto fs = get_filestream("resources/ui/partsSPDK.NCGR");
+		std::vector<unsigned char> dummy{};
+		read_n(fs, dummy, 48+4*(256*64/2)); //dummy read to skip header, SPD0-3
+		for (int i = 0; i < 4; ++i){
+			read_n(fs, chr.at("SPK" + std::to_string(i)).data, CHR::SIZE);
+		}
+	}
+	
+//	load_default();
+}
+
+void Resources::load_default(){
+	for (auto r : chr_resources){
+		auto fs = get_filestream("resources/graphics/"+r.substr(0,4)+".PTC");
+		read_n(fs, chr.at(r).data, 48); //dummy read to skip header
+		read_n(fs, chr.at(r).data, CHR::SIZE);
+	}
+	//Keyboard sprites
+	{
+		auto fs = get_filestream("resources/ui/partsSPDK.NCGR");
+		std::vector<unsigned char> dummy{};
+		read_n(fs, dummy, 48+4*(256*64/2)); //dummy read to skip header, SPD0-3
+		for (int i = 0; i < 4; ++i){
+			chr.insert(std::pair("SPK" + std::to_string(i), CHR()));
+			read_n(fs, chr.at("SPK" + std::to_string(i)).data, CHR::SIZE);
+		}
+	}
+	
+	for (auto c : col_resources){
+		col.at(c).load("resources/graphics/"+c.substr(0,4)+".PTC");
+	}
+	
+	for (auto g : grp_resources){
+		grp.at(g).data = std::vector<unsigned char>(GRP::SIZE, 0);
+	}
+	
+	for (auto s : scr_resources){
+		scr.at(s).data = std::vector<unsigned char>(SCR::SIZE, 0);
+	}
 }
 
 void Resources::load_keyboard(int type){
@@ -137,27 +205,27 @@ std::string Resources::normalize_type(std::string type, int bg, int sp, int gp){
 	return type;
 }
 
-void Resources::load(std::string type, std::string filename){
+void Resources::load(std::string type, std::string filename, int header_size){
 	if (std::find(chr_resources.begin(), chr_resources.end(), type) != chr_resources.end()){
 		auto fs = get_filestream("programs/"+filename+".PTC");
-		read_n(fs, chr.at(type).data, 48); //dummy read to skip header
+		read_n(fs, chr.at(type).data, header_size); //dummy read to skip header
 		read_n(fs, chr.at(type).data, CHR::SIZE);
 	} else if (std::find(col_resources.begin(), col_resources.end(), type) != col_resources.end()){
 		auto fs = get_filestream("programs/"+filename+".PTC");
-		read_n(fs, col.at(type).data, 48); //dummy read to skip header
+		read_n(fs, col.at(type).data, header_size); //dummy read to skip header
 		read_n(fs, col.at(type).data, COL::SIZE);
 	} else if (std::find(grp_resources.begin(), grp_resources.end(), type) != grp_resources.end()){
 		auto fs = get_filestream("programs/"+filename+".PTC");
-		read_n(fs, grp.at(type).data, 48); //dummy read to skip header
+		read_n(fs, grp.at(type).data, header_size); //dummy read to skip header
 		read_n(fs, grp.at(type).data, GRP::SIZE);
 	} else if (std::find(scr_resources.begin(), scr_resources.end(), type) != scr_resources.end()){
 		auto fs = get_filestream("programs/"+filename+".PTC");
-		read_n(fs, scr.at(type).data, 48); //dummy read to skip header
+		read_n(fs, scr.at(type).data, header_size); //dummy read to skip header
 		read_n(fs, scr.at(type).data, SCR::SIZE);
 	} else if (type == "MEM"){
 		try {
 			auto fs = get_filestream("programs/"+filename+".PTC");
-			read_n(fs, mem.data, 48); //dummy read to skip header
+			read_n(fs, mem.data, header_size); //dummy read to skip header
 			read_n(fs, mem.data, MEM::SIZE);
 		} catch (std::runtime_error& e){
 			std::cout << "Failed to load: " << e.what() << "\n";
