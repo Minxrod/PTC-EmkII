@@ -177,15 +177,16 @@ std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args&
 		// TODO: shift+backspace clears line
 		while (lastpress != '\r'){
 			lastpress = in.inkey_internal();
+			auto keycode = in.keycode_internal();
 			
-			if (lastpress == '\b'){
+			if (keycode == 15){
 				res = res.substr(0, res.size()-1);
-			} else if (lastpress != '\0' && lastpress != '\r' && lastpress != '\b' && res.size() < PTC2_CONSOLE_WIDTH) {
+			} else if (lastpress != '\0' && lastpress != '\r' && res.size() < PTC2_CONSOLE_WIDTH) {
 				res += lastpress;
 			}
 			
 			locate(old_x, old_y);
-			print_str(res + (lastpress == '\b' ? " " : ""));
+			print_str(res + (keycode == 15 ? " " : ""));
 		}
 		newline();
 		

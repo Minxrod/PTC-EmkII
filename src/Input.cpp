@@ -38,37 +38,87 @@ void Input::update(int b){
 			}
 		}
 	}
-	//if keycode != (enter) and is in (valid ranges) add to inkey queue
-	/*{
-		std::lock_guard loc(inkeybuf_mutex);
-		auto c = '?';
-		if (code_to_ptc.count(k) != 0){
-			keycode = code_to_ptc.at(k);
-			c = kya.at(keycode);
-		}
+}
+
+void Input::type(int unicode, Key key){
+	//check special keys first
+	if (key == Key::Backspace){
+		keycode = 15;
 		e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
-		if (c != kya.at(0))
-			inkeybuffer.push(kya.at(code_to_ptc.at(k)));
-	}*/
-}
-
-int Input::keyboard_to_keycode(Key k){
-	if (code_to_ptc.count(k) != 0)
-		return code_to_ptc.at(k);
-	return 0; //invalid key...
-}
-
-void Input::type(int unicode){
-	std::lock_guard loc(inkeybuf_mutex);
+		return;
+	} else if (key == Key::Tab){
+		keycode = 32;
+		e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
+		for (int i = 0; i < (int)*std::get<Number*>(e.vars.get_var_ptr("TABSTEP")); ++i)
+			inkeybuffer.push(' ');
+		return;
+	}
+	
 	std::string add{};
 	if (unicode_to_ptc.count(unicode))
 		add = unicode_to_ptc.at(unicode);
 	else if (unicode < 0x100)
 		add = unicode;
 		
-	if (add.size()){
-		for (auto c : add){
-			inkeybuffer.push(c);
+	type_try_keyboard(add, key);
+}
+
+void Input::type_try_keyboard(std::string keys, int){
+	std::lock_guard loc(inkeybuf_mutex);
+	if (keys.size()){
+		for (auto c : keys){
+			if (c)
+				inkeybuffer.push(c);
+			else
+				break;
+		}
+		std::size_t key = kyx[keyboard].find(keys);
+		if (key != std::string::npos)
+			keycode = keyboard == 5 ? key/2 : key;
+		else
+			keycode = 0;
+		e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
+	}
+	if (shift & 1){
+		shift &= 0xfe;
+		keyboard ^= 1;
+	}
+}
+
+
+void Input::touch_key(int key){
+//	std::lock_guard loc(inkeybuf_mutex);
+	std::string c = "\0";
+	if (key){
+		c = kyx[keyboard].at(keyboard == 5 ? 2*key : key);
+		if (keyboard == 5){
+			c += kyx[keyboard].at(2*key+1);
+		}
+	}
+	keycode = key;
+	e.vars.write_sysvar("KEYBOARD", static_cast<double>(key));
+	if (key == 47){
+		shift ^= 1;
+		keyboard ^= 1;
+	} else if (key == 61){
+		shift ^= 2;
+		keyboard ^= 1;
+	} else if (key == 62){
+		shift = 0;
+		keyboard = 0;
+	} else if (key == 63){
+		shift = 0;
+		keyboard = 2;
+	} else if (key == 64){
+		shift = 0;
+		keyboard = 4;
+	}
+	
+	if (c[0] != kyx[keyboard].at(0)){
+		if (c[0] != '\t') {
+			type_try_keyboard(std::string{c}, 0);
+		} else {
+			type_try_keyboard(std::string((int)*std::get<Number*>(e.vars.get_var_ptr("TABSTEP")), ' '), 0);
 		}
 	}
 }
@@ -78,8 +128,10 @@ void Input::touch(bool t, int x, int y){
 		t = false; // do not allow out of bounds input
 	if (t)
 		++tchtime;
-	else
+	else {
 		tchtime=0;
+		e.vars.write_sysvar("KEYBOARD", static_cast<double>(0)); //can't touch keys if no touchscreen
+	}
 	tchst = t;
 	if (t){
 		tchx = x;
@@ -89,23 +141,6 @@ void Input::touch(bool t, int x, int y){
 	e.vars.write_sysvar("TCHY", static_cast<double>(tchy));
 	e.vars.write_sysvar("TCHTIME", static_cast<double>(tchtime));
 	e.vars.write_sysvar("TCHST", tchst ? 1.0 : 0.0);
-}
-
-void Input::touch_key(int keycode){
-	std::lock_guard loc(inkeybuf_mutex);
-	auto c = kya.at(0);
-	if (keycode != 0){
-		c = kya.at(keycode);
-	}
-	e.vars.write_sysvar("KEYBOARD", static_cast<double>(keycode));
-	if (c != kya.at(0)){
-		if (c != '\t') {
-			inkeybuffer.push(kya.at(keycode));
-		} else {
-			for (int i = 0; i < (int)*std::get<Number*>(e.vars.get_var_ptr("TABSTEP")); ++i)
-				inkeybuffer.push(' ');
-		}
-	}
 }
 
 /// PTC command to set button repeat timings.
@@ -143,6 +178,12 @@ char Input::inkey_internal(){
 		inkeybuffer.pop();
 	}
 	return c;
+}
+
+int Input::keycode_internal(){
+	int k = keycode;
+	keycode = 0;
+	return k;
 }
 
 /// PTC function to get a typed character.

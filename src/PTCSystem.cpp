@@ -169,21 +169,20 @@ void PTCSystemDisplay::update(){
 	if (mouse_press){
 		//"touchscreen" input
 		get_input()->touch(mouse_press, mouse_x, mouse_y);
+		
+		int old_keyboard = get_input()->keyboard;
 		get_visual()->p.touch_keys(mouse_time>0, mouse_x, mouse_y);
 		get_input()->touch_key(get_visual()->p.get_last_keycode());
+		
+		if (get_input()->keyboard != old_keyboard){
+			get_resources()->load_keyboard(get_input()->keyboard);
+			get_visual()->regen_chr("SPK2");
+			get_visual()->regen_chr("SPK3");
+		}
+		
 	} else if (keyboard_enable && unicode && get_visual()->p.panel_on() > 1){
 		// keyboard write directly to inkey buffer (no screen touch)
-		get_input()->type(unicode);
-/*	} else if (keyboard_enable && k != sf::Keyboard::Key::Unknown && get_visual()->p.panel_on() > 1){
-		//Simluate touchscreen tap by physical keyboard presses
-		int keycode = get_input()->keyboard_to_keycode(k);
-		if (keycode != 0){
-			auto [x,y] = get_visual()->p.get_keycode_xy(keycode);
-			
-			get_input()->touch(true, x, y);
-			get_visual()->p.touch_keys(true, x, y);
-			get_input()->touch_key(keycode);
-		}*/
+		get_input()->type(unicode, k);
 	} else {
 		get_visual()->p.touch_keys(false, -1, -1);
 		get_input()->touch(mouse_press, mouse_x, mouse_y);

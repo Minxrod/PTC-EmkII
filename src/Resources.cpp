@@ -39,6 +39,14 @@ const std::vector<std::string> Resources::scr_resources{
 	"SCU0U", "SCU1U", "SCU0L", "SCU1L"
 };
 
+const std::vector<std::string> spk_files{
+	"resources/ui/partsSPDK.NCGR",
+	"resources/ui/makeALPHA_SHIFT.NCGR",
+	"resources/ui/makeKIGOU.NCGR",
+	"resources/ui/makeKIGOU_SHIFT.NCGR",
+	"resources/ui/makeKANA.NCGR",
+	"resources/ui/makeKANA_SHIFT.NCGR"
+};
 
 void Resources::load_program(std::string name){
 	auto fs = get_filestream(name);
@@ -96,10 +104,13 @@ void Resources::load_default(){
 	mem.generate_encoding();
 }
 
-void Resources::load_keyboard(std::string filename){
-	auto fs = get_filestream(filename);
+void Resources::load_keyboard(int type){
+	auto fs = get_filestream(spk_files.at(type));
 	std::vector<unsigned char> dummy{};
 	read_n(fs, dummy, 48); //dummy read to skip NCGR header
+	if (!type){
+		read_n(fs, dummy, 6*CHR::SIZE); //skip to part we care about
+	}
 	read_n(fs, chr.at("SPK2").data, CHR::SIZE);
 	read_n(fs, chr.at("SPK3").data, CHR::SIZE);
 }

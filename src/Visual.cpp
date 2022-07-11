@@ -69,8 +69,14 @@ Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
 
 void Visual::regen_chr(std::string type){
 	int chr_bank = type[3] - '0';
-	std::vector<std::string> types{"BGF", "BGU", "SPU", "SPS", "SPD", "BGD"};
-	int tex_num = std::distance(types.begin(), std::find(types.begin(), types.end(), type.substr(0,3)));
+	int tex_num;
+	const std::vector<std::string> types{"BGF", "BGU", "SPU", "SPS", "SPD", "BGD"};
+	if (type.substr(0,3) != "SPK")
+		tex_num = std::distance(types.begin(), std::find(types.begin(), types.end(), type.substr(0,3)));
+	else { //spk special case
+		tex_num = 10;
+		chr_bank += 4;
+	}
 	int screen = (type.size() > 4 && type[4]=='L') ? 6 : 0;
 	resource_tex[tex_num + screen].update(r.chr.at(type).get_array().data(), 256, 64, 0, chr_bank*64);
 }

@@ -62,8 +62,8 @@ struct Resources{
 	/// Loads a set of keyboard key sprites.
 	/// Replaces SPK2 and SPK3 resources.
 	/// 
-	/// @param filename File to load key sprites from
-	void load_keyboard(std::string filename);
+	/// @param type Keyboard to load
+	void load_keyboard(int type);
 	
 	/// Loads a resource of the given type and name.
 	/// 

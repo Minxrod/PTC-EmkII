@@ -7,11 +7,14 @@
 #include <mutex>
 #include <map>
 #include <queue>
+#include <string>
 
 #include <SFML/Graphics.hpp>
 
 typedef sf::Keyboard::Key Key;
 typedef std::pair<Key, int> kc;
+
+using namespace std::string_literals;
 
 /// Input management struct.
 /// 
@@ -29,70 +32,26 @@ struct Input : public IPTCObject {
 	/// Stick sensitivity for controllers
 	float sensitivity = 50;
 	
-	/// Map of keyboard keys to PTC `KEYBOARD` key codes
-	const std::map<Key, int> code_to_ptc{
-		kc(Key::Unknown, 0),
-		kc(Key::Escape, 1),
-		kc(Key::Num1, 2),
-		kc(Key::Num2, 3),
-		kc(Key::Num3, 4),
-		kc(Key::Num4, 5),
-		kc(Key::Num5, 6),
-		kc(Key::Num6, 7),
-		kc(Key::Num7, 8),
-		kc(Key::Num8, 9),
-		kc(Key::Num9, 10),
-		kc(Key::Num0, 11),
-		kc(Key::Hyphen, 12),
-		kc(Key::Subtract, 12),
-		kc(Key::Add, 13),
-		kc(Key::Equal, 14),
-		kc(Key::Backspace, 15),
-		kc(Key::Q, 18),
-		kc(Key::W, 19),
-		kc(Key::E, 20),
-		kc(Key::R, 21),
-		kc(Key::T, 22),
-		kc(Key::Y, 23),
-		kc(Key::U, 24),
-		kc(Key::I, 25),
-		kc(Key::O, 26),
-		kc(Key::P, 27),
-		kc(Key::Multiply, 29),
-		kc(Key::Tab, 32),
-		kc(Key::A, 34),
-		kc(Key::S, 35),
-		kc(Key::D, 36),
-		kc(Key::F, 37),
-		kc(Key::G, 38),
-		kc(Key::H, 39),
-		kc(Key::J, 40),
-		kc(Key::K, 41),
-		kc(Key::L, 42),
-		kc(Key::Semicolon, 43),
-		kc(Key::LShift, 47),		
-		kc(Key::Quote, 48),		
-		kc(Key::Z, 49),
-		kc(Key::X, 50),
-		kc(Key::C, 51),
-		kc(Key::V, 52),
-		kc(Key::B, 53),
-		kc(Key::N, 54),
-		kc(Key::M, 55),
-		kc(Key::Comma, 56),
-		kc(Key::Period, 57),
-		kc(Key::Slash, 58),
-		kc(Key::Divide, 58),
-		kc(Key::Enter, 60),
-		kc(Key::Space, 65),
-		kc(Key::Insert, 66),
-		kc(Key::Delete, 67),
+	/// INKEY$ characters per keyboard.
+	const std::vector<std::string> kyx{
+		"\0\0001234567890-+=\0$\"QWERTYUIOP@*()\t!ASDFGHJKL;:<>\0'ZXCVBNM,./%\r\0\0\0\0 \0\0\0"s, //kya
+		"\0\0\0\0#\0\0&\0^\\~\0\x7f|\0\0\0qwertyuiop`\0[]\t\0asdfghjkl\0\0{}\0\0zxcvbnm\0\0?_\r\0\0\0\0 \0\0\0"s, //shift_kya
+		"\0\0\xF1\xF2\xF0\xF3\x0A\xE5\x1A\xE4\xE6\xE7\x10\x07\x14\0\x03\x96\x98\x91\x99\xEC\xEE\xEF\xED\x0E\x0F\x05\x06"s+
+		"\x04\x0B\x1B\t\x95\x92\x93\x94\x15\x17\x16\xF4\xF6\xF7\xF5\xEB\xEA\xE8\0\xFF\x9A\x90\x9B\xFC\xFD\xFE\x97\x9C\x9D\x9E\x9F\r\0\0\0\0 \0\0\0"s, //kigou
+		"\0\0\0\x80\0\0\0\xE1\0\xE0\xE2\xE3\x11\x08\0\0\0\0\xF8\x1E\xFA\x01\x02\x18\x19\x0C\x12\x13\0\0\xE9\0\t"s+
+		"\0\x1D\0\x1C\0\x81\x82\x83\x84\x85\x86\x87\0\0\0\0\xF9\x1F\xFB\x88\x89\x8A\x8B\x8C\x8D\x8E\x8F\r\0\0\0\0 \0\0\0"s, //shift_kigou
+		"\0\0\xB1\xB2\xB3\xB4\xB5\xC5\xC6\xC7\xC8\xC9\x2D\x2B\x3D\0\xA0\xA5\xB6\xB7\xB8\xB9\xBA\xCA\xCB\xCC\xCD\xCE\xA2"s+
+		"\xA3\xDD\xA1\t\xBB\xBC\xBD\xBE\xBF\xCF\xD0\xD1\xD2\xD3\xD4\xD5\xD6\xA4\0\xC0\xC1\xC2\xC3\xC4\xD7\xD8\xD9\xDA\xDB\xDC\xA6\r\0\0\0\0 \0\0\0"s, //kana
+		"\0 \0 \xA7\0\xA8\0\xA9\0\xAA\0\xAB\0\0 \0 \0 \0 \0 \xCA\xDF\xCB\xDF\xCC\xDF\0 "s+
+		"\xAF\0\xB3\xDE\xB6\xDE\xB7\xDE\xB8\xDE\xB9\xDE\xBA\xDE\xCA\xDE\xCB\xDE\xCC\xDE\xCD\xDE\xCE\xDE\xCD\xDF\xCE\xDF\0 \0 "s+
+		"\t\0\xBB\xDE\xBC\xDE\xBD\xDE\xBE\xDE\xBF\xDE\x31\0\x32\0\x33\0\x34\0\x35\0\xAC\0\xAD\0\xAE\0\0 "s+
+		"\0 \xC0\xDE\xC1\xDE\xC2\xDE\xC3\xDE\xC4\xDE\x36\0\x37\0\x38\0\x39\0\x30\0\0 \0 \r\0\0 \0 \0 \0  \0\0 \0 \0 "s //shift_kana
 	};
 	
-	/// Keyboard characters list for default keyboard
-	const std::string       kya{"??1234567890-+=\b$\"QWERTYUIOP@*()\t!ASDFGHJKL;:<>?'ZXCVBNM,./%\r???? ???"};
-	/// Keyboard characters list for lowercase keyboard (unused)
-	const std::string shift_kya{"....#..&.^\\~..|\b..qwertyuiop`.[]\t.asdfghjkl..{}..zxcvbnm..?_\r.... ..."};
+	/// Current active keyboard.
+	int keyboard = 0;
+	/// Whether or not SHIFT should be active. SHIFT=1, CAPS LOCK=2
+	int shift = 0;
 	
 	/// Mutex for updating button_info
 	std::mutex button_mutex;
@@ -125,6 +84,13 @@ struct Input : public IPTCObject {
 	/// 
 	/// @return character typed
 	char inkey_internal();
+	
+	/// Only really needed for special keys. Zeroes value after use.
+	///
+	/// @return `KEYBOARD` value or 0
+	int keycode_internal();
+	
+	void type_try_keyboard(std::string keys, int k);
 	
 	// PTC commands
 	void brepeat_(const Args&);
@@ -167,13 +133,7 @@ public:
 	/// Maps a unicode character to the matching PTC character if possible, and writes it to the `INKEY$()` buffer.
 	/// 
 	/// @param unicode Character code
-	void type(int unicode);
-	
-	/// Converts a sf::Keyboard::Key to a `KEYBOARD` keycode.
-	/// 
-	/// @param SFML keycode
-	/// @return PTC keycode
-	int keyboard_to_keycode(Key);
+	void type(int unicode, Key key);
 	
 	std::map<Token, cmd_type> get_cmds() override;
 	std::map<Token, op_func> get_funcs() override;
