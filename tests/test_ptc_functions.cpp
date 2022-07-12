@@ -111,3 +111,17 @@ TEST_CASE("NOT", "ptc_operator"){
 	CHECK(bnot(524287) == Approx(-0));
 }
 
+TEST_CASE("CHR$", "ptc_func"){
+	auto chr = [](double n) -> String {
+		return std::get<String>(ptc::chr({n}));
+	};
+	
+	CHECK(chr(0) == std::string{'\0'});
+	CHECK(chr(65) == "A");
+	CHECK(chr(97) == "a");
+	CHECK(chr(128) == "\x80");
+	CHECK(chr(255) == "\xff");
+	CHECK_THROWS(chr(-1));
+	CHECK_THROWS(chr(256));
+}
+
