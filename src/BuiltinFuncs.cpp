@@ -318,4 +318,15 @@ namespace ptc {
 	Var sqr(const Vals& vals){
 		return Var(std::sqrt(std::get<Number>(vals.at(0))));
 	}
+	
+	//TODO: Better precision by use of E
+	const double E = 11134.0/4096.0;
+	
+	Var log(const Vals& vals){
+		return Var(std::log(std::get<Number>(vals.at(0))));
+	}
+	
+	Var exp(const Vals& vals){
+		return Var(std::exp(std::get<Number>(vals.at(0))));
+	}
 }

@@ -72,6 +72,10 @@ const std::vector<std::string> package_resources{
 
 void load_pkg(std::ifstream& fs, std::vector<unsigned char>& data, int size){
 	read_n(fs, data, 12);
+	if (data[0] != 'P' || data[1] != 'E' || data[2] != 'T' || data[3] != 'C'){
+		throw std::runtime_error{"Error reading package!"};
+	}
+	
 	read_n(fs, data, size);
 }
 
@@ -95,8 +99,9 @@ void Resources::load_program(std::string name){
 	};
 	
 	for (std::size_t r = 0; r < package_resources.size(); ++r){
-		if (header.is_packed(r))
+		if (header.is_packed(r)){
 			load_type_pkg(fs, package_resources[r]);
+		}
 	}
 }
 

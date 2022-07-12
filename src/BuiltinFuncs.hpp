@@ -84,4 +84,8 @@ namespace ptc {
 	Var pow(const Vals& vals);
 	
 	Var sqr(const Vals& vals);
+	
+	Var log(const Vals& vals);
+	
+	Var exp(const Vals& vals);
 }

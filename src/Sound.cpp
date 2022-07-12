@@ -210,8 +210,8 @@ void Sound::bgmprg_(const Args& a){
 		throw std::runtime_error{"Invalid waveform size"};
 	}
 	auto& samples = swar.swav[note_def.swav_no].samples;
-	std::cout << "swav:" << note_def.swav_no;
-	std::cout << "samps:" << samples.size();
+//	std::cout << "swav:" << note_def.swav_no;
+//	std::cout << "samps:" << samples.size();
 
 	for (std::size_t i = 0; i < samples.size()/2; ++i){
 		char hi = waveform[(2*i) % waveform.length()];
@@ -225,9 +225,9 @@ void Sound::bgmprg_(const Args& a){
 		samples[2*i] = value * 256;
 		samples[2*i+1] = value * 256;
 	}
-	for (auto s : samples){
-		std::cout << (int)s << " ";
-	}
+//	for (auto s : samples){
+//		std::cout << (int)s << " ";
+//	}
 	
 }
 

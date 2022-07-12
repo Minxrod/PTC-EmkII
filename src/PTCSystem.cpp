@@ -61,6 +61,7 @@ PTCSystem::PTCSystem() {
 void PTCSystem::load_program(std::string filename){
 	resources->load_program(filename);
 	program->set_tokens(tokenize(resources->prg));
+	visual->regen_all();
 }
 
 void PTCSystem::set_option(std::string option, int state){

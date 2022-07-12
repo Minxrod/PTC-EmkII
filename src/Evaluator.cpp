@@ -58,11 +58,12 @@ std::map<Token, op_func> Evaluator::get_funcs() {
 		func_map{"CHR$"_TF, ptc::chr},
 		func_map{"DEG"_TF, ptc::deg},
 		func_map{"RAD"_TF, ptc::rad},
-		//func_map{"EXP"_TF, ptc::exp},
+		func_map{"EXP"_TF, ptc::exp},
 		func_map{"FLOOR"_TF, ptc::floor},
 		func_map{"HEX$"_TF, ptc::hex},
 		func_map{"LEN"_TF, ptc::len},	
 		func_map{"LEFT$"_TF, ptc::left},
+		func_map{"LOG"_TF, ptc::log},
 		func_map{"RIGHT$"_TF, ptc::right},
 		func_map{"MID$"_TF, ptc::mid},
 		func_map{"POW"_TF, ptc::pow},
@@ -281,18 +282,22 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 //	print("NO_PARENS", tokens);
 	
 	while (max_prio >= 0){
-		itr = tokens.begin();
-		while (itr != tokens.end()){
+		//this new hack is to make sure RTL operators (!, NOT, etc) work correctly
+		itr = (max_prio % 8 == 6) ? tokens.end()-1 : tokens.begin();
+		while (itr != ((max_prio % 8 == 6) ? tokens.begin()-1 : tokens.end())){
 			auto token = *itr;
 			if (token.prio == max_prio){
 				int n = subseq.size();
 				auto r_n = op_to_rpn(tokens, itr, n);
 				//have RPN subsequence
 				subseq.push_back(r_n);
-				itr = tokens.begin();
+				itr = (max_prio % 8 == 6) ? tokens.end() : tokens.begin();
 //				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);
 			} else {
-				itr++;
+				if (max_prio % 8 != 6)
+					itr = std::next(itr);
+				else
+					itr = std::prev(itr);
 			}
 		}
 		max_prio--;

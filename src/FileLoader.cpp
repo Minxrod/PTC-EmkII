@@ -92,7 +92,12 @@ int Header::get_prg_size() const {
 	if (data.size() != 60){
 		throw std::logic_error{"Error: Attempted to get program size from non-program header"};
 	}
-	return data[PTC_OFS_PRG_SIZE] + ((unsigned int)data[PTC_OFS_PRG_SIZE+1] << 8) + ((unsigned int)data[PTC_OFS_PRG_SIZE+2] << 16);
+	int size = data[PTC_OFS_PRG_SIZE] + ((unsigned int)data[PTC_OFS_PRG_SIZE+1] << 8) + ((unsigned int)data[PTC_OFS_PRG_SIZE+2] << 16);
+	
+	while (size % 4)
+		++size;
+	
+	return size;
 }
 
 bool Header::is_packed(int index) const {
