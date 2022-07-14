@@ -408,29 +408,31 @@ void Program::data_(const Args&){
 	//DATA doesn't do anything as an instruction.
 }
 
+
+Token Program::read_expr(){
+	// Reads one expression string from DATA
+	auto data_end = std::min(std::find(data_current, tokens.cend(), Token{"\r", Type::Newl}),
+		std::find(data_current, tokens.cend(), Token{",", Type::Op}));
+	auto data_exp = std::vector<Token>(data_current, data_end);
+	if (data_end->text == "\r"){
+		data_current = std::find(data_end, tokens.cend(), "DATA"_TC); //search for next DATA statement
+		if (data_current != tokens.end())
+			data_current++; //first piece of data will be directly after DATA statement
+	} else if (data_end->text == ","){
+		data_current = data_end+1;
+	}
+
+	Token data_value{"", Type::Str};
+	for (auto tok : data_exp){
+		data_value.text += tok.text;
+	}
+	return data_value;
+}
+
 void Program::read_(const Args& a){
 	//READ var1[,var2,var3$,...]
-	
-	auto expr = [](auto& current, auto& tokens){
-		auto data_end = std::min(std::find(current, tokens.cend(), Token{"\r", Type::Newl}),
-			std::find(current, tokens.cend(), Token{",", Type::Op}));
-		auto data_exp = std::vector<Token>(current, data_end);
-		if (data_end->text == "\r"){
-			current = std::find(data_end, tokens.cend(), "DATA"_TC); //search for next DATA statement
-			if (current != tokens.end())
-				current++; //first piece of data will be directly after DATA statement
-		} else if (data_end->text == ","){
-			current = data_end+1;
-		}
-		return data_exp;
-	};
-	
 	for (auto i = 1; i < (int)a.size(); ++i){
-		auto value_pieces = expr(data_current, tokens);
-		Token data_value{"", Type::Str};
-		for (auto tok : value_pieces){
-			data_value.text += tok.text;
-		}
+		auto data_value = read_expr();
 		
 		auto& name_exp = a[i];
 		
@@ -438,12 +440,9 @@ void Program::read_(const Args& a){
 	}
 }
 
-void Program::restore_(const Args& a){
-	//RESTORE label
-	String lbl = std::get<String>(e.evaluate(a[1]));
-	
+void Program::data_seek(std::string label){
 	for (auto itr = tokens.begin(); itr != tokens.end(); itr++){
-		if (*itr == Token{lbl, Type::Label}){
+		if (*itr == Token{label, Type::Label}){
 			if (itr == tokens.begin() || 
 			((itr-1)->type == Type::Newl)){
 				auto data_itr = std::find(itr, tokens.end(), "DATA"_TC);
@@ -452,6 +451,13 @@ void Program::restore_(const Args& a){
 			}
 		}
 	}
+}
+
+void Program::restore_(const Args& a){
+	//RESTORE label
+	String lbl = std::get<String>(e.evaluate(a[1]));
+	
+	data_seek(lbl);
 }
 
 void Program::clear_(const Args&){

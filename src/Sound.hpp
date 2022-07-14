@@ -11,6 +11,8 @@
 #include "IPTCObject.hpp"
 #include "Evaluator.hpp"
 
+class PTCSystem;
+
 class Sound : public IPTCObject {
 	const static int BGM_TRACK_COUNT = 8;
 	const static int SFX_COUNT = 16;
@@ -18,6 +20,7 @@ class Sound : public IPTCObject {
 	
 	bool enabled = true;
 	
+	PTCSystem* system;
 	Evaluator& e;
 	
 	const std::string resource_path{"resources/sounds/"};
@@ -47,7 +50,7 @@ class Sound : public IPTCObject {
 	Var bgmgetv_(const Args&);
 
 public:
-	Sound(Evaluator&);
+	Sound(PTCSystem*);
 	
 	Sound() = delete;
 	

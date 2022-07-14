@@ -231,7 +231,7 @@ namespace ptc {
 				return Var(static_cast<double>(std::stoi(s.substr(2), nullptr, 16)));
 			}
 		}
-		return Var(std::stod(s));
+		return Var(s == "" ? 0.0 : std::stod(s));
 	}
 	
 	Var chr(const Vals& vals){

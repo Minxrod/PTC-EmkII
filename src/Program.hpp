@@ -72,6 +72,9 @@ public:
 	
 	Program& operator=(const Program&) = delete;
 	
+	void data_seek(std::string label);
+	Token read_expr();
+	
 	void set_tokens(const std::vector<Token>&);
 	void loader();
 	void restart(); //restart current program

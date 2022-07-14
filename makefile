@@ -14,7 +14,7 @@ SFML_INCLUDE=$(SFML_PATH)include/
 SFML_LIB=$(SFML_PATH)lib/
 
 CXX = g++
-OFLAGS = -g -std=c++17 -Wall -Werror -Wpedantic -Wextra -MMD -I$(INCLUDE) -L$(LIB) -Wl,-rpath,./lib
+OFLAGS = -g -O2 -std=c++17 -Wall -Werror -Wpedantic -Wextra -MMD -I$(INCLUDE) -L$(LIB) -Wl,-rpath,./lib
 
 # https://stackoverflow.com/questions/714100/os-detecting-makefile
 PLATFORM:=$(shell g++ -dumpmachine)

@@ -1,8 +1,10 @@
 #include "Sound.hpp"
 
+#include "PTCSystem.hpp"
+
 #include <cmath>
 
-Sound::Sound(Evaluator& ev) : e{ev}{
+Sound::Sound(PTCSystem* s) : system{s}, e{*s->get_evaluator()}{
 	try {
 		swar.open("resources/sounds/SWAR_0.swar");
 		sbnk.open("resources/sounds/SBNK_0.sbnk");
@@ -118,7 +120,7 @@ void Sound::bgmplay_(const Args& a){
 		bgm.at(0)->set_sseq(&user_songs[128]);
 		
 		auto& music = *bgm.at(0);
-		music.setVolume(127);
+		music.setVolume(100);
 		music.play();
 	}
 }
@@ -162,6 +164,25 @@ void Sound::bgmset_(const Args& a){
 	for (std::size_t i = 2; i < a.size(); ++i){
 		mml += std::get<String>(e.evaluate(a[i]));
 	}
+	SSEQ mml_seq{};
+	mml_seq.mml(mml);
+	user_songs.at(slot-128) = mml_seq;
+}
+
+void Sound::bgmsetd_(const Args& a){
+	//BGMSETD song,"@label"
+	int slot = (int)std::get<Number>(e.evaluate(a[1]));
+	std::string label = std::get<String>(e.evaluate(a[2]));
+	
+	system->get_program()->data_seek(label);
+	Token data{"", Type::Str}; // add nothing on first iteration of loop
+	std::string mml;
+	while (data.text != "0"){
+		mml += data.text;
+		data = system->get_program()->read_expr(); //read zero, do not add
+		std::cout << data.text << std::endl;
+	}
+	
 	SSEQ mml_seq{};
 	mml_seq.mml(mml);
 	user_songs.at(slot-128) = mml_seq;
@@ -246,6 +267,24 @@ Var Sound::bgmchk_(const Vals& v){
 	return Var(static_cast<double>(bgm.at(track)->getStatus() == SSEQStream::Playing));
 }
 
+void Sound::bgmvol_(const Args& a){
+	//BGMVOL [track,]volume
+	int track = 0;
+	int volume;
+	if (a.size() == 3){
+		track = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+		volume = static_cast<int>(std::get<Number>(e.evaluate(a[2])));
+	} else if (a.size() == 2){
+		volume = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
+	} else {
+		if (a.size() < 2)
+			throw std::runtime_error{"Missing operand (BGMVOL)"};
+		else
+			throw std::runtime_error{"Syntax error (BGMVOL)"};
+	}
+	bgm.at(track)->setVolume(volume * 100.0 / 127.0);
+}
+
 std::map<Token, cmd_type> Sound::get_cmds(){
 	return std::map<Token, cmd_type>{
 		cmd_map{"BEEP"_TC, getfunc(this, &Sound::beep_)},
@@ -253,7 +292,9 @@ std::map<Token, cmd_type> Sound::get_cmds(){
 		cmd_map{"BGMSTOP"_TC, getfunc(this, &Sound::bgmstop_)},
 		cmd_map{"BGMCLEAR"_TC, getfunc(this, &Sound::bgmclear_)},
 		cmd_map{"BGMSET"_TC, getfunc(this, &Sound::bgmset_)},
+		cmd_map{"BGMSETD"_TC, getfunc(this, &Sound::bgmsetd_)},
 		cmd_map{"BGMPRG"_TC, getfunc(this, &Sound::bgmprg_)},
+		cmd_map{"BGMVOL"_TC, getfunc(this, &Sound::bgmvol_)},
 	};
 }
 
