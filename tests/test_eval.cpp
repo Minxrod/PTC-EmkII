@@ -25,3 +25,13 @@ TEST_CASE("Evaluate MM2PTC:2711", "evaluate"){
 	
 	
 }
+
+TEST_CASE("Randomized", "evaluate"){
+	Evaluator e;
+	
+	auto eval = [&e](std::string expr){
+		return std::get<Number>(e.evaluate(tokenize_str(expr)));
+	};
+	
+	CHECK(eval("SQR(1478 % 1579)") == Approx(38.445));
+}

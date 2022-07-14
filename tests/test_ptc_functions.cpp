@@ -121,7 +121,58 @@ TEST_CASE("CHR$", "ptc_func"){
 	CHECK(chr(97) == "a");
 	CHECK(chr(128) == "\x80");
 	CHECK(chr(255) == "\xff");
+	
 	CHECK_THROWS(chr(-1));
 	CHECK_THROWS(chr(256));
+}
+
+TEST_CASE("ASC", "ptc_func"){
+	auto asc = [](String s) -> Number {
+		return std::get<Number>(ptc::asc({s}));
+	};
+	
+	CHECK(asc("\0") == 0);
+	CHECK(asc("\x10") == 0x10);
+	CHECK(asc("\x27") == 0x27);
+	CHECK(asc("\xdb") == 0xdb);
+	CHECK(asc("\xe4") == 0xe4);
+	CHECK(asc("\x89") == 0x89);
+	CHECK(asc("\x17") == 0x17);
+	CHECK(asc("\x53") == 0x53);
+	CHECK(asc("\xff") == 0xff);
+	
+	CHECK(asc("ABC") == 'A');
+	CHECK(asc(";w5p gw324") == ';');
+	CHECK(asc("\r3upf ") == '\r');
+	CHECK(asc("vsaob") == 'v');
+	CHECK(asc("\x95\x98\xff") == 0x95);
+	CHECK_THROWS(asc(""));
+}
+
+TEST_CASE("SQR", "ptc_func"){
+	auto sqr = [](Number n) -> Number {
+		return std::get<Number>(ptc::sqr({n}));
+	};
+	
+	CHECK_THROWS(sqr(-1));
+	CHECK(sqr(0) == Approx(0));
+	CHECK(sqr(1) == Approx(1));
+	CHECK(sqr(4) == Approx(2));
+	CHECK(sqr(9) == Approx(3));
+
+}
+
+TEST_CASE("VAL", "ptc_func"){
+	auto val = [](String s) -> Number {
+		return std::get<Number>(ptc::val({s}));
+	};
+	
+	CHECK(val("") == Approx(0));
+	CHECK(val("0") == Approx(0));
+	CHECK(val("1234") == Approx(1234));
+	CHECK(val("56.7") == Approx(56.7));
+	CHECK(val("-38") == Approx(-38));
+	CHECK(val("-2059.54") == Approx(-2059.54));
+	
 }
 
