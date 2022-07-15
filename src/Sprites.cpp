@@ -33,11 +33,37 @@ std::map<Token, op_func> Sprites::get_funcs(){
 	};
 }
 
+/// PTC command to set the current sprite page.
+/// 
+/// Format: 
+/// * `SPPAGE page`
+/// 
+/// Arguments:
+/// * page: Current sprite page
+/// 
+/// @param a Arguments
 void Sprites::sppage_(const Args& a){
 	//SPPAGE page
 	page = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
 }
 
+/// PTC command to initialize a sprite.
+/// @note Does not currently check for valid (width,height) combinations.
+/// 
+/// Format: 
+/// * `SPSET id,chr,pal,h,v,prio[,width,height]`
+/// 
+/// Arguments:
+/// * id: Sprite id/control number
+/// * chr: Character code [0-511]
+/// * pal: Palette [0-15]
+/// * h: Horizontal flip state
+/// * v: Vertical flip state
+/// * prio: Sprite draw priority
+/// * width: Width of sprite (pixels)
+/// * height: Height of sprite (pixels)
+/// 
+/// @param a Arguments
 void Sprites::spset_(const Args& a){
 	//SPSET id chr pal h v prio [width height]
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -76,6 +102,15 @@ void Sprites::spset_(const Args& a){
 	s.angle.time = 0;
 }
 
+/// PTC command to clear a sprite or sprites.
+/// 
+/// Format: 
+/// * `SPCLR [id]`
+/// 
+/// Arguments:
+/// * id: Control number of sprite to clear. If omitted, clears all sprites on current screen.
+/// 
+/// @param a Arguments
 void Sprites::spclr_(const Args& a){
 	//SPCLR [id]
 	if (a.size() == 1){
@@ -86,6 +121,17 @@ void Sprites::spclr_(const Args& a){
 	}
 }
 
+/// PTC command to set the sprite's home coordinates.
+/// 
+/// Format: 
+/// * `SPHOME id,x,y`
+/// 
+/// Arguments:
+/// * id: Control number of sprite
+/// * x: Sprite home x
+/// * y: Sprite home y
+/// 
+/// @param a Arguments
 void Sprites::sphome_(const Args& a){
 	//SPHOME id x y
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -93,7 +139,19 @@ void Sprites::sphome_(const Args& a){
 	s.home_x = std::get<Number>(e.evaluate(a[2]));
 	s.home_y = std::get<Number>(e.evaluate(a[3]));
 }
-	
+
+/// PTC command to change a sprite's position.
+/// 
+/// Format: 
+/// * `SPOFS id,x,y[,time]`
+/// 
+/// Arguments:
+/// * id: Control number of sprite
+/// * x: New sprite x
+/// * y: New sprite y
+/// * time: Frames to move sprite for
+/// 
+/// @param a Arguments
 void Sprites::spofs_(const Args& a){
 	//SPOFS id x y [time]
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -114,6 +172,20 @@ void Sprites::spofs_(const Args& a){
 	}
 }
 
+/// PTC command to set visual attributes of an already initialized sprite.
+/// 
+/// Format: 
+/// * `SPCHR id,chr[,pal,h,v,prio]`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * chr: Character code [0-511]
+/// * pal: Palette [0-15]
+/// * h: Horizontal flip state
+/// * v: Vertical flip state
+/// * prio: Sprite draw priority
+/// 
+/// @param a Arguments
 void Sprites::spchr_(const Args& a){
 	//SPCHR id chr [pal h v prio]
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -136,6 +208,18 @@ void Sprites::spchr_(const Args& a){
 	s.prio = prio;
 }
 
+/// PTC command to animate a sprite.
+/// 
+/// Format: 
+/// * `SPANIM id,chrs,time[,loop]`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * chr: Character code [0-511]
+/// * time: Frames to animate sprite for
+/// * loop: How many times to loop (default 0=forever)
+/// 
+/// @param a Arguments
 void Sprites::spanim_(const Args& a){
 	//SPANIM id number_frames time [loop]
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -154,6 +238,18 @@ void Sprites::spanim_(const Args& a){
 	s.anim.loop_forever = loop == 0;
 }
 
+/// PTC command to rotate a sprite.
+/// 
+/// Format: 
+/// * `SPANGLE id,angle[,time[,dir]]`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * angle: New sprite rotation (degrees)
+/// * time: Time to move to new rotation (frames)
+/// * dir: Direction (default 1=clockwise, -1=counterclockwise)
+/// 
+/// @param a Arguments
 void Sprites::spangle_(const Args& a){
 	//SPANGLE id angle [time] [direction]
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -179,6 +275,17 @@ void Sprites::spangle_(const Args& a){
 	}
 }
 
+/// PTC command to scale a sprite.
+/// 
+/// Format: 
+/// * `SPSCALE id,scale[,time]`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * scale: New sprite scale
+/// * time: Time to change to new scale (frames)
+/// 
+/// @param a Arguments
 void Sprites::spscale_(const Args& a){
 	//SPSCALE id scale [time]
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -192,6 +299,16 @@ void Sprites::spscale_(const Args& a){
 	}
 }
 
+/// PTC function to check the sprite's animation status.
+/// 
+/// Format: 
+/// * `SPCHK(id)`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// 
+/// @param v Values
+/// @return Bitfield corresponding to animation state
 Var Sprites::spchk_(const Vals& v){
 	//SPCHK id
 	auto id = std::get<Number>(v.at(0));
@@ -204,6 +321,20 @@ Var Sprites::spchk_(const Vals& v){
 	return Var((double)result);
 }
 
+/// PTC command to read the current state of a sprite.
+/// 
+/// Format: 
+/// * `SPREAD(id),x[,y[,angle[,scale,[chr]]]]`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * x: Current sprite x (`SPOFS`)
+/// * y: Current sprite y (`SPOFS`)
+/// * angle: Current sprite angle (`SPANGLE`)
+/// * scale: Current sprite scale (`SPSCALE`)
+/// * chr: Current sprite character code (`SPANIM`)
+/// 
+/// @param a Arguments
 void Sprites::spread_(const Args& a){
 	// SPREAD (id),x[,y[,angle[,scale[,chr]]]]
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -223,6 +354,17 @@ void Sprites::spread_(const Args& a){
 	}
 }
 
+/// PTC command to set a sprite variable.
+/// 
+/// Format: 
+/// * `SPSETV id,var,value`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * var: Variable id [0-7]
+/// * value: Value to store
+/// 
+/// @param a Arguments
 void Sprites::spsetv_(const Args& a){
 	// SPSETV id var value
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -234,6 +376,17 @@ void Sprites::spsetv_(const Args& a){
 	s.vars[var] = value;
 }
 
+/// PTC function to get a sprite variable.
+/// 
+/// Format: 
+/// * `SPGETV(id,var)`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * var: Variable id [0-7]
+/// 
+/// @param v Values
+/// @return Value of sprite variable
 Var Sprites::spgetv_(const Vals& v){
 	// SPGETV(id, var)
 	auto id = std::get<Number>(v[0]);
@@ -244,6 +397,21 @@ Var Sprites::spgetv_(const Vals& v){
 	return s.vars[var];
 }
 
+/// PTC command to set the collision information for a sprite.
+/// 
+/// Format: 
+/// * `SPCOL id,x,y,w,h,scale[,group]`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * x: Hitbox x
+/// * y: Hitbox y
+/// * w: Hitbox width
+/// * h: Hitbox height
+/// * scale: Adjust for `SPSCALE`?
+/// * group: Collision mask
+/// 
+/// @param a Arguments
 void Sprites::spcol_(const Args& a){
 	//SPCOL id x y w h scale [group]	
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -261,6 +429,17 @@ void Sprites::spcol_(const Args& a){
 	}
 }
 
+/// PTC command to set collision vectors as if the sprite was moving.
+/// 
+/// Format: 
+/// * `SPCOLVEC id,dx,dy`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * dx: Displacement x
+/// * dy: Displacement y
+/// 
+/// @param a Arguments
 void Sprites::spcolvec_(const Args& a){
 	//SPCOLVEC id dx dy
 	auto id = std::get<Number>(e.evaluate(a[1]));
@@ -270,6 +449,18 @@ void Sprites::spcolvec_(const Args& a){
 	s.hit.dy = std::get<Number>(e.evaluate(a[3]));
 }
 
+/// PTC function to check sprite collision status.
+/// @warning SPHITX, SPHITY, SPHITT are not implemented yet.
+/// 
+/// Format: 
+/// * `SPHIT(id[,num])`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * num: Sprite number to start checking from
+/// 
+/// @param v Values
+/// @return True if collision
 Var Sprites::sphit_(const Vals& v){
 	//SPHIT(id [initial_number])
 	auto id = std::get<Number>(v.at(0));
@@ -297,6 +488,18 @@ Var Sprites::sphit_(const Vals& v){
 	}
 }
 
+/// PTC function to check sprite collision against another sprite.
+/// @warning SPHITX, SPHITY, SPHITT are not implemented yet.
+/// 
+/// Format: 
+/// * `SPHITSP(id,id2)`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * id2: Other sprite control number
+/// 
+/// @param v Values
+/// @return True if collision between sprite id and id2
 Var Sprites::sphitsp_(const Vals& v){
 	//SPHITSP(id1 id2)
 	auto id1 = std::get<Number>(v.at(0));
@@ -308,7 +511,25 @@ Var Sprites::sphitsp_(const Vals& v){
 	return Var((double)is_hit(s1, s2));
 }
 
+/// PTC function to check sprite collision with a rectangle.
+/// @warning Unimplemented, always returns false
+/// 
+/// Format: 
+/// * `SPHITRC(id,sx,sy,w,h[,dx,dy])`
+/// 
+/// Arguments:
+/// * id: Sprite control number
+/// * sx: Starting x
+/// * sy: Starting y
+/// * w: Rectangle width
+/// * h: Rectangle height
+/// * dx: Displacement x
+/// * dy: Displacement y
+/// 
+/// @param v Values
+/// @return True if collision between sprite and rectangle
 Var Sprites::sphitrc_(const Vals&){
+	
 	return Var(0.0);
 }
 

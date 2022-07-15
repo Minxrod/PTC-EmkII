@@ -5,9 +5,13 @@
 #include "SpriteArray.hpp"
 #include "IPTCObject.hpp"
 
+/// Manages the sprites for both screens.
 class Sprites : public IPTCObject {
+	/// Evaluator object
 	Evaluator& e;
+	/// List of sprites for each screen
 	std::vector<std::vector<SpriteInfo>> sprites;
+	/// Current sprite screen
 	int page;
 	
 	void sppage_(const Args&);
@@ -33,20 +37,33 @@ class Sprites : public IPTCObject {
 	Var sphitrc_(const Vals&);
 	
 public:
-	Sprites(Evaluator&);
+	/// Constructor
+	///
+	/// @param ev Evaluator
+	Sprites(Evaluator& ev);
 	
+	/// Default constructor (deleted)
 	Sprites() = delete;
 	
+	/// Copy constructor (deleted)
 	Sprites(const Sprites&) = delete;
 	
+	/// Copy assignment (deleted)
 	Sprites& operator=(const Sprites&) = delete;
 	
 	std::map<Token, cmd_type> get_cmds() override;
 	std::map<Token, op_func> get_funcs() override;
 	
+	/// Resets the sprites, as if ACLS was called.
 	void reset();
+	/// Advances sprites by one frame.
 	void update();
-	SpriteArray draw(int, int);
+	/// Draws the sprites corresponding to the given screen and priority.
+	/// 
+	/// @param page Screen to draw
+	/// @param prio Priority of sprites to draw
+	/// @return SpriteArray containing sprites to be rendered
+	SpriteArray draw(int page, int prio);
 	
 	/// Gets the current sprite screen.
 	/// 
