@@ -159,7 +159,8 @@ TEST_CASE("SQR", "ptc_func"){
 	CHECK(sqr(1) == Approx(1));
 	CHECK(sqr(4) == Approx(2));
 	CHECK(sqr(9) == Approx(3));
-
+	
+	CHECK_THROWS(ptc::sqr({0.0, 0.0}));
 }
 
 TEST_CASE("VAL", "ptc_func"){
@@ -174,5 +175,7 @@ TEST_CASE("VAL", "ptc_func"){
 	CHECK(val("-38") == Approx(-38));
 	CHECK(val("-2059.54") == Approx(-2059.54));
 	
+	CHECK_THROWS(ptc::val({0.0}));
+	CHECK_THROWS(ptc::val({"0", "0"}));
 }
 

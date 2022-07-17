@@ -1,4 +1,5 @@
 #include "BuiltinFuncs.hpp"
+#include "Errors.hpp"
 
 #include <cmath>
 #include <random>
@@ -223,6 +224,7 @@ namespace ptc {
 	}
 	
 	Var val(const Vals& vals){
+		PTC_FUNCTION_ARGS("VAL", vals, 1, 1);
 		String s = std::get<String>(vals.at(0));
 		if (s.size() > 2 && s[0] == '&'){
 			if (s[1] == 'B'){
@@ -316,7 +318,10 @@ namespace ptc {
 	}
 	
 	Var sqr(const Vals& vals){
-		return Var(std::sqrt(std::get<Number>(vals.at(0))));
+		PTC_FUNCTION_ARGS("SQR", vals, 1, 1);
+		auto num = std::get<Number>(vals.at(0));
+		if (num < 0) throw ptc_exception{"Illegal function call (SQR)"};
+		return Var(std::sqrt(num));
 	}
 	
 	//TODO: Better precision by use of E
