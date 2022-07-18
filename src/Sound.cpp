@@ -43,6 +43,18 @@ int Sound::get_available_sound(){
 	return 15;
 }
 
+/// PTC command to play a sound effect.
+/// 
+/// Format: 
+/// * `BEEP waveform[,pitch[,volume[,panpot]]]`
+/// 
+/// Arguments:
+/// * waveform: Sound effect id
+/// * pitch: Pitch modification
+/// * volume: Volume
+/// * panpot: Sound position
+/// 
+/// @param a Arguments
 void Sound::beep_(const Args& a){
 	if (!enabled)
 		return;
@@ -72,6 +84,19 @@ void Sound::beep_(const Args& a){
 	s.play();
 }
 
+/// PTC command to play background music.
+/// 
+/// Format: 
+/// * `BGMPLAY [track,]song[,volume]`
+/// * `BGMPLAY mml[,mml2...]`
+/// 
+/// Arguments:
+/// * track: Track id
+/// * song: Song id
+/// * volume: Volume [0-127]
+/// * mml: MML string
+/// 
+/// @param a Arguments
 void Sound::bgmplay_(const Args& a){
 	if (!enabled)
 		return;
@@ -125,6 +150,17 @@ void Sound::bgmplay_(const Args& a){
 	}
 }
 
+/// PTC command to stop music playback.
+/// @warning Fade timer is not implemented.
+/// 
+/// Format: 
+/// * `BGMSTOP [track[,fadetime]]`
+/// 
+/// Arguments:
+/// * track: Track id to stop (default=0)
+/// * fadetime: Time to fade out song (frames)
+/// 
+/// @param a Arguments
 void Sound::bgmstop_(const Args& a){
 	if (!enabled)
 		return;
@@ -142,6 +178,15 @@ void Sound::bgmstop_(const Args& a){
 	//}
 }
 
+/// PTC command to clear user defined song slots.
+/// 
+/// Format: 
+/// * `BGMCLEAR [slot]`
+/// 
+/// Arguments:
+/// * slot: Slot to clear [128-255] (default=all)
+/// 
+/// @param a Arguments
 void Sound::bgmclear_(const Args& a){
 	//BGMCLEAR [slot]
 	SSEQ empty{};
@@ -157,6 +202,16 @@ void Sound::bgmclear_(const Args& a){
 	}
 }
 
+/// PTC command to set user-defined song data.
+/// 
+/// Format: 
+/// * `BGMSET song,mml[,mml2...]`
+/// 
+/// Arguments:
+/// * song: Song slot [128-255]
+/// * mml: MML song data (can be split into multiple strings)
+/// 
+/// @param a Arguments
 void Sound::bgmset_(const Args& a){
 	//BGMSET song,mml1[,mml2...]
 	int slot = (int)std::get<Number>(e.evaluate(a[1]));
@@ -169,6 +224,16 @@ void Sound::bgmset_(const Args& a){
 	user_songs.at(slot-128) = mml_seq;
 }
 
+/// PTC command to set song data, as stored in `DATA` strings.
+/// 
+/// Format: 
+/// * `BGMSETD song,label`
+/// 
+/// Arguments:
+/// * song: Song slot [128-255]
+/// * label: Label with following `DATA` to read
+/// 
+/// @param a Arguments
 void Sound::bgmsetd_(const Args& a){
 	//BGMSETD song,"@label"
 	int slot = (int)std::get<Number>(e.evaluate(a[1]));
@@ -188,6 +253,22 @@ void Sound::bgmsetd_(const Args& a){
 	user_songs.at(slot-128) = mml_seq;
 }
 
+/// PTC command to set an instrument waveform.
+/// 
+/// Format: 
+/// * `BGMPRG instr[,key],waveform`
+/// * `BGMPRG instr[,key],a,d,s,r,waveform`
+/// 
+/// Arguments:
+/// * instr: Instrument id [224-255]
+/// * key: Note that waveform is based on
+/// * waveform: Waveform data string [64 or 128 bytes]
+/// * a: Attack
+/// * d: Decay
+/// * s: Sustain
+/// * r: Release
+/// 
+/// @param a Arguments
 void Sound::bgmprg_(const Args& a){
 	//BGMPRG instr, waveform
 	//BGMPRG instr, key, waveform
@@ -252,6 +333,16 @@ void Sound::bgmprg_(const Args& a){
 	
 }
 
+/// PTC function to check if music is currently playing.
+/// 
+/// Format: 
+/// * `BGMCHK(track)`
+/// 
+/// Arguments:
+/// * track: Music track to check status of (default=0)
+/// 
+/// @param v Values
+/// @return 
 Var Sound::bgmchk_(const Vals& v){
 	if (!enabled)
 		return Var(0.0);
@@ -267,6 +358,16 @@ Var Sound::bgmchk_(const Vals& v){
 	return Var(static_cast<double>(bgm.at(track)->getStatus() == SSEQStream::Playing));
 }
 
+/// PTC command to set the volume of music playback.
+/// 
+/// Format: 
+/// * `BGMVOL [track,]volume`
+/// 
+/// Arguments:
+/// * track: Track to set volume of (default=0)
+/// * volume: Volume of track [0-127]
+/// 
+/// @param a Arguments
 void Sound::bgmvol_(const Args& a){
 	//BGMVOL [track,]volume
 	int track = 0;
