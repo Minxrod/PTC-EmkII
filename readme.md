@@ -75,7 +75,7 @@ Currently, the options are as follows:
 * `br line` - Sets a breakpoint at line
 * `clear line` - Removes a breakpoint at line
 * `c` - Continue if program execution is paused from a breakpoint
-* `tex index` - Displays the resource corresponding to the given index.
+* `tex index [palette]` - Displays the resource corresponding to the given index.
 
 Note that expressions are updated per-frame, not as values change. Also, note that functions, operations and variable access will work in these expressions, but that attempting to create a new variable is not currently supported and will likely crash due to thread-safety issues.
 

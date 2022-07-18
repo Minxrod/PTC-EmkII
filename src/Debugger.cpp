@@ -13,9 +13,9 @@ void DebugConsole::draw(sf::RenderTarget& target, sf::RenderStates rs) const {
 	target.draw(tm, rs);
 }
 
-Debugger::DebugWindow::DebugWindow(Debugger* d, sf::Texture& t) : sf::RenderWindow{sf::VideoMode(t.getSize().x, t.getSize().y), "Debugger"}, debugger{d} {
+Debugger::DebugWindow::DebugWindow(Debugger* d, sf::Texture& t, int p) : sf::RenderWindow{sf::VideoMode(t.getSize().x, t.getSize().y), "Debugger"}, debugger{d} {
 	spr.setTexture(t);
-	spr.setColor(sf::Color(0,0,0));
+	spr.setColor(sf::Color(16*p,0,0));
 }
 
 void Debugger::DebugWindow::update(){
@@ -28,7 +28,8 @@ void Debugger::DebugWindow::update(){
 	}
 	
 	clear(sf::Color(32,8,128));
-	sf::RenderWindow::draw(spr, debugger->visual->set_state(0, 0.1f));
+	auto rs = debugger->visual->set_state(0, 0.1f);
+	sf::RenderWindow::draw(spr, rs);
 	display();
 }
 
@@ -113,9 +114,18 @@ void Debugger::update(){
 				if (index == 4 || index == 8){
 					throw std::out_of_range{"Undefined texture"};
 				}
+				auto color = 0;
+				try {
+					color = std::stoi(arg(arg(command+" 0")));
+				} catch (std::invalid_argument& e){
+					// use default
+					color = 0;
+				}
 				auto& tex = visual->resource_tex.at(index);
-				texture_window = std::make_unique<DebugWindow>(this, tex);
+				texture_window = std::make_unique<DebugWindow>(this, tex, color);
 			} catch (std::out_of_range& e){
+				feedback = "Invalid texture index";
+			} catch (std::invalid_argument& e){
 				feedback = "Invalid texture index";
 			}
 		} else {

@@ -56,7 +56,8 @@ class Debugger {
 		/// 
 		/// @param d Pointer to containing Debugger
 		/// @param t Texture to display
-		DebugWindow(Debugger* d, sf::Texture& t);
+		/// @param p Palette to use
+		DebugWindow(Debugger* d, sf::Texture& t, int p);
 		
 		/// Checks for window close events and draws the window.
 		void update();

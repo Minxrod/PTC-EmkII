@@ -2,7 +2,11 @@
 
 #include <stdexcept>
 
+/// Specific exception class for PTC specific errors.
 struct ptc_exception : public std::runtime_error {
+	/// Constructor. 
+	/// 
+	/// @param c C string containing exception message
 	ptc_exception(const char* c);
 };
 
