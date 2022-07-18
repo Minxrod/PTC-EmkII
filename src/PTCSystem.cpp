@@ -18,7 +18,7 @@ PTCSystem::PTCSystem() {
 	
 	input = std::make_shared<Input>(*evaluator);
 	
-	visual = std::make_shared<Visual>(*evaluator, *resources, *input);
+	visual = std::make_shared<Visual>(this);
 	
 	sound = std::make_shared<Sound>(this);
 	

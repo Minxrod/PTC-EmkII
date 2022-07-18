@@ -1,5 +1,6 @@
 #include "Visual.hpp"
 #include "Vars.hpp"
+#include "PTCSystem.hpp"
 
 #include <thread>
 
@@ -19,14 +20,14 @@ enum Tex {
 	BGF_L, BGU_L, UNUSED_2, SPS_L, SPD, BGD_L
 };
 
-Visual::Visual(Evaluator& ev, Resources& rs, Input& i) :
-	e{ev},
-	r{rs},
-	c{ev, i, this},
-	b{ev, r.scr},
-	s{ev},
-	g{ev, r.grp, r, this},
-	p{ev, r, i},
+Visual::Visual(PTCSystem* system) :
+	e{*system->get_evaluator()},
+	r{*system->get_resources()},
+	c{system},
+	b{e, r.scr},
+	s{e},
+	g{e, r.grp, r, this},
+	p{system},
 	visible{true,true,true,true,true,true}
 {
 	if (!sf::Shader::isAvailable()){

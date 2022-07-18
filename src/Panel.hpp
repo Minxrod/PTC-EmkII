@@ -14,6 +14,7 @@ class Panel : public IPTCObject {
 	const static int WIDTH = 256;
 	const static int HEIGHT = 192;
 	
+	PTCSystem* system;
 	Evaluator& e;
 	PTC2Console c;
 	TileMap panel_bg;
@@ -32,7 +33,7 @@ class Panel : public IPTCObject {
 	void pnlstr_(const Args&);
 	
 public:
-	Panel(Evaluator&, Resources&, Input& i);
+	Panel(PTCSystem* s);
 	
 	Panel() = delete;
 	

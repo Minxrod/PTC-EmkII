@@ -10,16 +10,17 @@
 #include "BaseConsole.hpp"
 #include "IPTCObject.hpp"
 
-class Visual;
+class PTCSystem;
 
 const int PTC2_CONSOLE_WIDTH = 32;
 const int PTC2_CONSOLE_HEIGHT = 24;
 
 class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT>,
 					public IPTCObject {
-	Visual* v;
+//	Visual* v;
 	
-	Input& in;
+//	Input& in;
+	PTCSystem* system;
 	Evaluator& e;
 	TileMap tm;
 	
@@ -51,7 +52,7 @@ class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HE
 	void ok(const Args&);
 	
 public:
-	PTC2Console(Evaluator&, Input&, Visual*);
+	PTC2Console(PTCSystem* s);
 	
 	PTC2Console() = delete;
 	

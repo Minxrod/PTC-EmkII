@@ -1,6 +1,7 @@
 #include "PTC2Console.hpp"
 
 #include "Visual.hpp"
+#include "PTCSystem.hpp"
 
 #include <regex>
 
@@ -11,8 +12,8 @@ const std::regex number{ R"(-?[0-9]+\.?[0-9]*)" };
 /// These inputs are known to cause Overflow errors instead of the ?Redo from start prompt.
 const std::regex bad_number{ R"([\-0-9]?\.[0-9]*\.)" };
 
-PTC2Console::PTC2Console(Evaluator& eval, Input& i, Visual* vis) : BaseConsole(), v{vis},
-in{i}, e{eval}, tm{PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT} {
+PTC2Console::PTC2Console(PTCSystem* s) : BaseConsole(), system{s},
+e{*system->get_evaluator()}, tm{PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT} {
 	csrx = std::get<Number*>(e.vars.get_var_ptr("CSRX"));
 	csry = std::get<Number*>(e.vars.get_var_ptr("CSRY"));
 	tabstep = std::get<Number*>(e.vars.get_var_ptr("TABSTEP"));
@@ -140,9 +141,11 @@ void PTC2Console::print_(const Var& v){
 }
 
 std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args& a){
-	auto pnltype = v->p.panel_on();
+	Input& in = *system->get_input();
+	
+	auto pnltype = system->get_visual()->p.panel_on();
 	if (pnltype <= 1){
-		v->p.panel_override();
+		system->get_visual()->p.panel_override();
 	}
 	
 	auto& guide = a[1];
@@ -224,7 +227,7 @@ std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args&
 		}
 	}
 	
-	v->p.panel_override(pnltype);
+	system->get_visual()->p.panel_override(pnltype);
 	return std::pair(var, res);
 }
 

@@ -1,12 +1,15 @@
 #include "Panel.hpp"
 
-Panel::Panel(Evaluator& ev, Resources& r, Input& i) : 
-	e{ev},
-	c{ev, i, nullptr},
+#include "PTCSystem.hpp"
+
+Panel::Panel(PTCSystem* s) : system{s},
+	e{*system->get_evaluator()},
+	c{system},
 	panel_bg{64, 64},
-	icon{ev},
+	icon{e},
 	keyboard{}
 {
+	Resources& r = *system->get_resources();
 	auto& key = r.scr.at("KEY").data;
 	for (int y = 0; y < 24; ++y){
 		for (int x=  0; x < 32; ++x){

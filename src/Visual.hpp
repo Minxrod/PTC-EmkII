@@ -14,6 +14,8 @@
 #include "Panel.hpp"
 #include "IPTCObject.hpp"
 
+class PTCSystem;
+
 /// This class is responsible for managing all components that are on screen,
 /// and the texturing/colors of these components.
 /// 
@@ -28,6 +30,8 @@ struct Visual : public IPTCObject {
 	/// Number of banks for each resource type.
 	const std::vector<int> BANKS{1, 4, 8, 2, 4, 2};
 	
+	/// Containing system
+	PTCSystem* system;
 	/// Evaluator used for PTC functions.
 	Evaluator& e;
 	/// Resources used to generate textures.
@@ -89,10 +93,8 @@ struct Visual : public IPTCObject {
 public:
 	/// Constructor
 	/// 
-	/// @param ev Evaluator object
-	/// @param rs Resources object
-	/// @param i Input object
-	Visual(Evaluator& ev, Resources& rs, Input& i);
+	/// @param s Containing system
+	Visual(PTCSystem* s);
 	
 	/// Default constructor (deleted)
 	Visual() = delete;
