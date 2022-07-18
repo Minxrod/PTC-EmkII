@@ -69,6 +69,7 @@ struct Resources{
 	/// 
 	/// @param type PTC resource type (MEM, BGU0L, etc.)
 	/// @param filename Name of file to load
+	/// @param header_size Size of header to read
 	void load(std::string type, std::string filename, int header_size = 48);
 	/// Saves a resource of the given type with the given name.
 	/// 
@@ -82,6 +83,7 @@ struct Resources{
 	/// @param type Type to convert
 	/// @param bg Current BG screen
 	/// @param sp Current sprite screen
+	/// @param gp Current graphics screen
 	/// @return Full type
 	std::string normalize_type(std::string type, int bg = 0, int sp = 0, int gp = 0);
 };
