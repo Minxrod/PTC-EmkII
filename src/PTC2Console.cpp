@@ -41,6 +41,11 @@ std::map<Token, op_func> PTC2Console::get_funcs(){
 }
 
 
+/// PTC command to clear the console.
+/// 
+/// Format: 
+/// * `CLS`
+/// 
 void PTC2Console::cls_(const Args&){
 	BaseConsole::cls();
 }
@@ -50,6 +55,15 @@ void PTC2Console::reset(){
 	BaseConsole::cls();
 }
 
+/// PTC command to print to the text console.
+/// 
+/// Format: 
+/// * `PRINT var[,var2...][;var2...]`
+/// 
+/// Arguments:
+/// * var: Value to print (can be multiple, separated by commas, semicolons)
+/// 
+/// @param a Arguments
 void PTC2Console::print_(const Args& a){
 	//PRINT <exp> <exp2> <exp3> ...
 	// If inTheStupidCorner, then the cursor needs to be advanced to the next line before printing.
@@ -118,7 +132,7 @@ std::string printable(const Var& v){
 			str = str.substr(0, str.size()-1);
 		}
 		if (str.back() == '.')
-			str = str.substr(0, str.size()-1);		
+			str = str.substr(0, str.size()-1);
 		
 	} else {
 		str = std::get<String>(v);
@@ -231,6 +245,16 @@ std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args&
 	return std::pair(var, res);
 }
 
+/// PTC command to get text or numeric input from the user.
+/// 
+/// Format: 
+/// * `INPUT [prompt;]var[,var2...]`
+/// 
+/// Arguments:
+/// * prompt: Optional guiding prompt
+/// * var: Variable to store result to
+/// 
+/// @param a Arguments
 void PTC2Console::input_(const Args& a){
 	//INPUT [string;]a$,b,c
 	auto [var, str] = input_common(a);
@@ -253,6 +277,16 @@ void PTC2Console::input_(const Args& a){
 	}
 }
 
+/// PTC command to get text input from the user, but with commas.
+/// 
+/// Format: 
+/// * `LINPUT [prompt;]var`
+/// 
+/// Arguments:
+/// * prompt: Guiding text string
+/// * var: String variable to store result to
+/// 
+/// @param a Arguments
 void PTC2Console::linput_(const Args& a){
 	//LINPUT [string;]a$
 	auto [var, str] = input_common(a);
@@ -260,6 +294,16 @@ void PTC2Console::linput_(const Args& a){
 	e.assign(var, Token{str, Type::Str});
 }
 
+/// PTC command to set the cursor location.
+/// 
+/// Format: 
+/// * `LOCATE x,y`
+/// 
+/// Arguments:
+/// * x: X coordinate
+/// * y: Y coordinate
+/// 
+/// @param a Arguments
 void PTC2Console::locate_(const Args& a){
 	//LOCATE <x> <y>
 	//std::cout << "L";
@@ -300,6 +344,16 @@ void PTC2Console::scroll(){
 	*csry = get_y();
 }
 
+/// PTC command to set the text and background colors.
+/// 
+/// Format: 
+/// * `COLOR fg[,bg]`
+/// 
+/// Arguments:
+/// * fg: New foreground color
+/// * bg: Background color (default=no change)
+/// 
+/// @param a Arguments
 void PTC2Console::color_(const Args& a){
 	//std::cout << "C";
 	//std::cout << get_x() << "," << get_y() << std::endl;
@@ -309,6 +363,17 @@ void PTC2Console::color_(const Args& a){
 	//std::cout << get_x() << "," << get_y() << std::endl;
 }
 
+/// PTC function to check a character on the console.
+/// 
+/// Format: 
+/// * `CHKCHR(x,y)`
+/// 
+/// Arguments:
+/// * x: X coordinate to check
+/// * y: Y coordinate to check
+/// 
+/// @param v Values
+/// @return Character code (-1 if (x,y) is out of bounds)
 Var PTC2Console::chkchr_(const Vals& v){
 	auto x = static_cast<int>(std::get<Number>(v.at(0)));
 	auto y = static_cast<int>(std::get<Number>(v.at(1)));
@@ -327,14 +392,6 @@ void PTC2Console::print(int x, int y, Var& v, int c){
 	if (get_x() >= get_w())
 		return;
 	
-//	for (char c : str){
-//		text[*cur_x+WIDTH * *cur_y] = c;
-//		bg_color[*cur_x + WIDTH * *cur_y] = cur_bg_color;
-//		fg_color[*cur_x + WIDTH * *cur_y] = cur_fg_color;
-//	
-//		if ((*cur_x != 31 || *cur_y != 23) && advance())
-//			break;
-//	}
 	BaseConsole::print(str);
 }
 

@@ -37,13 +37,13 @@ class BaseConsole {
 protected:
 	/// Advances the cursor by one pixel. Will scroll console if reaches the end of the line.
 	/// @return true if console was scrolled.
-	bool advance();
+	virtual bool advance();
 	/// Advances the cursor to the next line.
-	void newline();
+	virtual void newline();
 	/// Advances the cursor to the next tab break, as determined by tab_size.
-	void tab();
+	virtual void tab();
 	/// Scrolls up the console by one line.
-	void scroll();
+	virtual void scroll();
 	
 public:
 	/// Constructor.

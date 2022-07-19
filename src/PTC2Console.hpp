@@ -17,30 +17,41 @@ const int PTC2_CONSOLE_HEIGHT = 24;
 
 class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT>,
 					public IPTCObject {
-//	Visual* v;
-	
-//	Input& in;
+	/// Containing system
 	PTCSystem* system;
+	/// Evaluator object
 	Evaluator& e;
+	/// TileMap used for rendering
 	TileMap tm;
 	
+	/// Pointer to `CSRX` system variable
 	Number* csrx;
+	/// Pointer to `CSRY` system variable
 	Number* csry;
+	/// Pointer to `TABSTEP` system variable
 	Number* tabstep;
 	
+	/// Check for the edge case of the cursor ending up at (31,23)
 	bool inTheStupidCorner = false;
 	
-	//These are also methods in BaseConsole.
-	//These are not proper overrides, but they are used as extensions of
-	//the methodss from BaseConsole.
-	bool advance();
-	void newline();
-	void tab();
-	void scroll();
-
-	void print_(const Var&);
-	void print_str(std::string);
-	std::pair<std::vector<Token>, std::string> input_common(const Args&);
+	bool advance() override;
+	void newline() override;
+	void tab() override;
+	void scroll() override;
+	
+	/// Prints a single item. First converts to a string and then prints to the console.
+	/// 
+	/// @param v Value to print
+	void print_(const Var& v);
+	/// Prints a string to the console.
+	/// 
+	/// @param str Text to print
+	void print_str(std::string str);
+	/// Shared input code (used in both `INPUT` and `LINPUT`)
+	/// 
+	/// @param a Arguments (expects format of `INPUT` or `LINPUT`)
+	/// @return Pair containing variable name expression and actual input string
+	std::pair<std::vector<Token>, std::string> input_common(const Args& a);
 	
 	void cls_(const Args&);
 	void print_(const Args&);
@@ -49,23 +60,41 @@ class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HE
 	void input_(const Args&);
 	void linput_(const Args&);
 	Var chkchr_(const Vals&);
-	void ok(const Args&);
 	
 public:
+	/// Constructor
+	/// 
+	/// @param s Containing system
 	PTC2Console(PTCSystem* s);
 	
+	/// Default constructor (deleted)
 	PTC2Console() = delete;
 	
+	/// Copy constructor (deleted)
 	PTC2Console(const PTC2Console&) = delete;
 	
+	/// Copy assignment (deleted)
 	PTC2Console& operator=(const PTC2Console&) = delete;
 	
+	/// Prints "OK" to the console. Used to signal the end of program execution.
+	void ok(const Args&);
+	
+	/// Resets the console, as if `ACLS` had been called.
 	void reset();
 	
-	void print(int, int, Var&, int);
+	/// Prints a string value to the console.
+	/// 
+	/// @param x X location
+	/// @param y Y location
+	/// @param v Value to print (must be of type String)
+	/// @param c Color
+	void print(int x, int y, Var& v, int c);
 	
 	std::map<Token, cmd_type> get_cmds() override;
 	std::map<Token, op_func> get_funcs() override;
 	
+	/// Draws the console.
+	/// 
+	/// @return Drawable object
 	TileMap& draw();
 };
