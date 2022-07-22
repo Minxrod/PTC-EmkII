@@ -130,7 +130,7 @@ To build the documentation, install doxygen and use
 doxygen doxyconfig
 ```
 
-Note that this is only documentation for the source code, and it is not yet complete.
+Note that this is primarily documentation for the source code.
 
 # Resources
 ## Tools used
