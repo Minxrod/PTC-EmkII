@@ -90,7 +90,10 @@ struct Input : public IPTCObject {
 	/// @return `KEYBOARD` value or 0
 	int keycode_internal();
 	
-	void type_try_keyboard(std::string keys, int k);
+	/// Internal function to type characters.
+	/// 
+	/// @param keys String to type
+	void type_try_keyboard(std::string keys, int);
 	
 	// PTC commands
 	void brepeat_(const Args&);
@@ -133,6 +136,7 @@ public:
 	/// Maps a unicode character to the matching PTC character if possible, and writes it to the `INKEY$()` buffer.
 	/// 
 	/// @param unicode Character code
+	/// @param key sf::Key SFML keycode
 	void type(int unicode, Key key);
 	
 	std::map<Token, cmd_type> get_cmds() override;

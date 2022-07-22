@@ -55,12 +55,33 @@ std::map<Token, op_func> Panel::get_funcs(){
 //	}
 //}
 
+/// PTC command to change the current panel type.
+/// 
+/// Format: 
+/// * `PNLTYPE type`
+/// 
+/// Arguments:
+/// * type: New type string (one of OFF, PNL, KYA, KYM, KYK)
+/// 
+/// @param a Arguments
 void Panel::pnltype_(const Args& a){
 	//PNLTYPE type
 	String type = std::get<String>(e.evaluate(a[1]));
 	pnltype = std::string("OFF PNL KYA KYM KYK").find(type)/4;
 }
 
+/// PTC command to print a string to the lower screen's console.
+/// 
+/// Format: 
+/// * `PNLSTR x,y,str,c`
+/// 
+/// Arguments:
+/// * x: X coordinate to print to
+/// * y: Y coordinate to print to
+/// * str: String to print (if it extends past the screen, str will be cut off)
+/// * c: Color to use [0-15]
+/// 
+/// @param a Arguments
 void Panel::pnlstr_(const Args& a){
 	//PNLSTR x,y,"STR",c
 	Number x = std::get<Number>(e.evaluate(a[1]));

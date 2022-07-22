@@ -6,7 +6,7 @@
 #include "TileMap.hpp"
 #include "Repeater.hpp"
 
-/// Manages the keyboard and function key graphics.
+/// Manages the keyboard and function keys.
 class PanelKeyboard {
 	/// Function key text for rendering
 	TileMap func_keys;
