@@ -15,6 +15,7 @@ class PTCSystem;
 const int PTC2_CONSOLE_WIDTH = 32;
 const int PTC2_CONSOLE_HEIGHT = 24;
 
+/// Text console.
 class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT>,
 					public IPTCObject {
 	/// Containing system

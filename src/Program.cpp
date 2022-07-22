@@ -66,6 +66,15 @@ void Program::set_tokens(const std::vector<Token>& t){
 	for_calls = std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>>{};
 }
 
+/// PTC command to execute a program.
+/// 
+/// Format: 
+/// * `EXEC name`
+/// 
+/// Arguments:
+/// * name: Name of program
+/// 
+/// @param a Arguments
 void Program::exec_(const Args& a){
 	//EXEC progname
 	std::string prgname = std::get<String>(e.evaluate(a[1]));
@@ -229,6 +238,18 @@ bool for_continues(Number val, Number end, Number step){
 	return is_valid;
 }
 
+/// PTC instruction to begin a loop with fixed length
+/// 
+/// Format: 
+/// * `FOR variable=initial TO final [STEP step]`
+/// 
+/// Arguments:
+/// * variable: Variable to iterate over
+/// * initial: Starting value (variable is initialized to this)
+/// * final: Ending value (loop ends after)
+/// * step: Amount to add to variable on each loop iteration
+/// 
+/// @param a Arguments
 void Program::for_(const Args& a){
 	//FOR <initial> TO <value> [STEP <value>]
 	auto& init = a[1]; //initial
@@ -267,6 +288,15 @@ void Program::for_(const Args& a){
 	}
 }
 
+/// PTC command to end a FOR loop iteration.
+/// 
+/// Format: 
+/// * `NEXT [variable]`
+/// 
+/// Arguments:
+/// * variable: Variable corresponding to FOR loop to repeat or end (if omitted, ends the most recent FOR loop was)
+/// 
+/// @param a Arguments
 void Program::next_(const Args& a){
 	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>>::const_iterator itr;
 	if (a.size() > 1){
@@ -295,17 +325,45 @@ void Program::next_(const Args& a){
 	}
 }
 
+/// PTC command to wait for some amount of frames.
+/// 
+/// Format: 
+/// * `WAIT time`
+/// 
+/// Arguments:
+/// * time: Frames to wait for
+/// 
+/// @param a Arguments
 void Program::wait_(const Args& a){
 	auto frames = 1000.0 / 60.0 * std::get<Number>(e.evaluate(a[1]));
 	
 	std::this_thread::sleep_for(std::chrono::milliseconds((int)frames));
 }
 
+/// Not an actual instruction. When this executes, the remaining instructions on this line are ignored.
+/// 
+/// Example:
+/// `IF 0 THEN ?"YES" ELSE ?"NO"`
+/// 
+/// In this case, the arguments passed to else_() are ["ELSE","?","NO"] and the instruction pointer
+/// has already been advanced to the next line.
 void Program::else_(const Args&){
 	//ignore everything past an ELSE
 	//It's like IF if IF did nothing
 }
 
+/// PTC command to conditionally execute other commands.
+/// 
+/// Format: 
+/// * `IF condition THEN commands [ELSE commands]`
+/// * `IF condition GOTO label [ELSE label]`
+/// 
+/// Arguments:
+/// * condition: Executes `THEN`/`GOTO` statement if nonzero, otherwise `ELSE` (if `ELSE` exists)
+/// * commands: Command(s) to execute
+/// * label: Label to jump to
+/// 
+/// @param a Arguments
 void Program::if_(const Args& a){
 	//IF <cond> THEN CMD A,B:CMD C,D ELSE CMD E\r
 	//IF, <cond>, THEN, CMD, A, B, : CMD, C, D, ELSE, CMD, E, \r
@@ -349,6 +407,10 @@ void Program::if_(const Args& a){
 	}
 }
 
+/// PTC command to terminate the currently executing program.
+/// 
+/// Format: 
+/// * `END`
 void Program::end_(const Args&){
 	current = tokens.end();
 }
@@ -365,6 +427,15 @@ void Program::goto_label(const std::string& lbl){
 	}
 }
 
+/// PTC command to jump to a label.
+/// 
+/// Format: 
+/// * `GOTO label`
+/// 
+/// Arguments:
+/// * label: Label to jump to
+/// 
+/// @param a Arguments
 void Program::goto_(const Args& a){
 	//GOTO <label>
 	//GOTO <string expression>
@@ -373,6 +444,15 @@ void Program::goto_(const Args& a){
 	//std::cout << "GOTO @" << lbl << std::endl;
 }
 
+/// PTC command to execute a subroutine.
+/// 
+/// Format: 
+/// * `GOSUB label`
+/// 
+/// Arguments:
+/// * label: Label to jump to.
+/// 
+/// @param a Arguments
 void Program::gosub_(const Args& a){
 	//GOSUB <label expression>
 	std::string lbl = std::get<String>(e.evaluate(a[1]));
@@ -382,12 +462,26 @@ void Program::gosub_(const Args& a){
 	//std::cout << "GOSUB @" << lbl << std::endl;
 }
 
-void Program::return_(const Args& ){
+/// PTC command to return from a subroutine.
+/// 
+/// Format: 
+/// * `RETURN`
+void Program::return_(const Args&){
 	current = gosub_calls.top();
 	gosub_calls.pop();
 	//std::cout << "RETURN" << std::endl;
 }
 
+/// PTC command to branch based on a condition variable.
+/// 
+/// Format: 
+/// * `ON var GOTO label1,label2,...`
+/// * `ON var GOSUB label1,label2,...`
+/// 
+/// Arguments:
+/// * var: Value
+/// 
+/// @param a Arguments
 void Program::on_(const Args& a){
 	//ON <label exp> GOTO/GOSUB <lbl>, <lbl>, <lbl>
 	int index = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
@@ -404,6 +498,12 @@ void Program::on_(const Args& a){
 	//std::cout << "ON " << lbl << std::endl;
 }
 
+/// PTC command to store data.
+/// 
+/// Format: 
+/// * `DATA whatever,[whatever2]`
+/// 
+/// This instruction, like else_(), does not actually do anything.
 void Program::data_(const Args&){
 	//DATA doesn't do anything as an instruction.
 }
@@ -429,6 +529,15 @@ Token Program::read_expr(){
 	return data_value;
 }
 
+/// PTC command to read from `DATA` statements.
+/// 
+/// Format: 
+/// * `READ var[,var2...]`
+/// 
+/// Arguments:
+/// * var: Variable to read into
+/// 
+/// @param a Arguments
 void Program::read_(const Args& a){
 	//READ var1[,var2,var3$,...]
 	for (auto i = 1; i < (int)a.size(); ++i){
@@ -453,6 +562,15 @@ void Program::data_seek(std::string label){
 	}
 }
 
+/// PTC command to set current `DATA` pointer
+/// 
+/// Format: 
+/// * `RESTORE label`
+/// 
+/// Arguments:
+/// * label: Label to start reading `DATA` from
+/// 
+/// @param a Arguments
 void Program::restore_(const Args& a){
 	//RESTORE label
 	String lbl = std::get<String>(e.evaluate(a[1]));
@@ -460,10 +578,24 @@ void Program::restore_(const Args& a){
 	data_seek(lbl);
 }
 
+/// PTC command to clear all variables.
+/// 
+/// Format: 
+/// * `CLEAR`
 void Program::clear_(const Args&){
 	e.vars.clear_();
 }
 
+/// PTC command to create a new array.
+/// 
+/// Format: 
+/// * `DIM var(arg[,arg2])[,var2(...)...]`
+/// 
+/// Arguments:
+/// * var: array variable to create
+/// * arg: size of array
+/// 
+/// @param a Arguments
 void Program::dim_(const Args& a){
 	//DIM ARR(arg1 [,arg2]), [ARR2(arg1 [,arg2])]
 	for (auto i = 1; i < (int)a.size(); ++i){
@@ -472,6 +604,16 @@ void Program::dim_(const Args& a){
 	}
 }
 
+/// PTC command to swap the value of two variables.
+/// 
+/// Format: 
+/// * `SWAP var1, var2`
+/// 
+/// Arguments:
+/// * var1: Variable 1
+/// * var2: Variable 2
+/// 
+/// @param a Arguments
 void Program::swap_(const Args& a){
 	//SWAP var1, var2
 	auto var1value = e.evaluate(a[1]);
@@ -515,6 +657,18 @@ void apply_permutation_in_place(
 	}
 }
 
+/// PTC command to sort an array.
+/// 
+/// Format: 
+/// * `SORT start,num,arr[,arr2,...]`
+/// 
+/// Arguments:
+/// * start: Index to start sorting from
+/// * num: Number of elements to sort
+/// * arr: Primary array to sort
+/// * arr2: Secondary array(s) to sort based on primary array order
+/// 
+/// @param a Arguments
 void Program::sort_(const Args& a){
 	//SORT start, num_elems, arr1 [,arr2, ...]
 	auto start = std::get<Number>(e.evaluate(a[1]));
@@ -542,8 +696,20 @@ void Program::sort_(const Args& a){
 	}
 }
 
-//TODO separate out all of this shared code
+/// PTC command to sort an array in reverse.
+/// 
+/// Format: 
+/// * `RSORT start,num,arr[,arr2,...]`
+/// 
+/// Arguments:
+/// * start: Index to start sorting from
+/// * num: Number of elements to sort
+/// * arr: Primary array to sort
+/// * arr2: Secondary array(s) to sort based on primary array order
+/// 
+/// @param a Arguments
 void Program::rsort_(const Args& a){
+	//TODO separate out all of this shared code
 	//RSORT start, num_elems, arr1 [,arr2, ...]
 	auto start = std::get<Number>(e.evaluate(a[1]));
 	auto num_elems = std::get<Number>(e.evaluate(a[2]));
