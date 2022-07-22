@@ -30,6 +30,16 @@ SpriteInfo iconbutton(int id, int chr){
 	return s;
 }
 
+/// PTC command to create or modify an icon.
+/// 
+/// Format: 
+/// * `ICONSET icon,chr`
+/// 
+/// Arguments:
+/// * icon: Icon id to set
+/// * chr: Icon sprite [0-63]
+/// 
+/// @param a Arguments
 void Icon::iconset_(const Args& a){
 	//ICONSET icon,chrid
 	int icon = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
@@ -40,6 +50,15 @@ void Icon::iconset_(const Args& a){
 	s.active = true;
 }
 
+/// PTC command to clear an icon.
+/// 
+/// Format: 
+/// * `ICONCLR [icon]`
+/// 
+/// Arguments:
+/// * icon: Icon id to clear. (default=all)
+/// 
+/// @param a Arguments
 void Icon::iconclr_(const Args& a){
 	//ICONCLR [icon]
 	if (a.size() == 2){
@@ -53,6 +72,13 @@ void Icon::iconclr_(const Args& a){
 	}
 }
 
+/// PTC function to check if an icon is pressed.
+/// 
+/// Format: 
+/// * `ICONCHK()`
+/// 
+/// @param v Values
+/// @return id of icon pressed, or -1 if no icons pressed
 Var Icon::iconchk_(const Vals&){
 	//ICONCHK()
 	if (last_pressed_timer.check())

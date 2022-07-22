@@ -13,6 +13,7 @@
 #include <memory>
 #include <fstream>
 
+/// System class that manages all components of the PTC system.
 class PTCSystem {
 	//Variety of components needed for the system to work
 	/// Evaluator object

@@ -81,6 +81,18 @@ void Evaluator::add_funcs(std::map<Token, op_func> other){
 	functions.merge(other);
 }
 
+/// PTC command to read a date string into separate variables.
+/// 
+/// Format: 
+/// * `DTREAD(date),y,m,d`
+/// 
+/// Arguments:
+/// * date: Date string of form "YYYY/MM/DD"
+/// * y: Variable to write year to
+/// * m: Variable to write month to
+/// * d: Variable to write day to
+/// 
+/// @param a Arguments
 void Evaluator::dtread_(const Args& a){
 	//DTREAD (yyyy/mm/dd) y m d 
 	String str = std::get<String>(evaluate(a[1]));
@@ -90,7 +102,18 @@ void Evaluator::dtread_(const Args& a){
 	assign(a[4], Token{str.substr(8,2), Type::Str});
 }
 
-
+/// PTC command to read a time string into separate variables.
+/// 
+/// Format: 
+/// * `TMREAD(time),h,m,s`
+/// 
+/// Arguments:
+/// * time: Time string of form "HH:MM:SS"
+/// * h: Variable to write hours to
+/// * m: Variable to write minutes to
+/// * s: Variable to write seconds to
+/// 
+/// @param a Arguments
 void Evaluator::tmread_(const Args& a){
 	//TMREAD hh:mm:ss h m s
 	String str = std::get<String>(evaluate(a[1]));

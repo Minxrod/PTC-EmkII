@@ -26,9 +26,13 @@ class Background : public IPTCObject {
 		int time;
 	};
 	
+	/// `BGCLIP` start x
 	int bgclip_x1 = 0;
+	/// `BGCLIP` start y
 	int bgclip_y1 = 0;
+	/// `BGCLIP` end x
 	int bgclip_x2 = 31;
+	/// `BGCLIP` end y
 	int bgclip_y2 = 23;
 	
 	/// Evaluator object
@@ -98,7 +102,15 @@ public:
 	/// Gets the current BG page.
 	int get_page() { return page; }
 	
+	/// Returns a view to set the display range of the BG layers.
+	/// 
+	/// @param sc Screen
+	/// @return sf::View
 	sf::View get_clip(int sc);
 	
+	/// Regenerates a BG tilemap from SCR data. (Used after `LOAD`, for example)
+	/// 
+	/// @param page Screen to regenerate
+	/// @param layer Layer to regenerate
 	void regen_scr(int page, int layer);
 };
