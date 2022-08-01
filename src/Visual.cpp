@@ -168,7 +168,7 @@ void Visual::vsync_(const Args& a){
 	while (*maincntl < wait_until){
 		//?? idk;
 		//https://stackoverflow.com/questions/7083482/how-to-prevent-gcc-from-optimizing-out-a-busy-wait-loop
-		std::this_thread::yield();
+		std::this_thread::sleep_for(std::chrono::milliseconds{1});
 	}
 }
 
