@@ -157,6 +157,7 @@ void Background::bgclr_(const Args& a){
 }
 
 /// PTC command to set the BG rendering area.
+/// @todo Each `BGPAGE` should have a separate clip boundary.
 /// 
 /// Format: `BGCLIP x1,y1,x2,y2`
 /// 

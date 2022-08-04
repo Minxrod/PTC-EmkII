@@ -110,7 +110,7 @@ void Program::add_cmds(std::map<Token, cmd_type> other){
 
 std::vector<Token> Program::next_instruction(){
 	Expr::const_iterator newline;
-	if (*current == "IF"_TC || *current == "ELSE"_TC){ //IF, ELSE should read entire remainder of line
+	if (*current == "IF"_TC || *current == "ELSE"_TC || *current == Token{"REM", Type::Rem}){ //IF, ELSE should read entire remainder of line
 		newline = std::find(current, tokens.cend(), Token{"\r", Type::Newl});
 		std::vector<Token> instr{current, newline};
 		current = newline+1;

@@ -372,8 +372,9 @@ void Visual::cls_(const Args&){
 	p.get_console().cls();
 }
 
-/// PTC command to reset almost the entire graphics state.
-/// @note Not yet fully implemented.
+/// PTC command to reset (almost) the entire graphics state.
+/// @note Does not reset character resources.
+/// @todo Not yet fully implemented.
 /// 
 /// Format: 
 /// * `ACLS`
