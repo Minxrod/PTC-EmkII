@@ -1,5 +1,9 @@
 PTC Interpreter, attempt two!
 
+# Disclaimer
+
+The original PTC software was created by SmileBoom. This software requires you to have a legal copy of the original PTC for full function. Please do not use the program with unlicensed copies.
+
 # Introduction
 
 This project is an attempt at recreating the mechanics of Petit Computer, to be able to run PTC programs on PC. The end goal is to support all commands and functions that are usable from programs. Accuracy will likely not be 100%, though most programs should run as expected. Note that bugs will probably not be recreated, so stuff like -0 or the COLSET bug/crash will not work the same.
@@ -14,7 +18,7 @@ The current project has some amount of support for SAMPLE1-SAMPLE12, and GAME1-G
 
 ## First time setup
 
-Place a PTC .nds file in the resources/ directory, then from a terminal/console run
+Place your PTC .nds file in the resources/ directory, then from a terminal/console run
 
 ### Linux
 ```
@@ -27,7 +31,7 @@ cd resources/
 nds_extract.bat <ptc_file>.nds
 ```
 
-This should automatically extract all required graphics and sound resources to the correct locations. Note that if you put more than one .nds in the resources directory, it will not work.
+This should automatically extract all required graphics and sound resources to the correct locations.
 
 If the precompiled versions of ndstool or sdatxtract do not work, see the Tools link below and compile/download the binaries yourself, and replace the copies in resources/tools/.
 
@@ -54,7 +58,7 @@ Special keys:
 
 KEYBOARD and INKEY$() are approximated by typing on the keyboard, and most characters should be typed as expected. Holding Alt should allow you to type codes in the upper half of the range. If you have a japanese keyboard layout/can type katakana, this should also work.
 
-The touch keyboard is partially functional, but the different keyboards are not yet implemented.
+The touch keyboard is mostly functional, though some keys still have no effect.
 
 ## Execution options
 
