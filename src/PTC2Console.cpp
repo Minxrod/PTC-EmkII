@@ -121,17 +121,17 @@ void PTC2Console::print_(const Args& a){
 	//std::cout << get_x() << "," << get_y() << std::endl;
 }
 
-std::string printable(const Var& v){
-	std::string str;
+std::wstring printable(const Var& v){
+	std::wstring str;
 	if (std::holds_alternative<Number>(v)){
-		str = std::to_string(std::get<Number>(v));
+		str = std::to_wstring(std::get<Number>(v));
 		//some assumptions: to_string outputs a number of form [aaaaa]a.bbbbbb
 		//currently, the type Number = double, so this works reliably.
-		str = str.substr(0, str.find(".")+4);
-		while (str.back() == '0'){
+		str = str.substr(0, str.find(L'.')+4);
+		while (str.back() == L'0'){
 			str = str.substr(0, str.size()-1);
 		}
-		if (str.back() == '.')
+		if (str.back() == L'.')
 			str = str.substr(0, str.size()-1);
 		
 	} else {
@@ -140,7 +140,7 @@ std::string printable(const Var& v){
 	return str;
 }
 
-void PTC2Console::print_str(std::string str){
+void PTC2Console::print_str(std::wstring str){
 //	if (str.find("tod") != std::string::npos)
 //		throw std::runtime_error{"found tod"};
 // I have no idea what the above code was meant to do, but it's funny so it remains as a comment.
@@ -150,11 +150,11 @@ void PTC2Console::print_str(std::string str){
 }
 
 void PTC2Console::print_(const Var& v){
-	std::string str = printable(v);
+	std::wstring str = printable(v);
 	print_str(str);
 }
 
-std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args& a){
+std::pair<std::vector<Token>, String> PTC2Console::input_common(const Args& a){
 	Input& in = *system->get_input();
 	
 	auto pnltype = system->get_visual()->p.panel_on();
@@ -171,11 +171,11 @@ std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args&
 	}
 	
 	bool valid = false;
-	std::string res;
+	String res;
 	while (!valid){
 		if (semicolon != guide.end())
 			print_(e.evaluate(str));
-		print_(Var(String("?")));
+		print_(Var(String(L"?")));
 		newline();
 		
 		auto old_x = get_x();
@@ -203,7 +203,7 @@ std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args&
 			}
 			
 			locate(old_x, old_y);
-			print_str(res + (keycode == 15 ? " " : ""));
+			print_str(res + (keycode == 15 ? L" " : L""));
 		}
 		newline();
 		
@@ -235,9 +235,9 @@ std::pair<std::vector<Token>, std::string> PTC2Console::input_common(const Args&
 		}
 		
 		if (!valid){
-			print_(Var(String("?Redo from start")));
+			print_(Var(String(L"?Redo from start")));
 			newline();
-			res = "";
+			res = L"";
 		}
 	}
 	
@@ -261,10 +261,10 @@ void PTC2Console::input_(const Args& a){
 	
 //	std::cout << "Input: " << str << std::endl;
 	
-	std::vector<Token> results{Token{"", Type::Str}};
+	std::vector<Token> results{Token{L"", Type::Str}};
 	for (auto c : str){
 		if (c == ',')
-			results.push_back(Token{"", Type::Str});
+			results.push_back(Token{L"", Type::Str});
 		else
 			results.back().text += c; 
 	}
@@ -397,9 +397,8 @@ void PTC2Console::print(int x, int y, Var& v, int c){
 
 void PTC2Console::ok(const Args&){
 	//maybe use args to pass error messages later on
-	using namespace std::literals::string_literals;
 	
-	BaseConsole::print("OK"s);
+	BaseConsole::print(L"OK");
 	newline();
 }
 

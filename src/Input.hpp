@@ -83,7 +83,7 @@ struct Input : public IPTCObject {
 	/// Returns a character from the INKEY$() buffer
 	/// 
 	/// @return character typed
-	char inkey_internal();
+	wchar_t inkey_internal();
 	
 	/// Only really needed for special keys. Zeroes value after use.
 	///

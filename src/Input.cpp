@@ -170,7 +170,7 @@ void Input::brepeat_(const Args& a){
 	button_info[id][2] = repeat;
 }
 
-char Input::inkey_internal(){
+wchar_t Input::inkey_internal(){
 	std::lock_guard loc(inkeybuf_mutex);
 	char c = '\0';
 	if (!inkeybuffer.empty()){
@@ -194,7 +194,7 @@ int Input::keycode_internal(){
 /// @param Values (ignored)
 /// @return String containing character typed, or empty string if nothing was typed
 Var Input::inkey_(const Vals&){
-	std::string res = "";
+	String res = L"";
 	auto c = inkey_internal();
 	if (c)
 		res += c;

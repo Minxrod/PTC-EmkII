@@ -67,9 +67,9 @@ void Debugger::update(){
 		//TODO: maybe replace with TextEntered?
 		if (event.type == sf::Event::TextEntered){
 			sf::String x = event.text.unicode;
-			if (x == "\b")
+			if (x == L"\b")
 				command = command.substr(0, command.size()-1);
-			else if (x == "\r")
+			else if (x == L"\r")
 				submit = true;
 			else
 				command += event.text.unicode;
@@ -156,11 +156,11 @@ void Debugger::update(){
 	console.print("Expressions:");
 	for (std::size_t i = 0; i < evaluable.size(); ++i){
 		auto var = evaluator->evaluate(evaluable.at(i));
-		auto prefix = expression.at(i) + "=";
+		auto prefix = String(expression.at(i).cbegin(), expression.at(i).cend()) + L"=";
 		if (std::holds_alternative<Number>(var)){
-			console.print(prefix + std::to_string(std::get<Number>(var)));
+			console.print(to_string(prefix + std::to_wstring(std::get<Number>(var))));
 		} else {
-			console.print(prefix + std::get<String>(var));
+			console.print(to_string(prefix + std::get<String>(var)));
 		}
 	}
 	

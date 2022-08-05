@@ -233,12 +233,11 @@ namespace ptc {
 				return Var(static_cast<double>(std::stoi(s.substr(2), nullptr, 16)));
 			}
 		}
-		return Var(s == "" ? 0.0 : std::stod(s));
+		return Var(s.length() == 0 ? 0.0 : std::stod(s));
 	}
 	
 	Var chr(const Vals& vals){
-		String s = "X";
-		s[0] = (char)std::get<Number>(vals.at(0));
+		String s{(char)std::get<Number>(vals.at(0))};
 		return Var(s);
 	}
 	
@@ -251,8 +250,8 @@ namespace ptc {
 	}
 	
 	Var str(const Vals& vals){
-		std::string str = std::to_string(std::get<Number>(vals.at(0)));
-		str = str.substr(0, str.find(".")+3);
+		String str = std::to_wstring(std::get<Number>(vals.at(0)));
+		str = str.substr(0, str.find(L".")+3);
 		while (str.back() == '0'){
 			str = str.substr(0, str.size()-1);
 		}
@@ -262,8 +261,8 @@ namespace ptc {
 	}
 	
 	Var instr(const Vals& vals){
-		std::string str = std::get<String>(vals.at(0));
-		std::string substr = std::get<String>(vals.at(1));
+		String str = std::get<String>(vals.at(0));
+		String substr = std::get<String>(vals.at(1));
 		
 		auto res = str.find(substr);
 		if (res == std::string::npos){
@@ -274,10 +273,10 @@ namespace ptc {
 	}
 	
 	Var subst(const Vals& vals){
-		std::string str = std::get<String>(vals.at(0));
+		String str = std::get<String>(vals.at(0));
 		int start = std::get<Number>(vals.at(1));
 		int num = std::get<Number>(vals.at(2));
-		std::string newstr = std::get<String>(vals.at(3));
+		String newstr = std::get<String>(vals.at(3));
 		
 		str.replace(start, num, newstr);
 		return Var(str);
@@ -292,10 +291,10 @@ namespace ptc {
 			if (digits > 5 || digits < 1)
 				throw std::runtime_error{"Out of range (HEX$)"};
 		}
-		std::stringstream ss;
+		std::wstringstream ss;
 		ss << std::uppercase
 		   << std::hex
-		   << std::setfill(num >= 0 ? '0' : 'F')
+		   << std::setfill(num >= 0 ? L'0' : L'F')
 		   << std::setw(digits)
 		   << num;
 		

@@ -2,6 +2,10 @@
 
 #include <regex>
 
+std::string Token::to_string() const {
+	return std::string{text.cbegin(), text.cend()};
+}
+
 bool operator<(const Token& a, const Token& b){
 	return a.text < b.text ? true : b.text < a.text ? false : a.type < b.type;
 }
@@ -14,43 +18,44 @@ bool operator==(const Token& a, const Token& b){
 	return a.type == b.type && a.text == b.text;
 }
 
+//TODO: Write tests? this looks bad
 Token operator""_TO(const char* x, std::size_t y){
-	return Token{std::string{x, y}, Type::Op};
+	return Token{std::wstring(x, x+y), Type::Op};
 }
 
 Token operator""_TF(const char* x, std::size_t y){
-	return Token{std::string{x, y}, Type::Func};
+	return Token{std::wstring{x, x+y}, Type::Func};
 }
 
 Token operator""_TC(const char* x, std::size_t y){
-	return Token{std::string{x, y}, Type::Cmd};
+	return Token{std::wstring{x, x+y}, Type::Cmd};
 }
 
-const std::regex string{ R"("[^]*("|\r))" };
-const std::regex number{ R"([0-9]*\.?[0-9]*)" };
-const std::regex hex{ R"(\&H[0-9A-Fa-f]*)" }; //does not allow decimal points
-const std::regex binary{ R"(\&B[01]*)" }; //does not allow decimal points
-const std::regex separator{ R"([:\r])" };
-const std::regex variable{ R"([A-Z_][A-Z0-9_]*\$?)" };
-const std::regex label{ R"(\@[A-Z0-9_]+)" };
-const std::regex comment{ R"(('|REM)[^\r]*\r)" };
-const std::string first_char_ops = ",;[]()+-*/%!<>="; //single character operations or leading characters
-const std::string second_char_ops = "="; //second character of operations
+const std::wregex string{ LR"("[^]*("|\r))" };
+const std::wregex number{ LR"([0-9]*\.?[0-9]*)" };
+const std::wregex hex{ LR"(\&H[0-9A-Fa-f]*)" }; //does not allow decimal points
+const std::wregex binary{ LR"(\&B[01]*)" }; //does not allow decimal points
+const std::wregex separator{ LR"([:\r])" };
+const std::wregex variable{ LR"([A-Z_][A-Z0-9_]*\$?)" };
+const std::wregex label{ LR"(\@[A-Z0-9_]+)" };
+const std::wregex comment{ LR"(('|REM)[^\r]*\r)" };
+const std::wstring first_char_ops = L",;[]()+-*/%!<>="; //single character operations or leading characters
+const std::wstring second_char_ops = L"="; //second character of operations
 
-const std::string commands{" ACLS APPEND BEEP BGCLIP BGCLR BGCOPY BGFILL BGMCLEAR BGMPLAY BGMPRG BGMSET BGMSETD BGMSETV BGMSTOP BGMVOL BGOFS BGPAGE BGPUT BGREAD BREPEAT CHRINIT CHRREAD CHRSET CLEAR CLS COLINIT COLOR COLREAD COLSET CONT DATA DELETE DIM DTREAD ELSE END EXEC FOR GBOX GCIRCLE GCLS GCOLOR GCOPY GDRAWMD GFILL GLINE GOSUB GOTO GPAGE GPAINT GPSET GPRIO GPUTCHR ICONCLR ICONSET IF INPUT KEY LINPUT LIST LOAD LOCATE NEW NEXT ON PNLSTR PNLTYPE PRINT READ REBOOT RECVFILE RENAME RESTORE RETURN RSORT RUN SAVE SENDFILE SORT SPANGLE SPANIM SPCHR SPCLR SPCOL SPCOLVEC SPHOME SPOFS SPPAGE SPREAD SPSCALE SPSET SPSETV STEP STOP SWAP THEN TMREAD TO VISIBLE VSYNC WAIT "};
+const std::wstring commands{L" ACLS APPEND BEEP BGCLIP BGCLR BGCOPY BGFILL BGMCLEAR BGMPLAY BGMPRG BGMSET BGMSETD BGMSETV BGMSTOP BGMVOL BGOFS BGPAGE BGPUT BGREAD BREPEAT CHRINIT CHRREAD CHRSET CLEAR CLS COLINIT COLOR COLREAD COLSET CONT DATA DELETE DIM DTREAD ELSE END EXEC FOR GBOX GCIRCLE GCLS GCOLOR GCOPY GDRAWMD GFILL GLINE GOSUB GOTO GPAGE GPAINT GPSET GPRIO GPUTCHR ICONCLR ICONSET IF INPUT KEY LINPUT LIST LOAD LOCATE NEW NEXT ON PNLSTR PNLTYPE PRINT READ REBOOT RECVFILE RENAME RESTORE RETURN RSORT RUN SAVE SENDFILE SORT SPANGLE SPANIM SPCHR SPCLR SPCOL SPCOLVEC SPHOME SPOFS SPPAGE SPREAD SPSCALE SPSET SPSETV STEP STOP SWAP THEN TMREAD TO VISIBLE VSYNC WAIT "};
 
-const std::string functions{" ABS ASC ATAN BGCHK BGMCHK BGMGETV BTRIG BUTTON CHKCHR CHR$ COS DEG EXP FLOOR GSPOIT HEX$ ICONCHK INKEY$ INSTR LEFT$ LEN LOG MID$ PI POW RAD RIGHT$ RND SGN SIN SPCHK SPGETV SPHIT SPHITRC SPHITSP SQR STR$ SUBST$ TAN VAL "};
+const std::wstring functions{L" ABS ASC ATAN BGCHK BGMCHK BGMGETV BTRIG BUTTON CHKCHR CHR$ COS DEG EXP FLOOR GSPOIT HEX$ ICONCHK INKEY$ INSTR LEFT$ LEN LOG MID$ PI POW RAD RIGHT$ RND SGN SIN SPCHK SPGETV SPHIT SPHITRC SPHITSP SQR STR$ SUBST$ TAN VAL "};
 
-const std::string operations{" XOR AND NOT OR ! - + - * / = == >= <= < > != % ( ) [ ] , ; "};
+const std::wstring operations{L" XOR AND NOT OR ! - + - * / = == >= <= < > != % ( ) [ ] , ; "};
 
 std::vector<Token> tokenize(unsigned char* data, std::size_t size){
 	std::size_t char_pos = 0;
 
-	std::string cur{};
+	std::wstring cur{};
 	
 	std::vector<Token> tokens{};
 
-	auto loop_until_regex = [&](std::regex re, Type tt) 
+	auto loop_until_regex = [&](std::wregex re, Type tt) 
 	{
 		do
 		{
@@ -62,10 +67,10 @@ std::vector<Token> tokenize(unsigned char* data, std::size_t size){
 		} while (!std::regex_match(cur, re));
 		//add chars until finding a matching string.
 		//char_pos is left at the start of the next token.
-		tokens.push_back(Token{ std::string(cur), tt });
+		tokens.push_back(Token{ cur, tt });
 	};
 
-	auto loop_while_regex = [&](std::regex re, Type tt)
+	auto loop_while_regex = [&](std::wregex re, Type tt)
 	{
 		do
 		{
@@ -80,7 +85,7 @@ std::vector<Token> tokenize(unsigned char* data, std::size_t size){
 		cur = cur.substr(0, cur.size() - 1);
 		char_pos--;
 
-		tokens.push_back(Token{ std::string(cur), tt });
+		tokens.push_back(Token{ cur, tt });
 	};
 
 	while (char_pos < size)
@@ -150,16 +155,16 @@ std::vector<Token> tokenize(unsigned char* data, std::size_t size){
 			}
 			//assume variable type if not matching any commands, etc.
 			Type tt = Type::Var;
-			if (commands.find(" "+cur+" ") != std::string::npos)
+			if (commands.find(L" "+cur+L" ") != std::wstring::npos)
 				tt = Type::Cmd;
-			else if (functions.find(" "+cur+" ") != std::string::npos)
+			else if (functions.find(L" "+cur+L" ") != std::wstring::npos)
 				tt = Type::Func;
-			else if (operations.find(" "+cur+" ") != std::string::npos)
+			else if (operations.find(L" "+cur+L" ") != std::wstring::npos)
 				tt = Type::Op;
-			else if (cur == "REM")
+			else if (cur == L"REM")
 				tt = Type::Rem;
 			
-			tokens.push_back(Token{ std::string(cur), tt });
+			tokens.push_back(Token{ cur, tt });
 		}
 		else if (first_char_ops.find(c) != std::string::npos)
 		{
@@ -178,12 +183,13 @@ std::vector<Token> tokenize(unsigned char* data, std::size_t size){
 					tokens.back().type = Type::Arr;
 			}
 			
-			tokens.push_back(Token{ std::string(cur), Type::Op });
+			tokens.push_back(Token{ cur, Type::Op });
 		}
 		else if (c == '?')
 		{
+			//TODO: Change back to "?" and map to print_()
 			++char_pos;
-			tokens.push_back(Token{ std::string("PRINT"), Type::Cmd });
+			tokens.push_back(Token{ L"PRINT", Type::Cmd });
 		}
 		else
 		{
@@ -194,11 +200,11 @@ std::vector<Token> tokenize(unsigned char* data, std::size_t size){
 	return tokens;
 }
 
-
+/*
 std::ostream& print(std::string name, const std::vector<Token>& items){
 	std::cout << name << ":" << std::endl;
 	for (auto i : items){
-		if (i.text != "\r")
+		if (i.text != L"\r")
 			std::cout << i.text << " ";
 	}
 	return std::cout << std::endl;
@@ -211,5 +217,5 @@ std::ostream& print(std::string name, const std::vector<PrioToken>& items){
 	}
 	return std::cout << std::endl;
 }
-
+*/
 

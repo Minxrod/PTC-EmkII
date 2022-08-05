@@ -135,7 +135,7 @@ void Sound::bgmplay_(const Args& a){
 		std::string mml{};
 		//note: should only be up to 9 strings according to wiki?
 		for (std::size_t i = 1; i < a.size(); ++i){
-			mml += std::get<String>(e.evaluate(a[i]));
+			mml += to_string(std::get<String>(e.evaluate(a[i])));
 		}
 		
 		SSEQ mml_sseq{};
@@ -217,7 +217,7 @@ void Sound::bgmset_(const Args& a){
 	int slot = (int)std::get<Number>(e.evaluate(a[1]));
 	std::string mml{};
 	for (std::size_t i = 2; i < a.size(); ++i){
-		mml += std::get<String>(e.evaluate(a[i]));
+		mml += to_string(std::get<String>(e.evaluate(a[i])));
 	}
 	SSEQ mml_seq{};
 	mml_seq.mml(mml);
@@ -237,15 +237,15 @@ void Sound::bgmset_(const Args& a){
 void Sound::bgmsetd_(const Args& a){
 	//BGMSETD song,"@label"
 	int slot = (int)std::get<Number>(e.evaluate(a[1]));
-	std::string label = std::get<String>(e.evaluate(a[2]));
+	String label = std::get<String>(e.evaluate(a[2]));
 	
 	system->get_program()->data_seek(label);
-	Token data{"", Type::Str}; // add nothing on first iteration of loop
+	Token data{L"", Type::Str}; // add nothing on first iteration of loop
 	std::string mml;
 	while (data.text != "0"){
-		mml += data.text;
+		mml += data.to_string();
 		data = system->get_program()->read_expr(); //read zero, do not add
-		std::cout << data.text << std::endl;
+//		std::cout << data.text << std::endl;
 	}
 	
 	SSEQ mml_seq{};
@@ -285,23 +285,23 @@ void Sound::bgmprg_(const Args& a){
 	int key = 60;
 	std::string waveform;
 	if (a.size() == 3){
-		waveform = std::get<String>(e.evaluate(a[2]));
+		waveform = to_string(std::get<String>(e.evaluate(a[2])));
 	} else if (a.size() == 4){
 		key = std::get<Number>(e.evaluate(a[2]));
-		waveform = std::get<String>(e.evaluate(a[3]));
+		waveform = to_string(std::get<String>(e.evaluate(a[3])));
 	} else if (a.size() == 7){
 		attack = std::get<Number>(e.evaluate(a[2]));
 		decay = std::get<Number>(e.evaluate(a[3]));
 		sustain = std::get<Number>(e.evaluate(a[4]));
 		release = std::get<Number>(e.evaluate(a[5]));
-		waveform = std::get<String>(e.evaluate(a[6]));
+		waveform = to_string(std::get<String>(e.evaluate(a[6])));
 	} else if (a.size() == 8){
 		key = std::get<Number>(e.evaluate(a[2]));
 		attack = std::get<Number>(e.evaluate(a[3]));
 		decay = std::get<Number>(e.evaluate(a[4]));
 		sustain = std::get<Number>(e.evaluate(a[5]));
 		release = std::get<Number>(e.evaluate(a[6]));
-		waveform = std::get<String>(e.evaluate(a[7]));
+		waveform = to_string(std::get<String>(e.evaluate(a[7])));
 	}
 	note_def.note = key;
 	note_def.attack = attack;

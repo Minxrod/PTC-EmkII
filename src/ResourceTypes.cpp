@@ -43,8 +43,8 @@ std::vector<unsigned char> CHR::get_array(){
 }
 
 
-std::string MEM::get_mem(){
-	std::string mem{};
+String MEM::get_mem(){
+	String mem{};
 	for (int i = 0; i < MEM::STRING_SIZE_MAX; i+=2){
 		int value = data[i] + (data[i+1]<<8);
 		if (encode[value])
@@ -57,7 +57,7 @@ std::string MEM::get_mem(){
 	return mem;
 }
 
-void MEM::set_mem(std::string mem){
+void MEM::set_mem(String mem){
 	actual_size = mem.size();
 	data.resize(MEM::SIZE);
 	std::fill(data.begin(), data.end(), 0);

@@ -341,16 +341,16 @@ void Sprites::spread_(const Args& a){
 	auto& s = sprites[page][id];
 	
 	if (a.size() > 2)
-		e.assign(a[2], Token{std::to_string(std::round(s.pos.x)), Type::Num});
+		e.assign(a[2], Token{std::to_wstring(std::round(s.pos.x)), Type::Num});
 	if (a.size() > 3)
-		e.assign(a[3], Token{std::to_string(std::round(s.pos.y)), Type::Num});
+		e.assign(a[3], Token{std::to_wstring(std::round(s.pos.y)), Type::Num});
 	if (a.size() > 4)
-		e.assign(a[4], Token{std::to_string(s.angle.a), Type::Num});
+		e.assign(a[4], Token{std::to_wstring(s.angle.a), Type::Num});
 	if (a.size() > 5)
-		e.assign(a[5], Token{std::to_string(s.scale.s), Type::Num});
+		e.assign(a[5], Token{std::to_wstring(s.scale.s), Type::Num});
 	if (a.size() > 6){
 		int current_chr = s.anim.loop_forever || s.anim.loop ? s.anim.current_chr : s.chr;
-		e.assign(a[6], Token{std::to_string(current_chr), Type::Num});
+		e.assign(a[6], Token{std::to_wstring(current_chr), Type::Num});
 	}
 }
 

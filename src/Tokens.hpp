@@ -12,9 +12,14 @@ enum class Type { Num, Str, Arr, Var, Op, Func, Cmd, Newl, Rem, Label, Internal}
 /// Used when tokenizing programs, and for evaluating expressions.
 struct Token {
 	/// String for this token
-	std::string text;
+	std::wstring text;
 	/// Type of token
 	Type type;
+	/// Converts contained text to std::string
+	/// @warning This is a hack to make some code changes easier. Do not use for new functions.
+	/// 
+	/// @return std::string of text
+	std::string to_string() const;
 };
 
 /// Priority token.

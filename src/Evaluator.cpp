@@ -210,7 +210,7 @@ std::vector<Token> op_to_rpn(std::vector<PrioToken>& e, std::vector<PrioToken>::
 		//unary op
 		std::vector<Token> rpn{Token{*(i+1)}, Token{*i}};
 		auto r = e.erase(i, i+2);
-		e.insert(r, PrioToken{"r" + std::to_string(n), Type::Op, INTERNAL_SUBEXP});
+		e.insert(r, PrioToken{L"r" + std::to_wstring(n), Type::Op, INTERNAL_SUBEXP});
 		
 		return rpn;
 	} else if (local_prio == 7){
@@ -228,27 +228,27 @@ std::vector<Token> op_to_rpn(std::vector<PrioToken>& e, std::vector<PrioToken>::
 		rpn.push_back(*start);
 		//read all args
 		auto r = e.erase(start, i+1);
-		e.insert(r, PrioToken{"r" + std::to_string(n), Type::Op, INTERNAL_SUBEXP});
+		e.insert(r, PrioToken{L"r" + std::to_wstring(n), Type::Op, INTERNAL_SUBEXP});
 		
 		return rpn;
 	} else if (local_prio == 0 && !(op == "="_TO)){
 		std::vector<Token> rpn{*i};
 		auto r = e.erase(i, i+1);
-		e.insert(r, PrioToken{"r" + std::to_string(n), Type::Op, INTERNAL_SUBEXP});
+		e.insert(r, PrioToken{L"r" + std::to_wstring(n), Type::Op, INTERNAL_SUBEXP});
 		
 		return rpn;
 	} else if (local_prio == 1){
 		//comma binary op
 		std::vector<Token> rpn{Token{*(i-1)}, Token{*(i+1)}};
 		auto r = e.erase(i-1, i+2);
-		e.insert(r, PrioToken{"r" + std::to_string(n), Type::Op, INTERNAL_SUBEXP});
+		e.insert(r, PrioToken{L"r" + std::to_wstring(n), Type::Op, INTERNAL_SUBEXP});
 		
 		return rpn;	
 	} else {
 		//binary op
 		std::vector<Token> rpn{Token{*(i-1)}, Token{*(i+1)}, Token{*i}};
 		auto r = e.erase(i-1, i+2);
-		e.insert(r, PrioToken{"r" + std::to_string(n), Type::Op, INTERNAL_SUBEXP});
+		e.insert(r, PrioToken{L"r" + std::to_wstring(n), Type::Op, INTERNAL_SUBEXP});
 		
 		return rpn;
 	}
@@ -269,7 +269,7 @@ std::vector<PrioToken> conv_tokens(const std::vector<Token>& expression){
 		}
 		if (t.text == ")" && t.type != Type::Str){
 			if (is_func.top()){
-				t.text = ".";
+				t.text = L".";
 			}
 			is_func.pop();
 		}
@@ -278,7 +278,7 @@ std::vector<PrioToken> conv_tokens(const std::vector<Token>& expression){
 	
 		if (t == "-"_TO){
 			if (i == 0 || (expression.at(i-1).type == Type::Op && expression.at(i-1).text != ")")){
-				t.text = "0-";
+				t.text = L"0-";
 			}
 		} 
 		
@@ -380,10 +380,10 @@ void Evaluator::assign(const Expr& exp, Token t){
 	auto name = exp[0];
 	
 	if (name.type == Type::Arr){
-		name.text += "[]";
+		name.text += L"[]";
 	}
 	
-	if (name.text.find("$") != std::string::npos){
+	if (name.text.find(L'$') != std::string::npos){
 		t.type = Type::Str;
 	} else {
 		t.type = Type::Num;
@@ -463,16 +463,17 @@ std::vector<Var> Evaluator::calculate(const std::vector<Token>& rpn_expression, 
 				Var v = call_func(t, args);
 				values.push(v);
 			} else { //Type::Arr
+				std::string arr_name(t.text.begin(), t.text.end());
 				if (do_array_init && len_args.empty()){//special array creation hack
 					//needs to handle needing args for array creation otherwise
 					//might have array ACCESS as part of args, so must have len_args be empty.
-					vars.create_arr(t.text+"[]", args);
+					vars.create_arr(arr_name, args);
 					break;
 				} else {
 					//ptr to array element
-					Var v = vars.get_var(t.text+"[]", args);//array access
+					Var v = vars.get_var(arr_name, args);//array access
 					if (!has_varptr && len_args.empty()){
-						first_access = vars.get_var_ptr(t.text+"[]", args);
+						first_access = vars.get_var_ptr(arr_name, args);
 						has_varptr = true;
 					}
 					values.push(v);
@@ -481,9 +482,9 @@ std::vector<Var> Evaluator::calculate(const std::vector<Token>& rpn_expression, 
 			
 		} else if (t.type == Type::Var){
 			//add ptr to var to stack
-			Var v = vars.get_var(t.text);
+			Var v = vars.get_var(t.to_string());
 			if (!has_varptr && len_args.empty()){
-				first_access = vars.get_var_ptr(t.text);			
+				first_access = vars.get_var_ptr(t.to_string());			
 				has_varptr = true;
 			}
 			values.push(v);

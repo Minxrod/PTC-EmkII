@@ -314,10 +314,10 @@ void Background::bgfill_(const Args& a){
 /// 
 /// @param num number to convert
 /// @return Hex string of number
-std::string u16_to_hex(int num)
+std::wstring u16_to_hex(int num)
 {
-	std::stringstream ss;
-	ss << std::uppercase << std::hex << std::setfill('0') << std::setw(4) << num;
+	std::wstringstream ss;
+	ss << std::uppercase << std::hex << std::setfill(L'0') << std::setw(4) << num;
 	return ss.str();
 }
 
@@ -359,15 +359,15 @@ void Background::bgread_(const Args& a){
 	double data = get_tile(scu, x, y);
 	if (a.size() == 3){
 		if (std::holds_alternative<Number>(e.evaluate(a[2]))){
-			e.assign(a[2], Token{std::to_string(data), Type::Num});
+			e.assign(a[2], Token{std::to_wstring(data), Type::Num});
 		} else {
 			e.assign(a[2], Token{u16_to_hex(data), Type::Str});
 		}
 	} else if (a.size() == 6){
-		e.assign(a[2], Token{std::to_string(get_chr(data)), Type::Num});
-		e.assign(a[3], Token{std::to_string(get_pal(data)), Type::Num});
-		e.assign(a[4], Token{std::to_string(get_h(data)), Type::Num});
-		e.assign(a[5], Token{std::to_string(get_v(data)), Type::Num});
+		e.assign(a[2], Token{std::to_wstring(get_chr(data)), Type::Num});
+		e.assign(a[3], Token{std::to_wstring(get_pal(data)), Type::Num});
+		e.assign(a[4], Token{std::to_wstring(get_h(data)), Type::Num});
+		e.assign(a[5], Token{std::to_wstring(get_v(data)), Type::Num});
 	} else {
 		throw std::runtime_error{"Wrong number of arguments"};
 	}

@@ -67,7 +67,7 @@ std::map<Token, op_func> Panel::get_funcs(){
 void Panel::pnltype_(const Args& a){
 	//PNLTYPE type
 	String type = std::get<String>(e.evaluate(a[1]));
-	pnltype = std::string("OFF PNL KYA KYM KYK").find(type)/4;
+	pnltype = std::wstring(L"OFF PNL KYA KYM KYK").find(type)/4;
 }
 
 /// PTC command to print a string to the lower screen's console.

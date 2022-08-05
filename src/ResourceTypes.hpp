@@ -1,5 +1,7 @@
 #pragma once
 
+#include "Vars.hpp"
+
 #include <vector>
 #include <string>
 #include <map>
@@ -66,10 +68,10 @@ struct MEM{
 	void generate_encoding();
 	/// Gets the value of this MEM object as a string
 	/// @return MEM$
-	std::string get_mem();
+	String get_mem();
 	/// Sets the value of this MEM object from a string
 	/// @param mem New MEM$ to set
-	void set_mem(std::string mem);
+	void set_mem(String mem);
 };
 
 /// SCR resource class. Stores the data of a SCR file.

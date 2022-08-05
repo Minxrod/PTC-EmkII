@@ -10,7 +10,16 @@
 #include "Tokens.hpp"
 
 typedef double Number;
-typedef std::string String;
+// when you realize that BGF1 exists and is usable
+// note: assumes std::wchar_t is at least 16 bits
+typedef std::wstring String;
+
+std::string to_string(const String&);
+
+// because I do not feel like rewriting a bunch of literal comparisons
+bool operator==(const String&, std::string&);
+bool operator==(const String&, const char*);
+bool operator!=(const String&, const char*);
 
 using SimpleVar = std::variant<Number, String>;
 

@@ -184,11 +184,11 @@ void Visual::vsync_(const Args& a){
 void Visual::chrinit_(const Args& a){
 	//CHRINIT resource
 	String res = std::get<String>(e.evaluate(a[1]));
-	res = r.normalize_type(res, b.get_page(), s.get_page());
-	std::string path = "resources/graphics/"+res.substr(0,4)+".PTC";
-	load_default(r.chr.at(res), path);
+	auto type = r.normalize_type(to_string(res), b.get_page(), s.get_page());
+	std::string path = "resources/graphics/"+type.substr(0,4)+".PTC";
+	load_default(r.chr.at(type), path);
 	//needs to regen textures
-	regen_chr(res);
+	regen_chr(type);
 }
 
 /// PTC command to set new character data.
@@ -205,9 +205,9 @@ void Visual::chrinit_(const Args& a){
 void Visual::chrset_(const Args& a){
 	auto resource_type = std::get<String>(e.evaluate(a[1]));
 	int chr_id = std::get<Number>(e.evaluate(a[2]));
-	resource_type = r.normalize_type(resource_type, b.get_page(), s.get_page());
-	auto& chr_resource = r.chr.at(resource_type);
-	std::string chr_data = std::get<String>(e.evaluate(a[3]));
+	auto type = r.normalize_type(to_string(resource_type), b.get_page(), s.get_page());
+	auto& chr_resource = r.chr.at(type);
+	std::string chr_data = to_string(std::get<String>(e.evaluate(a[3])));
 	
 //	std::cout << chr_data.size() << ":" << chr_data << "\n";
 	for (int y = 0; y < 8; ++y){
@@ -217,7 +217,7 @@ void Visual::chrset_(const Args& a){
 			chr_resource.set_pixel(chr_id, x, y, d);
 		}
 	}
-	regen_chr(resource_type);
+	regen_chr(type);
 }
 
 /// PTC command to read character data into a string.
@@ -241,11 +241,11 @@ void Visual::chrread_(const Args& a){
 	
 	auto resource_type = std::get<String>(e.evaluate(args[0]));
 	int chr_id = std::get<Number>(e.evaluate(args[1]));
-	resource_type = r.normalize_type(resource_type);
-	auto& chr_resource = r.chr.at(resource_type);
+	std::string type = r.normalize_type(to_string(resource_type), b.get_page(), s.get_page());
+	auto& chr_resource = r.chr.at(type);
 	
-	const char* digits = "0123456789ABCDEF";
-	std::string chr_data{};
+	const wchar_t* digits = L"0123456789ABCDEF";
+	std::wstring chr_data{};
 	for (int y = 0; y < 8; ++y){
 		for (int x = 0; x < 8; ++x){
 			chr_data += digits[chr_resource.get_pixel(chr_id, x, y)];
@@ -269,7 +269,7 @@ void Visual::colinit_(const Args& a){
 	//COLINIT resource color
 	//BG, SP, GRP
 	//Affects both upper and lower screens
-	String res = std::get<String>(e.evaluate(a[1]));
+	std::string res = to_string(std::get<String>(e.evaluate(a[1])));
 	if (res == "BG"){res = "COL0";}
 	if (res == "SP"){res = "COL1";}
 	if (res == "GRP"){res = "COL2";}
@@ -303,7 +303,7 @@ void Visual::colinit_(const Args& a){
 void Visual::colset_(const Args& a){
 	//COLSET bank,color,data
 	//Note: Affected by BGPAGE, SPPAGE, GPAGE?
-	String res = std::get<String>(e.evaluate(a[1]));
+	auto res = to_string(std::get<String>(e.evaluate(a[1])));
 	Number c = std::get<Number>(e.evaluate(a[2]));
 	String data = std::get<String>(e.evaluate(a[3]));
 	
@@ -343,7 +343,7 @@ void Visual::colread_(const Args& a){
 	
 	auto args = split(a_);
 	
-	auto res = std::get<String>(e.evaluate(args[0]));
+	auto res = to_string(std::get<String>(e.evaluate(args[0])));
 	int col_id = std::get<Number>(e.evaluate(args[1]));
 	
 	if (res == "BG"){res = "COL0";}
@@ -357,9 +357,9 @@ void Visual::colread_(const Args& a){
 	auto green = col_resource.get_col_g(col_id);
 	auto blue = col_resource.get_col_b(col_id);
 	
-	e.assign(a[2], Token{std::to_string(red), Type::Num});
-	e.assign(a[3], Token{std::to_string(green), Type::Num});
-	e.assign(a[4], Token{std::to_string(blue), Type::Num});
+	e.assign(a[2], Token{std::to_wstring(red), Type::Num});
+	e.assign(a[3], Token{std::to_wstring(green), Type::Num});
+	e.assign(a[4], Token{std::to_wstring(blue), Type::Num});
 }
 
 /// PTC command to clear the console screens.
@@ -411,8 +411,8 @@ void Visual::acls_(const Args&){
 void Visual::load_(const Args& a){
 	// LOAD <filename> [dialog]
 	auto info = std::get<String>(e.evaluate(a[1]));
-	auto type = info.substr(0,info.find(":"));
-	auto name = info.substr(info.find(":")+1);
+	auto type = to_string(info.substr(0,info.find(L':')));
+	auto name = to_string(info.substr(info.find(L':')+1));
 	
 	type = r.normalize_type(type, b.get_page(), s.get_page(), g.get_page());
 	try {
@@ -447,8 +447,8 @@ void Visual::load_(const Args& a){
 /// @param a Arguments
 void Visual::save_(const Args& a){
 	auto info = std::get<String>(e.evaluate(a[1]));
-	auto type = info.substr(0,info.find(":"));
-	auto name = info.substr(info.find(":")+1);
+	auto type = to_string(info.substr(0,info.find(L':')));
+	auto name = to_string(info.substr(info.find(L':')+1));
 	
 	type = r.normalize_type(type, b.get_page(), s.get_page(), g.get_page());
 	
@@ -471,8 +471,8 @@ void Visual::update(){
 	strftime(date, 11, "%Y/%m/%d", tm);
 	strftime(time, 9, "%H:%M:%S", tm);
 	//Sets some system variables
-	e.vars.write_sysvar("DATE$", std::string(date));
-	e.vars.write_sysvar("TIME$", std::string(time));
+	e.vars.write_sysvar("DATE$", String(date, date+11));
+	e.vars.write_sysvar("TIME$", String(time, time+9));
 
 	if (*maincntl > 524287){
 		e.vars.write_sysvar("MAINCNTH", *maincnth+1);

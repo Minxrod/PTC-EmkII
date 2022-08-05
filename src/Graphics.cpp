@@ -404,7 +404,7 @@ void Graphics::gputchr_(const Args& a){
 	// GPUTCHR x y bank chr pal scale
 	int x = std::get<Number>(e.evaluate(a[1]));
 	int y = std::get<Number>(e.evaluate(a[2]));
-	auto bank = std::get<String>(e.evaluate(a[3]));
+	auto bank = to_string(std::get<String>(e.evaluate(a[3])));
 	int chr = std::get<Number>(e.evaluate(a[4]));
 	int pal = std::get<Number>(e.evaluate(a[5]));
 	int scale = std::get<Number>(e.evaluate(a[6]));

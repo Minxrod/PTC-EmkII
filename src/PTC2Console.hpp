@@ -1,6 +1,7 @@
 #pragma once
 
 #include <array>
+#include <cstddef>
 
 #include "Vars.hpp"
 #include "Evaluator.hpp"
@@ -16,7 +17,7 @@ const int PTC2_CONSOLE_WIDTH = 32;
 const int PTC2_CONSOLE_HEIGHT = 24;
 
 /// Text console.
-class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT>,
+class PTC2Console : public BaseConsole<wchar_t, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HEIGHT>,
 					public IPTCObject {
 	/// Containing system
 	PTCSystem* system;
@@ -47,12 +48,12 @@ class PTC2Console : public BaseConsole<char, PTC2_CONSOLE_WIDTH, PTC2_CONSOLE_HE
 	/// Prints a string to the console.
 	/// 
 	/// @param str Text to print
-	void print_str(std::string str);
+	void print_str(std::wstring str);
 	/// Shared input code (used in both `INPUT` and `LINPUT`)
 	/// 
 	/// @param a Arguments (expects format of `INPUT` or `LINPUT`)
 	/// @return Pair containing variable name expression and actual input string
-	std::pair<std::vector<Token>, std::string> input_common(const Args& a);
+	std::pair<std::vector<Token>, String> input_common(const Args& a);
 	
 	void cls_(const Args&);
 	void print_(const Args&);

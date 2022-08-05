@@ -54,7 +54,7 @@ void Program::set_tokens(const std::vector<Token>& t){
 	index_to_line = std::map<int, int>{{0,1}};
 	line_to_index = std::map<int, int>{{1,0}};
 	for (std::size_t i = 1; i < tokens.size(); ++i){
-		if (tokens[i-1] == Token{"\r",Type::Newl}){
+		if (tokens[i-1] == Token{L"\r",Type::Newl}){
 			line++;
 			index_to_line.insert({i, line});
 			line_to_index.insert({line, i});
@@ -77,7 +77,8 @@ void Program::set_tokens(const std::vector<Token>& t){
 /// @param a Arguments
 void Program::exec_(const Args& a){
 	//EXEC progname
-	std::string prgname = std::get<String>(e.evaluate(a[1]));
+	auto str = std::get<String>(e.evaluate(a[1]));
+	std::string prgname{str.cbegin(), str.cend()};
 	
 	try {
 		system->load_program("programs/"+prgname+".PTC");
@@ -110,8 +111,8 @@ void Program::add_cmds(std::map<Token, cmd_type> other){
 
 std::vector<Token> Program::next_instruction(){
 	Expr::const_iterator newline;
-	if (*current == "IF"_TC || *current == "ELSE"_TC || *current == Token{"REM", Type::Rem}){ //IF, ELSE should read entire remainder of line
-		newline = std::find(current, tokens.cend(), Token{"\r", Type::Newl});
+	if (*current == "IF"_TC || *current == "ELSE"_TC || *current == Token{L"REM", Type::Rem}){ //IF, ELSE should read entire remainder of line
+		newline = std::find(current, tokens.cend(), Token{L"\r", Type::Newl});
 		std::vector<Token> instr{current, newline};
 		current = newline+1;
 		return instr;
@@ -263,7 +264,7 @@ void Program::for_(const Args& a){
 	if (a.size() == 6){
 		step = a[5]; //step value
 	} else {
-		step = Expr{Token{"1", Type::Num}};
+		step = Expr{Token{L"1", Type::Num}};
 	}	
 	
 	Number initial_i = std::get<Number>(e.evaluate(var));
@@ -415,7 +416,7 @@ void Program::end_(const Args&){
 	current = tokens.end();
 }
 
-void Program::goto_label(const std::string& lbl){
+void Program::goto_label(const String& lbl){
 	for (auto itr = tokens.begin(); itr != tokens.end(); itr++){
 		if (*itr == Token{lbl, Type::Label}){
 			if (itr == tokens.begin() || 
@@ -439,7 +440,7 @@ void Program::goto_label(const std::string& lbl){
 void Program::goto_(const Args& a){
 	//GOTO <label>
 	//GOTO <string expression>
-	std::string lbl = std::get<String>(e.evaluate(a[1]));
+	auto lbl = std::get<String>(e.evaluate(a[1]));
 	goto_label(lbl);
 	//std::cout << "GOTO @" << lbl << std::endl;
 }
@@ -455,8 +456,7 @@ void Program::goto_(const Args& a){
 /// @param a Arguments
 void Program::gosub_(const Args& a){
 	//GOSUB <label expression>
-	std::string lbl = std::get<String>(e.evaluate(a[1]));
-
+	auto lbl = std::get<String>(e.evaluate(a[1]));
 	gosub_calls.push(current);	
 	goto_label(lbl);
 	//std::cout << "GOSUB @" << lbl << std::endl;
@@ -489,7 +489,7 @@ void Program::on_(const Args& a){
 	int max_index = a.size() - 3;
 	
 	if (index >= 0 && index < max_index){
-		std::string lbl = std::get<String>(e.evaluate(a[index+3]));
+		String lbl = std::get<String>(e.evaluate(a[index+3]));
 		if (a[2][0].text == "GOSUB"){
 			gosub_calls.push(current);
 		}
@@ -511,8 +511,8 @@ void Program::data_(const Args&){
 
 Token Program::read_expr(){
 	// Reads one expression string from DATA
-	auto data_end = std::min(std::find(data_current, tokens.cend(), Token{"\r", Type::Newl}),
-		std::find(data_current, tokens.cend(), Token{",", Type::Op}));
+	auto data_end = std::min(std::find(data_current, tokens.cend(), Token{L"\r", Type::Newl}),
+		std::find(data_current, tokens.cend(), Token{L",", Type::Op}));
 	auto data_exp = std::vector<Token>(data_current, data_end);
 	if (data_end->text == "\r"){
 		data_current = std::find(data_end, tokens.cend(), "DATA"_TC); //search for next DATA statement
@@ -522,7 +522,7 @@ Token Program::read_expr(){
 		data_current = data_end+1;
 	}
 
-	Token data_value{"", Type::Str};
+	Token data_value{L"", Type::Str};
 	for (auto tok : data_exp){
 		data_value.text += tok.text;
 	}
@@ -549,7 +549,7 @@ void Program::read_(const Args& a){
 	}
 }
 
-void Program::data_seek(std::string label){
+void Program::data_seek(String label){
 	for (auto itr = tokens.begin(); itr != tokens.end(); itr++){
 		if (*itr == Token{label, Type::Label}){
 			if (itr == tokens.begin() || 
@@ -621,8 +621,8 @@ void Program::swap_(const Args& a){
 	
 	if (var1value.index() == var2value.index()){
 		auto token_type = std::holds_alternative<Number>(var1value) ? Type::Num : Type::Str;
-		std::string val1 = std::holds_alternative<Number>(var1value) ? std::to_string(std::get<Number>(var1value)) : std::get<String>(var1value);
-		std::string val2 = std::holds_alternative<Number>(var2value) ? std::to_string(std::get<Number>(var2value)) : std::get<String>(var2value);
+		String val1 = std::holds_alternative<Number>(var1value) ? std::to_wstring(std::get<Number>(var1value)) : std::get<String>(var1value);
+		String val2 = std::holds_alternative<Number>(var2value) ? std::to_wstring(std::get<Number>(var2value)) : std::get<String>(var2value);
 				
 		e.assign(a[1], Token{val2, token_type});
 		e.assign(a[2], Token{val1, token_type});
@@ -676,7 +676,7 @@ void Program::sort_(const Args& a){
 	//https://stackoverflow.com/questions/17074324/how-can-i-sort-two-vectors-in-the-same-way-with-criteria-that-uses-only-one-of
 	std::vector<Array1*> arrays{};
 	for (std::size_t i = 3; i < a.size(); ++i){
-		arrays.push_back(std::get<Array1*>(e.vars.get_var_ptr(a[i][0].text+"[]"))); //stupid hack, probably isn't reliable
+		arrays.push_back(std::get<Array1*>(e.vars.get_var_ptr(a[i][0].to_string()+"[]"))); //stupid hack, probably isn't reliable
 	}
 	
 	Array1* keyArray = arrays[0];
@@ -716,7 +716,7 @@ void Program::rsort_(const Args& a){
 	//https://stackoverflow.com/questions/17074324/how-can-i-sort-two-vectors-in-the-same-way-with-criteria-that-uses-only-one-of
 	std::vector<Array1*> arrays{};
 	for (std::size_t i = 3; i < a.size(); ++i){
-		arrays.push_back(std::get<Array1*>(e.vars.get_var_ptr(a[i][0].text+"[]"))); //stupid hack, probably isn't reliable
+		arrays.push_back(std::get<Array1*>(e.vars.get_var_ptr(a[i][0].to_string()+"[]"))); //stupid hack, probably isn't reliable
 	}
 	
 	Array1* keyArray = arrays[0];

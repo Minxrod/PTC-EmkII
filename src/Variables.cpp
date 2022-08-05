@@ -43,9 +43,9 @@ void create_var(std::string name, std::map<std::string, Var>& vars, std::vector<
 	if (name.find("[]") != std::string::npos){
 		if (name.find("$") != std::string::npos){
 			if (args.size() == 2){
-				vars.insert(std::pair<std::string, Var>(name, Var(Array2(dimen1,Array1(dimen2,SimpleVar(""))))));
+				vars.insert(std::pair<std::string, Var>(name, Var(Array2(dimen1,Array1(dimen2,SimpleVar(String()))))));
 			} else {
-				vars.insert(std::pair<std::string, Var>(name, Var(Array1(dimen1,SimpleVar("")))));			
+				vars.insert(std::pair<std::string, Var>(name, Var(Array1(dimen1,SimpleVar(String())))));			
 			}
 		} else {
 			if (args.size() == 2){
@@ -56,7 +56,7 @@ void create_var(std::string name, std::map<std::string, Var>& vars, std::vector<
 		}
 	} else {
 		if (name.find("$") != std::string::npos){
-			vars.insert(std::pair<std::string, Var>(name, Var(String(""))));					
+			vars.insert(std::pair<std::string, Var>(name, Var(String())));					
 		} else {
 			vars.insert(std::pair<std::string, Var>(name, Var(Number(0.0))));					
 		}

@@ -97,7 +97,7 @@ public:
 	/// Sets the `DATA` pointer to the first `DATA` item after label.
 	/// 
 	/// @param label Label to search for
-	void data_seek(std::string label);
+	void data_seek(String label);
 	/// Read one `DATA` item.
 	/// 
 	/// @return `DATA` item
@@ -141,7 +141,7 @@ public:
 	/// Jumps program execution to a label
 	/// 
 	/// @param label Label to jump to
-	void goto_label(const std::string& label);
+	void goto_label(const String& label);
 //	std::vector<std::vector<Token>> split(const std::vector<Token>&);
 	
 	/// Starts the program in a new thread.
