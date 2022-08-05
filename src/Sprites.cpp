@@ -509,8 +509,8 @@ Var Sprites::sphitsp_(const Vals& v){
 	
 	//TODO: This apparently affects SPHITX,SPHITY,SPHITT, but not SPHITNO?
 	//SPHITX,SPHITY = s1.pos.x, s1.pos.y
-	e.vars.write_sysvar("SPHITX", s.pos.x);
-	e.vars.write_sysvar("SPHITY", s.pos.y);
+	e.vars.write_sysvar("SPHITX", s1.pos.x);
+	e.vars.write_sysvar("SPHITY", s1.pos.y);
 	//SPHITT = ???? what does this do??
 	
 	return Var((double)is_hit(s1, s2));
