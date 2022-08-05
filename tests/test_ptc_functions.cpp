@@ -55,33 +55,33 @@ TEST_CASE("HEX$", "ptc_func"){
 }
 
 TEST_CASE("RIGHT$", "ptc_func"){
-	auto right = [](std::string s, double n) -> String {
+	auto right = [](String s, double n) -> String {
 		return std::get<String>(ptc::right({s,n}));
 	};
 	
 	// regular
-	CHECK(right("HELLO WORLD", 5) == "WORLD");
+	CHECK(right(L"HELLO WORLD", 5) == L"WORLD");
 	
 	// right none
-	CHECK(right("HELLO WORLD", 0) == "");
+	CHECK(right(L"HELLO WORLD", 0) == L"");
 
 	// past bound
-	CHECK(right("HELLO WORLD", 15) == "HELLO WORLD");
+	CHECK(right(L"HELLO WORLD", 15) == L"HELLO WORLD");
 }
 
 TEST_CASE("LEFT$", "ptc_func"){
-	auto left = [](std::string s, double n) -> String {
+	auto left = [](String s, double n) -> String {
 		return std::get<String>(ptc::left({s,n}));
 	};
 	
 	// regular
-	CHECK(left("HELLO WORLD", 5) == "HELLO");
+	CHECK(left(L"HELLO WORLD", 5) == L"HELLO");
 	
 	// left none
-	CHECK(left("HELLO WORLD", 0) == "");
+	CHECK(left(L"HELLO WORLD", 0) == L"");
 
 	// past bound
-	CHECK(left("HELLO WORLD", 15) == "HELLO WORLD");
+	CHECK(left(L"HELLO WORLD", 15) == L"HELLO WORLD");
 }
 
 //technically an operator but whatever
@@ -116,7 +116,7 @@ TEST_CASE("CHR$", "ptc_func"){
 		return std::get<String>(ptc::chr({n}));
 	};
 	
-	CHECK(chr(0) == std::string{'\0'});
+	CHECK(chr(0) == String{L'\0'});
 	CHECK(chr(65) == "A");
 	CHECK(chr(97) == "a");
 	CHECK(chr(128) == "\x80");
@@ -131,22 +131,25 @@ TEST_CASE("ASC", "ptc_func"){
 		return std::get<Number>(ptc::asc({s}));
 	};
 	
-	CHECK(asc("\0") == 0);
-	CHECK(asc("\x10") == 0x10);
-	CHECK(asc("\x27") == 0x27);
-	CHECK(asc("\xdb") == 0xdb);
-	CHECK(asc("\xe4") == 0xe4);
-	CHECK(asc("\x89") == 0x89);
-	CHECK(asc("\x17") == 0x17);
-	CHECK(asc("\x53") == 0x53);
-	CHECK(asc("\xff") == 0xff);
+	CHECK(asc(L"\0") == 0);
+	CHECK(asc(L"\x10") == 0x10);
+	CHECK(asc(L"\x27") == 0x27);
+	CHECK(asc(L"\xdb") == 0xdb);
+	CHECK(asc(L"\xe4") == 0xe4);
+	CHECK(asc(L"\x89") == 0x89);
+	CHECK(asc(L"\x17") == 0x17);
+	CHECK(asc(L"\x53") == 0x53);
+	CHECK(asc(L"\xff") == 0xff);
+	// extended range check
+//	CHECK(asc(L"\x100") == 0x20);
+//	CHECK(asc(L"\x1e0") == 0x00);
 	
-	CHECK(asc("ABC") == 'A');
-	CHECK(asc(";w5p gw324") == ';');
-	CHECK(asc("\r3upf ") == '\r');
-	CHECK(asc("vsaob") == 'v');
-	CHECK(asc("\x95\x98\xff") == 0x95);
-	CHECK_THROWS(asc(""));
+	CHECK(asc(L"ABC") == 'A');
+	CHECK(asc(L";w5p gw324") == ';');
+	CHECK(asc(L"\r3upf ") == '\r');
+	CHECK(asc(L"vsaob") == 'v');
+	CHECK(asc(L"\x95\x98\xff") == 0x95);
+	CHECK_THROWS(asc(L""));
 }
 
 TEST_CASE("SQR", "ptc_func"){
@@ -168,14 +171,14 @@ TEST_CASE("VAL", "ptc_func"){
 		return std::get<Number>(ptc::val({s}));
 	};
 	
-	CHECK(val("") == Approx(0));
-	CHECK(val("0") == Approx(0));
-	CHECK(val("1234") == Approx(1234));
-	CHECK(val("56.7") == Approx(56.7));
-	CHECK(val("-38") == Approx(-38));
-	CHECK(val("-2059.54") == Approx(-2059.54));
+	CHECK(val(L"") == Approx(0));
+	CHECK(val(L"0") == Approx(0));
+	CHECK(val(L"1234") == Approx(1234));
+	CHECK(val(L"56.7") == Approx(56.7));
+	CHECK(val(L"-38") == Approx(-38));
+	CHECK(val(L"-2059.54") == Approx(-2059.54));
 	
 	CHECK_THROWS(ptc::val({0.0}));
-	CHECK_THROWS(ptc::val({"0", "0"}));
+	CHECK_THROWS(ptc::val({L"0", L"0"}));
 }
 

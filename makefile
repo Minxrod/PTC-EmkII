@@ -28,7 +28,7 @@ endif
 # https://stackoverflow.com/questions/24096807/dso-missing-from-command-line
 CXXFLAGS = $(OFLAGS) -lsfml-audio -lsfml-graphics -lsfml-window -lsfml-system -lpthread -lSSEQPlayer
 OBJECTS = BuiltinFuncs.o Evaluator.o Vars.o Tokens.o Variables.o md5.o Resources.o FileLoader.o PTC2Console.o Program.o Visual.o Input.o Sound.o Graphics.o Panel.o TileMap.o Background.o Sprites.o SpriteArray.o PanelKeyboard.o PTCSystem.o Icon.o ResourceTypes.o Debugger.o Repeater.o SpriteInfo.o Errors.o
-TEST_OBJECTS = test_ptc_functions.o test_tokenize.o test_eval.o test_util.o
+TEST_OBJECTS = test_ptc_functions.o test_tokenize.o test_eval.o test_util.o test_wstring_string.o
 
 objs = $(OBJECTS:%=$(BUILD)%)
 test_objs = $(TEST_OBJECTS:%=$(BUILD)%)

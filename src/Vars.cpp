@@ -1,6 +1,6 @@
 #include "Vars.hpp"
 
-bool operator==(const String& s1, std::string& s2){
+bool operator==(const String& s1, const std::string& s2){
 	if (s1.length() != s2.length())
 		return false;
 	for (std::size_t i = 0; i < s1.length(); ++i){
@@ -14,7 +14,7 @@ bool operator==(const String& s1, const char* s2){
 		if (s2[i] == '\0') return false; // string not long enough
 		if (s1[i] != s2[i]) return false;
 	}
-	return true;
+	return (s2[s1.length()] == '\0'); // either const char* is same length or longer, same length -> '\0' at end
 }
 
 bool operator!=(const String& s1, const char* s2){

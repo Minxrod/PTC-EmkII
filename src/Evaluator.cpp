@@ -165,9 +165,9 @@ Var Evaluator::eval_no_save(const std::vector<Token>& expression){
 //functions
 //( ) [ ]
 PrioToken conv_prio(const Token& t, int& n){
-	PrioToken p{t.text, t.type, -1};
+	PrioToken p{t.text, t.type, n};
 	
-	p.prio = n; //base prio, depends on parens/nesting
+//	p.prio = n; //base prio, depends on parens/nesting
 	if (p.type == Type::Op || p.type == Type::Arr || p.type == Type::Func){ //if it's not an op, don't change prio
 		if (p.text == ","){
 			p.prio += 1;

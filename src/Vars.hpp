@@ -17,7 +17,7 @@ typedef std::wstring String;
 std::string to_string(const String&);
 
 // because I do not feel like rewriting a bunch of literal comparisons
-bool operator==(const String&, std::string&);
+bool operator==(const String&, const std::string&);
 bool operator==(const String&, const char*);
 bool operator!=(const String&, const char*);
 
