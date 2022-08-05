@@ -463,7 +463,7 @@ std::vector<Var> Evaluator::calculate(const std::vector<Token>& rpn_expression, 
 				Var v = call_func(t, args);
 				values.push(v);
 			} else { //Type::Arr
-				std::string arr_name(t.text.begin(), t.text.end());
+				std::string arr_name = t.to_string() + "[]";
 				if (do_array_init && len_args.empty()){//special array creation hack
 					//needs to handle needing args for array creation otherwise
 					//might have array ACCESS as part of args, so must have len_args be empty.

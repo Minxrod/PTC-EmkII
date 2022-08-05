@@ -35,3 +35,16 @@ TEST_CASE("Randomized", "evaluate"){
 	
 	CHECK(eval("SQR(1478 % 1579)") == Approx(38.445));
 }
+
+TEST_CASE("SAMPLE5 (207)", "evaluate"){
+	Evaluator e;
+	
+	auto eval = [&e](std::string expr){
+		return std::get<Number>(e.evaluate(tokenize_str(expr)));
+	};
+	
+	CHECK(eval("64 <= 72 AND 72 < 48") == Approx(0.0));
+	CHECK(eval("64 >= 72 AND 72 > 48") == Approx(0.0));
+	CHECK(eval("48 <= 72 AND 72 < 64") == Approx(0.0));
+	CHECK(eval("48 >= 72 AND 72 > 64") == Approx(0.0));
+}

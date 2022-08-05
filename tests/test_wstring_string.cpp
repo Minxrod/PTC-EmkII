@@ -11,8 +11,11 @@ TEST_CASE("String comparisons", "string"){
 	
 	std::string str = "12345";
 	std::string null = "\0";
-	REQUIRE(String(L"12345") == const_cast<std::string&>(str));
+	REQUIRE(String(L"12345") == str);
 	REQUIRE_FALSE(String(L"123") == str);
 	REQUIRE_FALSE(String(L"1234567") == str);
 	REQUIRE(String(L"\0") == null);
+	
+	REQUIRE(String(L"!") != "!=");
+	REQUIRE(String(L"!") == "!");
 }
