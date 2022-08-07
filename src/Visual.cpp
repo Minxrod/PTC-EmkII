@@ -287,6 +287,7 @@ void Visual::colinit_(const Args& a){
 		r.col.at(res+"U").set_col(c, col.get_col(c));
 		r.col.at(res+"L").set_col(c, col.get_col(c));
 	}
+	regen_col();
 }
 
 /// PTC command to set a specific color.
@@ -319,6 +320,7 @@ void Visual::colset_(const Args& a){
 	int b = ((digits.find(data[4]) << 4) + digits.find(data[5]));
 	
 	r.col.at(res).set_col(c, rd, g, b);
+	regen_col();
 }
 
 /// PTC command to read a color.
