@@ -13,5 +13,6 @@ struct ptc_exception : public std::runtime_error {
 #define PTC_COMMAND_ARGS(c, a, l, h) if (a.size() < l || a.size() > h) throw ptc_exception(a.size() <= h ? "Missing operand (##c)" : "Syntax error (##c)");
 #define PTC_FUNCTION_ARGS(c, v, l, h) if (v.size() < l || v.size() > h) throw ptc_exception(v.size() > h ? "Missing operand (##c)" : "Syntax error (##c)");
 
-#define PTC_MISSING_OPERAND(c, n) if (a.size() == n) { throw ptc_exception{"Missing operand (##c)"}; }
+#define PTC_SYNTAX_ERROR(c, comp) if (a.size() ##comp) { throw ptc_exception{"Syntax error (##c)"}; }
+#define PTC_MISSING_OPERAND(c, comp) if (a.size() ##comp) { throw ptc_exception{"Missing operand (##c)"}; }
 
