@@ -3,6 +3,7 @@
 #include "Visual.hpp"
 #include "PTCSystem.hpp"
 
+#include <thread>
 #include <regex>
 
 /// Regex matching valid numeric INPUT.
@@ -193,6 +194,7 @@ std::pair<std::vector<Token>, String> PTC2Console::input_common(const Args& a){
 		// TODO: cursor should be movable with left/right, and A/Y button should work as enter/backspace, L/R shift
 		// TODO: shift+backspace clears line
 		while (lastpress != '\r'){
+			std::this_thread::sleep_for(std::chrono::milliseconds(20));
 			lastpress = in.inkey_internal();
 			auto keycode = in.keycode_internal();
 			
