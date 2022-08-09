@@ -48,3 +48,36 @@ TEST_CASE("SAMPLE5 (207)", "evaluate"){
 	CHECK(eval("48 <= 72 AND 72 < 64") == Approx(0.0));
 	CHECK(eval("48 >= 72 AND 72 > 64") == Approx(0.0));
 }
+
+TEST_CASE("PRINT splitting", "split"){
+	const std::string comma = "PRINT A,";
+	const std::string semi = "PRINT A;";
+	
+	{
+		auto tokens = tokenize_str(semi);
+		REQUIRE(tokens[0].text == "PRINT");
+		REQUIRE(tokens[1].text == "A");
+		REQUIRE(tokens[2].text == ";");
+	//	REQUIRE(tokens[3].text == "\r");
+		
+		auto res = split(tokens);
+		
+		REQUIRE(res[0][0].text == "PRINT");
+		REQUIRE(res[1][0].text == "A");
+		REQUIRE(res[1][1].text == ";");
+	}
+	
+	{
+		auto tokens = tokenize_str(comma);
+		REQUIRE(tokens[0].text == "PRINT");
+		REQUIRE(tokens[1].text == "A");
+		REQUIRE(tokens[2].text == ",");
+	//	REQUIRE(tokens[3].text == "\r");
+		
+		auto res = split(tokens);
+		
+		REQUIRE(res[0][0].text == "PRINT");
+		REQUIRE(res[1][0].text == "A");
+		REQUIRE(res.at(2) == Expr{});
+	}
+}

@@ -87,15 +87,15 @@ void PTC2Console::print_(const Args& a){
 				sub_exp = Expr(old_end, sub_end);
 				
 				if (sub_exp.empty()){ //expression is only ; or at end of var;
-					break;
-				}
-				
-				auto res = e.eval_all_results(sub_exp);
-				if (res.size() > 1){
+				} else {
 					
-				}
-				for (int i = res.size()-1; i >= 0; --i){
-					print_(res.at(i));
+					auto res = e.eval_all_results(sub_exp);
+					if (res.size() > 1){
+						
+					}
+					for (int i = res.size()-1; i >= 0; --i){
+						print_(res.at(i));
+					}
 				}
 				old_end = sub_end+1;
 			} while (sub_end != exp.end());
@@ -103,10 +103,8 @@ void PTC2Console::print_(const Args& a){
 			bool has_semicolon = sub_exp.empty();
 			inTheStupidCorner = has_semicolon && (get_x() == get_w() - 1) && (get_y() == get_h() - 1);
 			
-			if (!has_semicolon && (get_x() == get_w()-1 || i == (int)a.size()-1)){
-//				if (!(*cur_x == 0 && i == (int)a.size()-1)) // previous print ended with newline, don't need another
-				// just kidding, that only happens for the OK at the end of the program...
-					newline();
+			if (!has_semicolon && /*get_x() == get_w()-1 &&*/ i == (int)a.size()-1){
+				newline();
 			}
 		}
 		//at end of expression, needs to tab
@@ -400,6 +398,7 @@ void PTC2Console::print(int x, int y, Var& v, int c){
 void PTC2Console::ok(const Args&){
 	//maybe use args to pass error messages later on
 	
+	if (get_x() != 0) newline();
 	BaseConsole::print(L"OK");
 	newline();
 }

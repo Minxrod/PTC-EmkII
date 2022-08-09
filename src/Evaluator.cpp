@@ -511,6 +511,7 @@ std::vector<Var> Evaluator::calculate(const std::vector<Token>& rpn_expression, 
 std::vector<std::vector<Token>> split(const std::vector<Token>& expression){
 	std::vector<std::vector<Token>> subexp{};
 	
+	//TODO: this doesn't need to rely on PrioTokens; remove this later?
 	std::vector<PrioToken> all = conv_tokens(expression);
 	
 	auto i = 0;
@@ -533,7 +534,10 @@ std::vector<std::vector<Token>> split(const std::vector<Token>& expression){
 	//this works since there should always be at least one subexp.
 	if (i != old)
 		subexp.push_back(std::vector<Token>(start+old,start+i));
-		
+	// Make commas at end of line create an "empty argument" (ex. `PRINT "test",`)
+	if (all.back() == ","_TO)
+		subexp.push_back({});
+	
 	return subexp;
 }
 
