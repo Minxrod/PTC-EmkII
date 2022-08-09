@@ -64,7 +64,7 @@ struct Input : public IPTCObject {
 	std::atomic_int buttons; //same as above
 	/// Current keycode
 	std::atomic_int keycode; //updates each frame, sysvar
-
+	
 	//sysvars
 	/// TCHST sysvar (touch state)
 	std::atomic_bool tchst;

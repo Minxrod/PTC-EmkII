@@ -8,11 +8,18 @@ void zoom(sf::Window& w, int scale){
 	w.setSize(sf::Vector2u(256*scale, 384*scale));
 }
 
-PTCSystem::PTCSystem() {
+PTCSystem::PTCSystem() : PTCSystem(""){
+}
+
+PTCSystem::PTCSystem(std::string program_file) {
+	if (program_file.empty()){
+		program_file = "resources/misc/LOADER.PTC";
+	}
+	
 	//Create objects for system
 	resources = std::make_shared<Resources>();
 	resources->load_default();
-//	resources->load_program("resources/misc/TESTPKG.PTC"); //package program that contains every default resource
+	resources->load_program(program_file); //package program that contains every default resource
 	
 	evaluator = std::make_shared<Evaluator>();
 	
@@ -50,7 +57,6 @@ PTCSystem::PTCSystem() {
 		}
 	}
 	
-	get_resources()->load_program("resources/misc/LOADER.PTC");
 	program = std::make_shared<Program>(this);
 	
 	program->add_cmds(visual->get_cmds());
@@ -84,7 +90,7 @@ void PTCSystemDisplay::set_option(std::string option, int state){
 	}
 }
 
-PTCSystemDisplay::PTCSystemDisplay() : PTCSystem(), window{sf::VideoMode(256, 384), "PTCEmukII"} {
+PTCSystemDisplay::PTCSystemDisplay(std::string prgname) : PTCSystem(prgname), window{sf::VideoMode(256, 384), "PTCEmukII", sf::Style::Titlebar | sf::Style::Close} {
 	// https://en.sfml-dev.org/forums/index.php?topic=20033.0 ????
 	zoom(window, 2);
 	window.setFramerateLimit(60);

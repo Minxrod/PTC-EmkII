@@ -49,6 +49,7 @@ vec colvec(const SpriteInfo& s){
 SpriteInfo make_touch_sprite(int x, int y){
 	SpriteInfo touch_sprite{};
 	touch_sprite.active = true;
+	touch_sprite.id = -1;
 	touch_sprite.w = 1;
 	touch_sprite.h = 1;
 	touch_sprite.pos.x = x;

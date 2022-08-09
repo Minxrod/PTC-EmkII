@@ -9,6 +9,7 @@
 #include "Input.hpp"
 #include "Sound.hpp"
 #include "Debugger.hpp"
+//#include "InstructionTimer.hpp"
 
 #include <memory>
 #include <fstream>
@@ -28,10 +29,15 @@ class PTCSystem {
 	std::shared_ptr<Input> input;
 	/// Sound object. Manages the sound system.
 	std::shared_ptr<Sound> sound;
+	// Timer object to approximate execution timing
+	// InstructionTimer timer;
 	
 public:
 	/// Constructor. Initializes all of the important subcomponent objects.
 	PTCSystem();
+	
+	/// Constructor. Initializes all of the important subcomponent objects.
+	PTCSystem(std::string);
 	
 	/// Copy constructor (deleted)
 	PTCSystem(const PTCSystem&) = delete;
@@ -137,7 +143,7 @@ class PTCSystemDisplay : public PTCSystem {
 	
 public:
 	/// Default constructor
-	PTCSystemDisplay();
+	PTCSystemDisplay(std::string program);
 	
 	/// Copy constructor (deleted)
 	PTCSystemDisplay(const PTCSystemDisplay&) = delete;

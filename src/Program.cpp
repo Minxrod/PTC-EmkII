@@ -422,10 +422,11 @@ void Program::goto_label(const String& lbl){
 			if (itr == tokens.begin() || 
 			((itr-1)->type == Type::Newl)){
 				current = itr;
-				break;
+				return;
 			}
 		}
 	}
+	throw std::runtime_error{"Missing label " + to_string(lbl)};
 }
 
 /// PTC command to jump to a label.
@@ -457,6 +458,7 @@ void Program::goto_(const Args& a){
 void Program::gosub_(const Args& a){
 	//GOSUB <label expression>
 	auto lbl = std::get<String>(e.evaluate(a[1]));
+	
 	gosub_calls.push(current);	
 	goto_label(lbl);
 	//std::cout << "GOSUB @" << lbl << std::endl;
