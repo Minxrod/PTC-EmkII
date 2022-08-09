@@ -20,6 +20,11 @@ struct Token {
 	/// 
 	/// @return std::string of text
 	std::string to_string() const;
+	
+	/// Converts token into a "nice" string. This adds back formatting such as quotes to strings or whitespace after commands.
+	/// 
+	/// @return Display string
+	std::string display() const;
 };
 
 /// Priority token.

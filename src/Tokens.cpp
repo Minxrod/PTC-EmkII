@@ -6,6 +6,16 @@ std::string Token::to_string() const {
 	return std::string{text.cbegin(), text.cend()};
 }
 
+std::string Token::display() const {
+	std::string base{text.cbegin(), text.cend()};
+	if (type == Type::Str){
+		return "\"" + base + "\"";
+	} else if (type == Type::Cmd){
+		return base + " ";
+	}
+	return base;
+}
+
 bool operator<(const Token& a, const Token& b){
 	return a.text < b.text ? true : b.text < a.text ? false : a.type < b.type;
 }

@@ -168,7 +168,13 @@ void Debugger::update(){
 	console.print("");
 	console.print("Breakpoints:");
 	for (auto l : program->breakpoints){
-		console.print(std::to_string(l));
+		auto tokens = std::vector<Token>(program->tokens.begin()+program->line_to_index[l], program->tokens.begin()+program->line_to_index[l+1]);
+		std::string line;
+		for (auto t : tokens){
+			line += t.display();
+		}
+		
+		console.print(std::to_string(l) + ": " + line.substr(0,26));
 	}
 	
 	// Errors from debugger
