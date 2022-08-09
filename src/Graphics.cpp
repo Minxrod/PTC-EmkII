@@ -517,21 +517,30 @@ void Graphics::gcopy_(const Args& a){
 /// @warning Does not implement the 3-argument version yet.
 /// 
 /// Format: 
-/// * `GSPOIT(x,y)`
+/// * `GSPOIT([page,]x,y)`
 /// 
 /// Values:
+/// * page: Graphics page to read from (default=draw page)
 /// * x: x coordinate
 /// * y: y coordinate
 /// 
 /// @param v Values
 /// @return Pixel color at (x,y)
 Var Graphics::gspoit_(const Vals& v){
-	int x = std::get<Number>(v.at(0));
-	int y = std::get<Number>(v.at(1));
-	
+	int x = 0;
+	int y = 0;
+	int page = drawpage[screen];
+	if (v.size() == 2){
+		x = std::get<Number>(v.at(0));
+		y = std::get<Number>(v.at(1));
+	} else if (v.size() == 3){
+		page = std::get<Number>(v.at(0));
+		x = std::get<Number>(v.at(1));
+		y = std::get<Number>(v.at(2));
+	}
 //	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
 	
-	auto r = Var(static_cast<Number>(image[drawpage[screen]].at(4*(x+256*y))));
+	auto r = Var(static_cast<Number>(image[page].at(4*(x+256*y))));
 	return r;
 }
 
