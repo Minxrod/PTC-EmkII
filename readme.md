@@ -62,9 +62,10 @@ The touch keyboard is mostly functional, though some keys still have no effect.
 
 ## Execution options
 
-* -s Disable sound system entirely. This also disables BGMCHK and the like, so is not recommended if your program needs this.
-* -d Opens a debugger immediately after starting.
-* -a Enable automatic reload on program exit. When a PTC program ends, this will reload the startup loader program.
+* -s Disable sound system entirely. This also disables BGMCHK and the like, so this is not recommended if your program needs this.
+* -d Opens a debugger window immediately after starting.
+* -a Enable automatic restart on program end. When a PTC program ends, this will restart the currently loaded program.
+* -p Load program from a file path. This skips the default 'loader' program.
 
 ## Debugger
 

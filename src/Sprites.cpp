@@ -3,6 +3,7 @@
 #include <cmath>
 
 Sprites::Sprites(Evaluator& ev) : e{ev}{
+	page = 0;
 	sprites = std::vector<std::vector<SpriteInfo>>{2, std::vector<SpriteInfo>{100, SpriteInfo{}}};
 }
 
@@ -162,13 +163,19 @@ void Sprites::spofs_(const Args& a){
 		x = std::get<Number>(e.evaluate(a[2]));
 		y = std::get<Number>(e.evaluate(a[3]));
 		time = static_cast<int>(std::get<Number>(e.evaluate(a[4])));
-		s.pos.dx = (x - s.pos.x) / time;
-		s.pos.dy = (y - s.pos.y) / time;
-		s.pos.time = time;
+		if (time){
+			s.pos.dx = (x - s.pos.x) / time;
+			s.pos.dy = (y - s.pos.y) / time;
+			s.pos.time = time;
+		} else {
+			s.pos.x = x;
+			s.pos.y = y;
+			s.pos.time = -1;
+		}
 	} else {
 		s.pos.x = std::get<Number>(e.evaluate(a[2]));
 		s.pos.y = std::get<Number>(e.evaluate(a[3]));
-		s.pos.time = 0;
+		s.pos.time = -1;
 	}
 }
 
@@ -314,7 +321,7 @@ Var Sprites::spchk_(const Vals& v){
 	auto id = std::get<Number>(v.at(0));
 	auto& s = sprites[page][id];
 	
-	int result = (int)(s.pos.time > 0);
+	int result = (int)(s.pos.time >= 0);
 	result |= (int)(s.angle.time > 0) << 1;
 	result |= (int)(s.scale.time > 0) << 2;
 	result |= (int)(s.anim.loop_forever || s.anim.loop > 0) << 3;
@@ -340,10 +347,11 @@ void Sprites::spread_(const Args& a){
 	auto id = std::get<Number>(e.evaluate(a[1]));
 	auto& s = sprites[page][id];
 	
+	//tiny offset to avoid rounding errors from repeated addition of rounded values
 	if (a.size() > 2)
-		e.assign(a[2], Token{std::to_wstring(std::round(s.pos.x)), Type::Num});
+		e.assign(a[2], Token{std::to_wstring(std::floor(s.pos.x + 1.0/8192)), Type::Num});
 	if (a.size() > 3)
-		e.assign(a[3], Token{std::to_wstring(std::round(s.pos.y)), Type::Num});
+		e.assign(a[3], Token{std::to_wstring(std::floor(s.pos.y + 1.0/8192)), Type::Num});
 	if (a.size() > 4)
 		e.assign(a[4], Token{std::to_wstring(s.angle.a), Type::Num});
 	if (a.size() > 5)
@@ -555,7 +563,7 @@ void Sprites::update(){
 					s.angle.a += s.angle.da;
 					s.angle.time--;
 				}
-				if (s.pos.time > 0){
+				if (s.pos.time >= 0){
 					s.pos.x += s.pos.dx;
 					s.pos.y += s.pos.dy;
 					s.pos.time--;

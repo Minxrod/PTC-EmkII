@@ -214,7 +214,8 @@ void Program::run_(){
 		//reset to program loader
 		if (auto_reload){
 			std::this_thread::sleep_for(std::chrono::seconds(1));
-			loader(); 
+			//TODO: Consider reload from file instead of restarting
+			current = tokens.begin();
 		}
 	}
 }

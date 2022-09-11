@@ -39,8 +39,8 @@ struct SpriteInfo {
 		/// Change in y position (pixels/frame)
 		double dy = 0;
 		/// Remaining time to move sprite (frames)
-		/// If 0, sprite is done moving.
-		int time = 0;
+		/// If -1, sprite is done moving.
+		int time = -1;
 	} pos;
 	
 	/// Struct for sprite scaling.

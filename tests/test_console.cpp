@@ -77,12 +77,6 @@ TEST_CASE("Console test", "console"){
 	check_str(0,23,"23232323232323232323232323232323");
 	
 	//display for debug
-	for (int y = 0; y < 24; ++y){
-		for (int x = 0; x < 32; ++x){
-			char c = con.chkchr(x,y);
-			std::cout << (c ? c : ' ');
-		}
-		std::cout << std::endl;
-	}
+//	debug_print(con);
 	
 }

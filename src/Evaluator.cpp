@@ -264,10 +264,11 @@ std::vector<PrioToken> conv_tokens(const std::vector<Token>& expression){
 	for (std::vector<PrioToken>::size_type i = 0; i < expression.size(); ++i){
 		Token t = expression.at(i);
 
-		if (t.text == "("){
+		if (t.text == "(" || t.text == "["){
 			is_func.push(is_func_paren);
 		}
-		if (t.text == ")" && t.type != Type::Str){
+		if ((t.text == ")" || t.text == "]") && t.type != Type::Str){
+			//TODO: this might have allowed functions to be called with square brackets
 			if (is_func.top()){
 				t.text = L".";
 			}
