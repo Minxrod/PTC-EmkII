@@ -173,3 +173,75 @@ TEST_CASE("Sprite angles test", "sprites"){
 	CHECK(debug_eval(system, "R[6]") == Approx(359).margin(SMALL));
 }
 
+
+const std::string test_prg_chr{"\
+SPCLR\r\
+DIM R[100]\r\
+I=0\r\
+SPSET 0,117,0,0,0,0\r\
+\r\
+SPANIM 0,4,5,3\r\
+@CHR\r\
+SPREAD(0),X,Y,A,S,C\r\
+?C\r\
+R[I]=C:I=I+1\r\
+WAIT 5\r\
+IF SPCHK(0) THEN @CHR\r\
+'section 2: lower screen\r\
+SPPAGE 1\r\
+SPSET 0,117,0,0,0,0\r\
+\r\
+SPANIM 0,4,5,3\r\
+@CHR2\r\
+SPREAD(0),X,Y,A,S,C\r\
+?C\r\
+R[I]=C:I=I+1\r\
+WAIT 5\r\
+IF SPCHK(0) THEN @CHR2\r\
+\r"};
+
+
+//turns out this one DOESN'T work like you'd expect based on every other variable read...
+//it just reads whatever was set by SPCHR, and adds 512 if it's on the lower screen...
+//no animation/interpolation for characters, I guess.
+TEST_CASE("Read sprite character", "sprites"){
+	auto tokens = tokenize_str(test_prg_chr);
+	
+	// set tokens as program and call run_();
+	PTCSystem system;
+	system.get_program()->set_tokens(tokens);
+	system.start();
+	while (system.is_running()){
+		std::this_thread::sleep_for(std::chrono::milliseconds((int)(1000.0/60.0)));
+		system.update();
+	}
+	//debug_print(system.get_visual()->c);
+	
+	CHECK(debug_eval(system, "R[0]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[1]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[2]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[3]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[4]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[5]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[6]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[7]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[8]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[9]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[10]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[11]") == Approx(117).margin(SMALL));
+	CHECK(debug_eval(system, "R[12]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[13]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[14]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[15]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[16]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[17]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[18]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[19]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[20]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[21]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[22]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[23]") == Approx(629).margin(SMALL));
+	CHECK(debug_eval(system, "R[24]") == Approx(0).margin(SMALL));
+	//note: chr animation does NOT continue for one more frame like the other animation types
+}
+

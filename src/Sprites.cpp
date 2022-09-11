@@ -366,7 +366,7 @@ void Sprites::spread_(const Args& a){
 		e.assign(a[5], Token{std::to_wstring(scale), Type::Num});
 	} 
 	if (a.size() > 6){
-		int current_chr = s.anim.loop_forever || s.anim.loop ? s.anim.current_chr : s.chr;
+		int current_chr = s.chr + (page ? 512 : 0);
 		e.assign(a[6], Token{std::to_wstring(current_chr), Type::Num});
 	}
 }
