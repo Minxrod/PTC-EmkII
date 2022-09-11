@@ -261,7 +261,8 @@ void Sprites::spangle_(const Args& a){
 	//SPANGLE id angle [time] [direction]
 	auto id = std::get<Number>(e.evaluate(a[1]));
 	auto& s = sprites[page][id];
-	auto ang = -std::get<Number>(e.evaluate(a[2]));
+	auto ang = static_cast<int>(std::get<Number>(e.evaluate(a[2]))); // rounds down always (-358.9 -> 1)
+	s.angle.time = -1;
 	if (a.size() >= 4){
 		auto time = std::get<Number>(e.evaluate(a[3]));
 		if (a.size() == 5){
@@ -280,6 +281,7 @@ void Sprites::spangle_(const Args& a){
 	} else {
 		s.angle.a = ang;
 	}
+	s.angle.da = std::floor(s.angle.da * 4096) / 4096.0;
 }
 
 /// PTC command to scale a sprite.
@@ -302,7 +304,8 @@ void Sprites::spscale_(const Args& a){
 		s.scale.time = static_cast<int>(std::get<Number>(e.evaluate(a[3])));
 		s.scale.ds = ((scale/100.0) - s.scale.s) / s.scale.time;
 	} else {
-		s.scale.s = (scale/100.0);
+		s.scale.time = -1;
+		s.scale.s = scale/100.0;
 	}
 }
 
@@ -322,8 +325,8 @@ Var Sprites::spchk_(const Vals& v){
 	auto& s = sprites[page][id];
 	
 	int result = (int)(s.pos.time >= 0);
-	result |= (int)(s.angle.time > 0) << 1;
-	result |= (int)(s.scale.time > 0) << 2;
+	result |= (int)(s.angle.time >= 0) << 1;
+	result |= (int)(s.scale.time >= 0) << 2;
 	result |= (int)(s.anim.loop_forever || s.anim.loop > 0) << 3;
 	return Var((double)result);
 }
@@ -352,10 +355,16 @@ void Sprites::spread_(const Args& a){
 		e.assign(a[2], Token{std::to_wstring(std::floor(s.pos.x + 1.0/8192)), Type::Num});
 	if (a.size() > 3)
 		e.assign(a[3], Token{std::to_wstring(std::floor(s.pos.y + 1.0/8192)), Type::Num});
-	if (a.size() > 4)
-		e.assign(a[4], Token{std::to_wstring(s.angle.a), Type::Num});
-	if (a.size() > 5)
-		e.assign(a[5], Token{std::to_wstring(s.scale.s), Type::Num});
+	if (a.size() > 4){
+		// there is precision loss
+		auto angle = std::floor(s.angle.a * 4096) / 4096.0;
+		e.assign(a[4], Token{std::to_wstring(angle), Type::Num});
+	}
+	if (a.size() > 5){
+		// there is precision loss due to numbers used
+		auto scale = std::floor(s.scale.s * 4096) / 4096.0 * 100.0;
+		e.assign(a[5], Token{std::to_wstring(scale), Type::Num});
+	} 
 	if (a.size() > 6){
 		int current_chr = s.anim.loop_forever || s.anim.loop ? s.anim.current_chr : s.chr;
 		e.assign(a[6], Token{std::to_wstring(current_chr), Type::Num});
@@ -555,11 +564,11 @@ void Sprites::update(){
 	for (auto& sprpage : sprites){	
 		for (auto& s : sprpage){
 			if (s.active){
-				if (s.scale.time > 0){
+				if (s.scale.time >= 0){
 					s.scale.s += s.scale.ds;
 					s.scale.time--;
 				}
-				if (s.angle.time > 0){
+				if (s.angle.time >= 0){
 					s.angle.a += s.angle.da;
 					s.angle.time--;
 				}
