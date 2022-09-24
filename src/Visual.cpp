@@ -458,8 +458,10 @@ void Visual::save_(const Args& a){
 		auto mem = *std::get<String*>(e.vars.get_var_ptr("MEM$"));
 		r.mem.set_mem(mem); //mem needs to set from variable
 		r.save(type, name);
+		e.vars.write_sysvar("RESULT",1.0);
 	} else {
 		r.save(type, name); //every other type is already stored in resources
+		e.vars.write_sysvar("RESULT",1.0);
 	}
 }
 

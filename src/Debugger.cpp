@@ -181,6 +181,9 @@ void Debugger::update(){
 	console.locate(0,23);
 	console.color(13);
 	console.print(feedback, false);
+	console.locate(26,23);
+	console.color(0);
+	console.print(std::to_string(program->index_to_line[std::distance(program->tokens.cbegin(), program->current)]), false);
 	
 	// Render (actual)
 	window.clear();

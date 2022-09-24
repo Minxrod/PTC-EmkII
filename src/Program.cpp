@@ -236,6 +236,9 @@ bool for_continues(Number val, Number end, Number step){
 			is_valid = false;
 		}
 	} else { //same starting and ending values
+		if (val != end){
+			is_valid = false;
+		}
 	}
 	return is_valid;
 }
