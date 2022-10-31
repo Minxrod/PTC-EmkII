@@ -161,62 +161,95 @@ void Program::call_cmd(Token instr, const Args& chunks){
 }
 
 
-void Program::run_(){	
-	while (auto_reload || !at_eof()){
-		current = tokens.begin();
-//		std::cout << "\nbegin run\n" << std::endl;
-		
-		while (current != tokens.end()){
-			auto instr = next_instruction();
-			
-			auto d = std::distance(tokens.cbegin(), current);
-			if (index_to_line.count(d) && breakpoints.count(index_to_line.at(d))){
-				pause(true);
-			}
-			
-			while (paused)
-				std::this_thread::yield(); //wait for unpause from other thread
-			
-			if (instr.empty())
-				continue; //it's an empty line, don't try to run it
-			
-			auto chunks = split(instr);
-			auto instr_form = chunks[0][0]; //if chunks[0] is empty, we have other problems
-			
-			//std::cout << std::distance(tokens.begin(), current);
-	//		for (auto& chunk : chunks)
-	//			print("Instr:", chunk);
-			
-	/*		if (instr_form.type == Type::Rem){ //ignore it, this is the entire line
-			}else*/if (instr_form.type == Type::Label){ //ignore
-			} else if (instr_form.type == Type::Num){ //error
-			} else if (instr_form.type == Type::Str){ //error
-			} else if (instr_form.type == Type::Arr){ //check for valid assignment
-				e.evaluate(chunks[0]);
-			} else if (instr_form.type == Type::Var){ //check for assignment
-				e.evaluate(chunks[0]);
-			} else if (instr_form.type == Type::Op){ //error
-			} else if (instr_form.type == Type::Func){ //error
-			} else if (instr_form.type == Type::Cmd){ //run cmd
-				if (instr_form.text == "IF"){
-					call_cmd(instr_form, std::vector<Expr>{instr});
-				} else {
-					call_cmd(instr_form, chunks);
-				}
-			//} else if (instr_form.type == Type::Newl){ //ignore
-			} else { //something has gone horrifically wrong
-			}
-		}
-		
-		commands.at("OK"_TC)({});
-//		std::cout << "Program end" << std::endl;
-		
-		//reset to program loader
-		if (auto_reload){
-			std::this_thread::sleep_for(std::chrono::seconds(1));
-			//TODO: Consider reload from file instead of restarting
+void Program::run_(){
+	std::vector<Token> instr;
+	try {
+		while (auto_reload || !at_eof()){
 			current = tokens.begin();
+	//		std::cout << "\nbegin run\n" << std::endl;
+			
+			while (current != tokens.end()){
+				auto d = std::distance(tokens.cbegin(), current); //measure from start, must be done before reading next isntruction
+				std::cout << index_to_line[d] << ":";//std::distance(tokens.begin(), current);
+				
+				instr = next_instruction();
+				
+				if (index_to_line.count(d) && breakpoints.count(index_to_line.at(d))){
+					pause(true);
+				}
+				
+				while (paused)
+					std::this_thread::yield(); //wait for unpause from other thread
+				
+				if (instr.empty())
+					continue; //it's an empty line, don't try to run it
+				
+				auto chunks = split(instr);
+				auto instr_form = chunks[0][0]; //if chunks[0] is empty, we have other problems
+				
+//				for (auto& chunk : chunks)
+//					::print("", chunk);
+//				std::cout << "\n";
+				
+		/*		if (instr_form.type == Type::Rem){ //ignore it, this is the entire line
+				}else*/if (instr_form.type == Type::Label){ //ignore
+				} else if (instr_form.type == Type::Num){ //error
+				} else if (instr_form.type == Type::Str){ //error
+				} else if (instr_form.type == Type::Arr){ //check for valid assignment
+					e.evaluate(chunks[0]);
+				} else if (instr_form.type == Type::Var){ //check for assignment
+					e.evaluate(chunks[0]);
+				} else if (instr_form.type == Type::Op){ //error
+				} else if (instr_form.type == Type::Func){ //error
+				} else if (instr_form.type == Type::Cmd){ //run cmd
+					if (instr_form.text == "IF"){
+						call_cmd(instr_form, std::vector<Expr>{instr});
+					} else {
+						call_cmd(instr_form, chunks);
+					}
+				//} else if (instr_form.type == Type::Newl){ //ignore
+				} else { //something has gone horrifically wrong
+				}
+			}
+			
+			commands.at("OK"_TC)({});
+	//		std::cout << "Program end" << std::endl;
+			
+			//reset to program loader
+			if (auto_reload){
+				std::this_thread::sleep_for(std::chrono::seconds(1));
+				//TODO: Consider reload from file instead of restarting
+				current = tokens.begin();
+			}
 		}
+	} catch (std::exception& ex){
+		std::cout << "Internal error\n";
+		std::cout << ex.what() << "\n";
+		std::cerr << "Internal error!\n";
+		std::cerr << ex.what() << std::endl;
+		
+		int d = 0;
+		while (!d){
+			d = index_to_line[std::distance(tokens.cbegin(), current)];
+			--current; //search back to start of line
+		}
+		std::cout << "PTC program line:" << d;
+		print("Instr", instr);
+		std::cout << "\nVariable state:\n";
+
+		auto iter = e.vars.vars.begin();
+		while (iter != e.vars.vars.end()){
+			std::cout << iter->first << "=";
+			if (std::holds_alternative<Number>(iter->second))
+				std::cout << std::get<Number>(iter->second);
+			else if (std::holds_alternative<String>(iter->second))
+				std::cout << to_string(std::get<String>(iter->second));
+			else
+				std::cout << "<Array type>";
+			++iter;
+			std::cout << "\n";
+		}
+		std::cout << std::endl;
 	}
 }
 
