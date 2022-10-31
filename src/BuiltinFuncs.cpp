@@ -237,7 +237,7 @@ namespace ptc {
 	}
 	
 	Var chr(const Vals& vals){
-		String s{(char)std::get<Number>(vals.at(0))};
+		String s{(wchar_t)std::get<Number>(vals.at(0))};
 		return Var(s);
 	}
 	
