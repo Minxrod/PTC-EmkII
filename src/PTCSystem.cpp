@@ -114,7 +114,6 @@ void PTCSystemDisplay::update(){
 		if (event.type == sf::Event::TextEntered){
 			unicode = event.text.unicode;
 			
-//			std::cout << unicode << std::endl;
 			if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::LAlt) || sf::Keyboard::isKeyPressed(sf::Keyboard::Key::RAlt)){
 				if (unicode < 0x80) //modify characters in ASCII range
 					unicode |= 0x80;

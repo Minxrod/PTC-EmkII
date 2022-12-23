@@ -2,6 +2,8 @@
 #include "Vars.hpp"
 #include "PTCSystem.hpp"
 
+#include "Logger.hpp"
+
 #include <thread>
 
 const float COL_BG = 0.1;
@@ -34,7 +36,7 @@ Visual::Visual(PTCSystem* system) :
 		throw std::runtime_error{"Error: Shaders are unavailable"};
 	} else {
 		if (!bgsp_shader.loadFromFile("resources/shaders/bgsp.frag", sf::Shader::Fragment)){
-			std::cout << "Error: Shader bgsp.frag could not be loaded";
+			logger::error("Visual","Shader bgsp.frag could not be loaded");
 		}
 	}
 	maincntl = std::get<Number*>(e.vars.get_var_ptr("MAINCNTL"));
@@ -209,7 +211,6 @@ void Visual::chrset_(const Args& a){
 	auto& chr_resource = r.chr.at(type);
 	std::string chr_data = to_string(std::get<String>(e.evaluate(a[3])));
 	
-//	std::cout << chr_data.size() << ":" << chr_data << "\n";
 	for (int y = 0; y < 8; ++y){
 		for (int x = 0; x < 8; ++x){
 			auto d = chr_data[x+8*y];
@@ -432,7 +433,7 @@ void Visual::load_(const Args& a){
 		}
 		e.vars.write_sysvar("RESULT",1.0);
 	} catch (const std::runtime_error& ex){
-		std::cout << ex.what();
+		logger::warn("Visual", ex.what());
 		e.vars.write_sysvar("RESULT",0.0);
 	}
 }

@@ -540,6 +540,10 @@ Var Graphics::gspoit_(const Vals& v){
 	}
 //	auto& g = grp.at("GRP"+std::to_string(drawpage[screen])).data;
 	
+	if (x > 255 || x < 0 || y > 255 || y < 0){
+		return Var(Number(-1.0));
+	}
+	
 	auto r = Var(static_cast<Number>(image[page].at(4*(x+256*y))));
 	return r;
 }

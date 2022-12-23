@@ -1,6 +1,4 @@
 #include "Logger.hpp"
-#define DEBUG_ON 1
-#define DEBUG_NAME "Input"
 
 #include "Input.hpp"
 
@@ -26,7 +24,7 @@ const std::map<int, std::string> unicode_to_ptc = {
 
 
 Input::Input(Evaluator& ev) : e{ev}, button_info{12, std::vector<int>{0,0,0}}{
-//	logger::log("Constructed Input object");
+	logger::log("Input", "Constructed Input object");
 }
 
 void Input::update(int b){
@@ -268,7 +266,7 @@ Var Input::btrig_(const Vals&){
 			}
 		}
 	}
-//	std::cout << b << std::endl;
+	logger::log("Input",b);
 	return Var(Number(b));
 }
 	

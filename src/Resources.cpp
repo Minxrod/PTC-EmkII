@@ -8,6 +8,7 @@
 
 #include <iostream>
 
+#include "Logger.hpp"
 #include "Resources.hpp"
 #include "Vars.hpp"
 #include "Evaluator.hpp"
@@ -233,7 +234,7 @@ void Resources::load(std::string type, std::string filename, int header_size){
 			read_n(fs, mem.data, header_size); //dummy read to skip header
 			read_n(fs, mem.data, MEM::SIZE);
 		} catch (std::runtime_error& e){
-			std::cout << "Failed to load: " << e.what() << "\n";
+			logger::info("Resources", "Failed to load: programs/"+filename+".PTC");
 			mem.data.resize(MEM::SIZE);
 			std::fill(mem.data.begin(), mem.data.end(), 0);
 			throw e;

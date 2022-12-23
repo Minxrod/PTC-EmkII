@@ -2,6 +2,7 @@
 
 #include "Visual.hpp"
 #include "PTCSystem.hpp"
+#include "Logger.hpp"
 
 #include <thread>
 #include <regex>
@@ -68,13 +69,10 @@ void PTC2Console::reset(){
 void PTC2Console::print_(const Args& a){
 	//PRINT <exp> <exp2> <exp3> ...
 	// If inTheStupidCorner, then the cursor needs to be advanced to the next line before printing.
-	//std::cout << "P";
-	//std::cout << get_x() << "," << get_y() << std::endl;
-
+	
 	if (inTheStupidCorner)
 		newline();
-
-	//std::cout << get_x() << "," << get_y() << std::endl;
+	
 	for (int i = 1; i < (int)a.size(); ++i){
 		auto& exp = a[i];
 		if (!exp.empty()){
@@ -117,7 +115,6 @@ void PTC2Console::print_(const Args& a){
 	if (a.size() == 1){
 		newline();
 	}
-	//std::cout << get_x() << "," << get_y() << std::endl;
 }
 
 std::wstring printable(const Var& v){
@@ -259,7 +256,7 @@ void PTC2Console::input_(const Args& a){
 	//INPUT [string;]a$,b,c
 	auto [var, str] = input_common(a);
 	
-//	std::cout << "Input: " << str << std::endl;
+	logger::log("Input", to_string(str));
 	
 	std::vector<Token> results{Token{L"", Type::Str}};
 	for (auto c : str){
@@ -291,6 +288,8 @@ void PTC2Console::linput_(const Args& a){
 	//LINPUT [string;]a$
 	auto [var, str] = input_common(a);
 	
+	logger::log("Input", to_string(str));
+	
 	e.assign(var, Token{str, Type::Str});
 }
 
@@ -306,8 +305,6 @@ void PTC2Console::linput_(const Args& a){
 /// @param a Arguments
 void PTC2Console::locate_(const Args& a){
 	//LOCATE <x> <y>
-	//std::cout << "L";
-	//std::cout << get_x() << "," << get_y() << std::endl;
 	int x = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
 	int y = static_cast<int>(std::get<Number>(e.evaluate(a[2])));
 	
@@ -315,7 +312,6 @@ void PTC2Console::locate_(const Args& a){
 	*csrx = x;
 	*csry = y;
 	inTheStupidCorner = x == get_w()-1 && y == get_h()-1;
-	//std::cout << get_x() << "," << get_y() << std::endl;
 }
 
 void PTC2Console::tab(){
@@ -355,12 +351,9 @@ void PTC2Console::scroll(){
 /// 
 /// @param a Arguments
 void PTC2Console::color_(const Args& a){
-	//std::cout << "C";
-	//std::cout << get_x() << "," << get_y() << std::endl;
 	int fg = static_cast<int>(std::get<Number>(e.evaluate(a[1])));
 	int bg = a.size() == 3 ? static_cast<int>(std::get<Number>(e.evaluate(a[2]))) : get_bg();
 	color(fg, bg);
-	//std::cout << get_x() << "," << get_y() << std::endl;
 }
 
 /// PTC function to check a character on the console.
