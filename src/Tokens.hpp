@@ -57,5 +57,5 @@ std::vector<Token> tokenize(unsigned char* data, std::size_t size);
 
 //debug
 #include <iostream>
-std::ostream& print(std::string name, const std::vector<Token>& items);
-std::ostream& print(std::string name, const std::vector<PrioToken>& items);
+std::ostream& operator<<(std::ostream& os, const std::vector<Token>& items);
+std::ostream& operator<<(std::ostream& os, const std::vector<PrioToken>& items);

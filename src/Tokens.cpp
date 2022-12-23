@@ -210,23 +210,18 @@ std::vector<Token> tokenize(unsigned char* data, std::size_t size){
 	return tokens;
 }
 
-std::ostream& print(std::string name, const std::vector<Token>& items){
-	if (name.size())
-		std::cout << name << ":" << std::endl;
+std::ostream& operator<<(std::ostream& os, const std::vector<Token>& items){
 	for (auto i : items){
 		if (i.text != L"\r")
-			std::cout << i.to_string() << " ";
+			os << i.to_string() << " ";
 	}
-	if (name.size())
-		std::cout << std::endl;
-	return std::cout;
+	return os;
 }
 
-std::ostream& print(std::string name, const std::vector<PrioToken>& items){
-	std::cout << name << ":" << std::endl;
+std::ostream& print(std::ostream& os, const std::vector<PrioToken>& items){
 	for (auto i : items){
-		std::cout << i.to_string() << "[" << i.prio << "] ";
+		os << i.to_string() << "[" << i.prio << "] ";
 	}
-	return std::cout << std::endl;
+	return os;
 }
 
