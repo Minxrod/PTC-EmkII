@@ -1,5 +1,8 @@
 #include "Program.hpp"
 
+#include "Logger.hpp"
+
+#include "Errors.hpp"
 #include "PTCSystem.hpp"
 
 #include <thread>
@@ -32,6 +35,7 @@ Program::Program(PTCSystem* s) : system{s}, e{*system->get_evaluator()}{
 	};
 	
 	add_cmds(e.get_cmds());
+	logger::log("Program", "Constructed Program");
 }
 
 //Restart current program
@@ -40,6 +44,7 @@ void Program::restart(){
 	data_current = std::find(tokens.begin(), tokens.end(), "DATA"_TC);
 	if (data_current != tokens.end())
 		data_current++; //first piece of data will be directly after DATA statement
+	logger::info("Program", "Restarted program");
 }
 
 // this loads a new program, and also reinitializes whatever data should not carry over
@@ -85,7 +90,8 @@ void Program::exec_(const Args& a){
 		e.vars.write_sysvar("RESULT", 1.0);
 	} catch (const std::runtime_error& ex){
 		//load failed for some reason
-		std::cout << ex.what();
+		logger::debug("Program", ex.what());
+		logger::info("Program", "Failed to load " + prgname);
 		e.vars.write_sysvar("RESULT", 0.0);
 	}
 }
@@ -141,10 +147,7 @@ std::vector<Token> Program::next_instruction(){
 		}
 		newline = search;
 		std::vector<Token> instr{current, newline};
-//		for (auto& a : instr){
-//			std::cout << a.text << " ";
-//		}
-//		std::cout << std::endl;
+//		logger::debug("Program", instr);
 		
 		current = newline+(search->type == Type::Newl ? 1 : 0); //skip newlines etc, don't skip commands
 		return instr;
@@ -166,30 +169,31 @@ void Program::run_(){
 	try {
 		while (auto_reload || !at_eof()){
 			current = tokens.begin();
-	//		std::cout << "\nbegin run\n" << std::endl;
+			logger::info("Program", "Beginning program execution");
 			
 			while (current != tokens.end()){
+				//TODO: remove std::distance because slow?
 				auto d = std::distance(tokens.cbegin(), current); //measure from start, must be done before reading next isntruction
-				std::cout << index_to_line[d] << ":";//std::distance(tokens.begin(), current);
+//				logger::debug("Program", index_to_line[d]);
 				
 				instr = next_instruction();
+				logger::debug("Program", instr);
 				
 				if (index_to_line.count(d) && breakpoints.count(index_to_line.at(d))){
 					pause(true);
+					logger::info("Program", "Hit breakpoint at " + std::to_string(index_to_line[d]));
 				}
 				
-				while (paused)
-					std::this_thread::yield(); //wait for unpause from other thread
+				while (paused){
+					std::this_thread::sleep_for(std::chrono::milliseconds(100));
+					//wait for unpause from other thread
+				}
 				
 				if (instr.empty())
 					continue; //it's an empty line, don't try to run it
 				
 				auto chunks = split(instr);
 				auto instr_form = chunks[0][0]; //if chunks[0] is empty, we have other problems
-				
-//				for (auto& chunk : chunks)
-//					::print("", chunk);
-//				std::cout << "\n";
 				
 		/*		if (instr_form.type == Type::Rem){ //ignore it, this is the entire line
 				}else*/if (instr_form.type == Type::Label){ //ignore
@@ -213,7 +217,7 @@ void Program::run_(){
 			}
 			
 			commands.at("OK"_TC)({});
-	//		std::cout << "Program end" << std::endl;
+			logger::info("Program", "Program execution ended");
 			
 			//reset to program loader
 			if (auto_reload){
@@ -223,33 +227,29 @@ void Program::run_(){
 			}
 		}
 	} catch (std::exception& ex){
-		std::cout << "Internal error\n";
-		std::cout << ex.what() << "\n";
-		std::cerr << "Internal error!\n";
-		std::cerr << ex.what() << std::endl;
+		logger::error("Program", "Internal error");
+		logger::error("Program", ex.what());
 		
 		int d = 0;
 		while (!d){
 			d = index_to_line[std::distance(tokens.cbegin(), current)];
 			--current; //search back to start of line
 		}
-		std::cout << "PTC program line:" << d;
-		print("Instr", instr);
-		std::cout << "\nVariable state:\n";
+		logger::info("Program", "PTC program line:" + std::to_string(d));
+		logger::info("Program", instr);
+		logger::log("Program", "Variable state:");
 
 		auto iter = e.vars.vars.begin();
 		while (iter != e.vars.vars.end()){
-			std::cout << iter->first << "=";
 			if (std::holds_alternative<Number>(iter->second))
-				std::cout << std::get<Number>(iter->second);
+				logger::log("Program", iter->first + "=" + std::to_string(std::get<Number>(iter->second)));
 			else if (std::holds_alternative<String>(iter->second))
-				std::cout << to_string(std::get<String>(iter->second));
+				logger::log("Program", iter->first + "=" + to_string(std::get<String>(iter->second)));
 			else
-				std::cout << "<Array type>";
+				logger::log("Program", iter->first + "=" + "<Array type>");
+				// TODO: Dump arrays as well on logger::debug
 			++iter;
-			std::cout << "\n";
 		}
-		std::cout << std::endl;
 	}
 }
 
@@ -463,7 +463,7 @@ void Program::goto_label(const String& lbl){
 			}
 		}
 	}
-	throw std::runtime_error{"Missing label " + to_string(lbl)};
+	throw ptc_exception{"Missing label " + to_string(lbl)};
 }
 
 /// PTC command to jump to a label.
@@ -480,7 +480,7 @@ void Program::goto_(const Args& a){
 	//GOTO <string expression>
 	auto lbl = std::get<String>(e.evaluate(a[1]));
 	goto_label(lbl);
-	//std::cout << "GOTO @" << lbl << std::endl;
+	logger::info("Program::goto_", "Jumped to " + to_string(lbl));
 }
 
 /// PTC command to execute a subroutine.
@@ -498,7 +498,7 @@ void Program::gosub_(const Args& a){
 	
 	gosub_calls.push(current);	
 	goto_label(lbl);
-	//std::cout << "GOSUB @" << lbl << std::endl;
+	logger::info("Program::gosub_", "Jumped to " + to_string(lbl));
 }
 
 /// PTC command to return from a subroutine.
@@ -508,7 +508,7 @@ void Program::gosub_(const Args& a){
 void Program::return_(const Args&){
 	current = gosub_calls.top();
 	gosub_calls.pop();
-	//std::cout << "RETURN" << std::endl;
+	logger::info("Program", "Returned");
 }
 
 /// PTC command to branch based on a condition variable.
@@ -533,8 +533,8 @@ void Program::on_(const Args& a){
 			gosub_calls.push(current);
 		}
 		goto_label(lbl);
+		logger::info("Program", "Branched to " + to_string(lbl) + " via ON " + a[2][0].to_string());
 	}
-	//std::cout << "ON " << lbl << std::endl;
 }
 
 /// PTC command to store data.

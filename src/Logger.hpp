@@ -1,8 +1,7 @@
 #pragma once
 #include <iostream>
 
-class Logger {
-public:
+namespace logger {
 	const int DEBUG_BACKGROUND = (1<<0);
 	const int DEBUG_CONSOLE = (1<<1);
 	const int DEBUG_FUNCTIONS = (1<<2);
@@ -22,41 +21,31 @@ public:
 	const int DEBUG_VARIABLES = (1<<16);
 	const int DEBUG_VISUAL = (1<<17);
 	const int DEBUG_PROGRAM = (1<<18);
-	
-	int debug_on = -1; //bitmask
-	int debug_level = 5; //0= none 5=all
-	
-	Logger() = default;
-	virtual ~Logger(){}
-	
-	virtual std::string debug_name() = 0;
-	virtual int debug_mask() = 0;
-	
+
+//	int debug_on = -1; //bitmask
+	const int debug_level = 5; //0= none 5=all
+
 	template <typename T, int level>
-	void common(std::ostream& os, const char* info, T message){
-		if ((debug_on & debug_mask()) && debug_level > level){
-		 os	<< info 
-			<< "[" << debug_name() <<"]	"
- 			<< message
- 			<< std::endl;
+	void common(std::ostream& os, std::string info, const T& message){
+		if (debug_level > level){
+		 os	<< info
+			<< message
+			<< std::endl;
 		}
 	}
 	
 	template <typename T>
-	void debug(T message) { common<T,4>(std::cout, "[DEBUG]	", message); }
+	void debug(std::string name, const T& message) { common<T,4>(std::cout, "[DEBUG]	["+name+"]", message); }
 	
 	template <typename T>
-	void log(T message) { common<T,3>(std::cout, "[LOG]	", message); }
+	void log(std::string name, const T& message) { common<T,3>(std::cout, "[LOG]	["+name+"]", message); }
 	
 	template <typename T>
-	void info(T message) { common<T,2>(std::cout, "[INFO]	", message); }
+	void info(std::string name, const T& message) { common<T,2>(std::cout, "[INFO]	["+name+"]", message); }
 	
 	template <typename T>
-	void warn(T message) { common<T,1>(std::cout, "[WARN]	", message); }
+	void warn(std::string name, const T& message) { common<T,1>(std::cout, "[WARN]	["+name+"]", message); }
 	
 	template <typename T>
-	void error(T message) { 
-//		common<T,0>(std::cout, "[ERROR]	", message);
-		common<T,0>(std::cerr, "[ERROR]	", message);
-	}
-};
+	void error(std::string name, const T& message) { common<T,0>(std::cerr, "[ERROR]	["+name+"]", message); }
+}

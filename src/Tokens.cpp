@@ -211,15 +211,15 @@ std::vector<Token> tokenize(unsigned char* data, std::size_t size){
 }
 
 std::ostream& operator<<(std::ostream& os, const std::vector<Token>& items){
-	for (auto i : items){
+	for (const auto& i : items){
 		if (i.text != L"\r")
 			os << i.to_string() << " ";
 	}
 	return os;
 }
 
-std::ostream& print(std::ostream& os, const std::vector<PrioToken>& items){
-	for (auto i : items){
+std::ostream& operator<<(std::ostream& os, const std::vector<PrioToken>& items){
+	for (const auto& i : items){
 		os << i.to_string() << "[" << i.prio << "] ";
 	}
 	return os;

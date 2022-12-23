@@ -1,6 +1,9 @@
 #include "Vars.hpp"
 #include "Evaluator.hpp"
 #include "BuiltinFuncs.hpp"
+
+#include "Logger.hpp"
+
 //debug
 #include <iostream>
 
@@ -303,7 +306,7 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 	std::vector<std::vector<Token>> subseq{};
 	
 	auto itr = tokens.begin();
-//	print("NO_PARENS", tokens);
+	logger::debug("Evaluator", tokens);
 	
 	while (max_prio >= 0){
 		//this new hack is to make sure RTL operators (!, NOT, etc) work correctly
@@ -316,7 +319,7 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 				//have RPN subsequence
 				subseq.push_back(r_n);
 				itr = (max_prio % 8 == 6) ? tokens.end() : tokens.begin();
-//				print("TOKENS [PRIO=" +std::to_string(max_prio)+"]", tokens);
+				logger::debug("Evaluator", tokens);
 			} else {
 				if (max_prio % 8 != 6)
 					itr = std::next(itr);
@@ -327,10 +330,10 @@ std::vector<Token> Evaluator::process(const std::vector<Token>& expression){
 		max_prio--;
 	}
 	
-	for (unsigned int i = 0; i < subseq.size(); i++){
-		auto r = subseq[i];
+//	for (unsigned int i = 0; i < subseq.size(); i++){
+//		auto r = subseq[i];
 //		print("R" + std::to_string(i), r);
-	}
+//	}
 	
 	auto exp = std::vector<Token>{};
 	for (auto& t : tokens){
