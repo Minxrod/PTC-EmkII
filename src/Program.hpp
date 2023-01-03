@@ -14,6 +14,10 @@
 
 class PTCSystem;
 
+enum class PTCStackEntry {
+	FOR, GOSUB
+};
+
 /// Program execution and management class.
 /// 
 /// Manages the execution of a program, flow control, and `DATA` information.
@@ -43,11 +47,11 @@ class Program {
 	/// Iterator pointing to next `DATA` item to read
 	std::vector<Token>::const_iterator data_current;
 	
-	/// Stack of GOSUB calls.
-	std::stack<std::vector<Token>::const_iterator> gosub_calls;
-	/// Stack of FOR locations.
+	/// Stack of FOR/GOSUB locations.
 	/// Each entry is a tuple of form (variable expression, instruction iterator, end expression, step expression)
-	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>> for_calls;
+	std::vector<std::pair<PTCStackEntry, std::tuple<Expr, Expr::const_iterator, Expr, Expr>>> ptc_stack;
+	/// Debug function to print some of the current stack information.
+	void dump_stack();
 	
 	/// Map of tokens to instructions.
 	std::map<Token, cmd_type> commands{};

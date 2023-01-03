@@ -60,15 +60,18 @@ void Program::set_tokens(const std::vector<Token>& t){
 	line_to_index = std::map<int, int>{{1,0}};
 	for (std::size_t i = 1; i < tokens.size(); ++i){
 		if (tokens[i-1] == Token{L"\r",Type::Newl}){
+			index_to_line.insert({i, line});
+			line_to_index.insert({line, i});
 			line++;
+		} else {
 			index_to_line.insert({i, line});
 			line_to_index.insert({line, i});
 		}
 	}
 	
 	//reset stacks
-	gosub_calls = std::stack<std::vector<Token>::const_iterator>{};
-	for_calls = std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>>{};
+//	gosub_calls = std::stack<std::vector<Token>::const_iterator>{};
+	ptc_stack.clear();
 }
 
 /// PTC command to execute a program.
@@ -250,7 +253,19 @@ void Program::run_(){
 				// TODO: Dump arrays as well on logger::debug
 			++iter;
 		}
+		
+		dump_stack();
 	}
+}
+
+void Program::dump_stack(){
+	logger::info("Program", "PTC stack" + std::to_string(ptc_stack.size()));
+	for (auto& s : ptc_stack){
+		auto line_no = std::to_string(index_to_line[std::distance(tokens.cbegin(), std::get<1>(s.second))]);
+		auto var_or_lbl = std::get<0>(s.second)[0].to_string();
+		logger::info("Program", line_no + " " + (s.first == PTCStackEntry::FOR ? "FOR " : "GOSUB ") + var_or_lbl);
+	}
+
 }
 
 void Program::run(){
@@ -309,13 +324,20 @@ void Program::for_(const Args& a){
 	Number step_i = std::get<Number>(e.evaluate(step));
 
 	if (for_continues(initial_i, final_i, step_i))
-		for_calls.push_back(std::make_tuple(var, current, end, step)); //needed for looping
+		ptc_stack.push_back(std::pair{PTCStackEntry::FOR, std::make_tuple(var, current, end, step)}); //needed for looping
 	else {
 		//skip to NEXT
 		bool has_next = false;
+		int nest = 0;
 		do {
 			auto instr = next_instruction();
-			while (!instr.size() || !(instr[0] == "NEXT"_TC)){
+			while (nest >= 0){
+				if (instr.size()){
+					if (instr[0] == "NEXT"_TC) --nest;
+					else if (instr[0] == "FOR"_TC) ++nest;
+					
+					if (nest < 0) break;
+				}
 				instr = next_instruction();
 			}
 			// have found a next...
@@ -336,30 +358,46 @@ void Program::for_(const Args& a){
 /// 
 /// @param a Arguments
 void Program::next_(const Args& a){
-	std::vector<std::tuple<Expr, Expr::const_iterator, Expr, Expr>>::const_iterator itr;
-	if (a.size() > 1){
-		//a contains a variable name, referring to a specifc for loop
-		//search for specific vector of var name
-		itr = std::find_if(for_calls.cbegin(), for_calls.cend(), [&a](auto& x){ return std::get<0>(x) == a[1];});
-	} else {
-		itr = for_calls.end()-1;
+	//a contains a variable name, referring to a specifc for loop
+	//search for specific vector of var name
+//	dump_stack();
+	// find LAST gosub in stack
+	auto itr = ptc_stack.end();
+	std::size_t i = ptc_stack.size();
+	while (i > 0){
+		--i;
+		if (ptc_stack[i].first == PTCStackEntry::FOR){
+			if (std::get<0>(ptc_stack[i].second) == a[1]){
+				// if variable matches
+				itr = ptc_stack.begin() + i;
+				break;
+			} else if (itr == ptc_stack.end()){
+				// if first FOR entry found
+				itr = ptc_stack.begin() + i;
+			}
+		}
+	}
+	if (itr == ptc_stack.end()){
+		throw ptc_exception{"NEXT without FOR"};
 	}
 	
-	Expr next = std::get<0>(*itr);
+	auto& info = itr->second;
+	
+	Expr next = std::get<0>(info);
 	next.push_back("="_TO);
-	next.insert(next.end(), (std::get<0>(*itr)).begin(), (std::get<0>(*itr)).end());
+	next.insert(next.end(), (std::get<0>(info)).begin(), (std::get<0>(info)).end());
 	next.push_back("+"_TO);
-	next.insert(next.end(), (std::get<3>(*itr)).begin(), (std::get<3>(*itr)).end());
+	next.insert(next.end(), (std::get<3>(info)).begin(), (std::get<3>(info)).end());
 	e.evaluate(next); //do the next step
 
-	Number step = std::get<Number>(e.evaluate(std::get<3>(*itr))); //step amount
-	Number end = std::get<Number>(e.evaluate(std::get<2>(*itr))); //end value
-	Number value = std::get<Number>(e.evaluate(std::get<0>(*itr))); //current value
+	Number step = std::get<Number>(e.evaluate(std::get<3>(info))); //step amount
+	Number end = std::get<Number>(e.evaluate(std::get<2>(info))); //end value
+	Number value = std::get<Number>(e.evaluate(std::get<0>(info))); //current value
 	
 	if (for_continues(value, end, step)){
-		current = std::get<1>(*itr);		
+		current = std::get<1>(info);		
 	} else {
-		for_calls.erase(itr); //remove from ""stack"" when loop ends
+		ptc_stack.erase(itr); //remove from ""stack"" when loop ends
 	}
 }
 
@@ -496,7 +534,8 @@ void Program::gosub_(const Args& a){
 	//GOSUB <label expression>
 	auto lbl = std::get<String>(e.evaluate(a[1]));
 	
-	gosub_calls.push(current);	
+	Expr expr{};
+	ptc_stack.push_back(std::pair{PTCStackEntry::GOSUB, std::make_tuple(a[1], current, expr, expr)});
 	goto_label(lbl);
 	logger::info("Program::gosub_", "Jumped to " + to_string(lbl));
 }
@@ -506,9 +545,25 @@ void Program::gosub_(const Args& a){
 /// Format: 
 /// * `RETURN`
 void Program::return_(const Args&){
-	current = gosub_calls.top();
-	gosub_calls.pop();
-	logger::info("Program", "Returned");
+	// find LAST gosub in stack
+//	dump_stack();
+	auto itr = ptc_stack.end();
+	std::size_t i = ptc_stack.size();
+	while (i > 0){
+		--i;
+		if (ptc_stack[i].first == PTCStackEntry::GOSUB){
+			itr = ptc_stack.begin() + i;
+			break;
+		}
+	}
+	if (itr == ptc_stack.end()){
+		throw ptc_exception{"RETURN without GOSUB"};
+	}
+//	auto itr = std::find_if(ptc_stack.crbegin(), ptc_stack.crend(), [](auto& x){ return x.first == PTCStackEntry::GOSUB});
+	current = std::get<1>(itr->second);
+	
+	ptc_stack.erase(itr, ptc_stack.end()); //TODO find LAST gosub not first
+	logger::info("Program", "Returned, removed " + std::to_string(i) + " to " + std::to_string(ptc_stack.size()));
 }
 
 /// PTC command to branch based on a condition variable.
@@ -530,7 +585,8 @@ void Program::on_(const Args& a){
 	if (index >= 0 && index < max_index){
 		String lbl = std::get<String>(e.evaluate(a[index+3]));
 		if (a[2][0].text == "GOSUB"){
-			gosub_calls.push(current);
+			Expr expr{};
+			ptc_stack.push_back(std::pair{PTCStackEntry::GOSUB, std::make_tuple(a[index+3], current, expr, expr)});	
 		}
 		goto_label(lbl);
 		logger::info("Program", "Branched to " + to_string(lbl) + " via ON " + a[2][0].to_string());

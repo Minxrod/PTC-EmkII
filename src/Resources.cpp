@@ -13,6 +13,7 @@
 #include "Vars.hpp"
 #include "Evaluator.hpp"
 #include "FileLoader.hpp"
+#include "Errors.hpp"
 
 const std::vector<std::string> Resources::chr_resources{
 	"BGU0L", "BGU1L", "BGU2L", "BGU3L",
@@ -208,6 +209,13 @@ std::string Resources::normalize_type(std::string type, int bg, int sp, int gp){
 		else if (type == "COL2")
 			type += gp ? "L" : "U";
 	}
+	if (type.size()==5 && type.substr(0,3) == "SPU"){
+		if (type[4] == 'U'){
+			type = type.substr(0,4);
+		} else {
+			throw ptc_exception{"Illegal resource type"};
+		}
+	}
 	return type;
 }
 
@@ -239,6 +247,8 @@ void Resources::load(std::string type, std::string filename, int header_size){
 			std::fill(mem.data.begin(), mem.data.end(), 0);
 			throw e;
 		}
+	} else {
+		throw std::logic_error{"Unknown resource type " + type};
 	}
 }
 
