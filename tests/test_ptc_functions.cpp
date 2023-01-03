@@ -158,6 +158,19 @@ TEST_CASE("VAL", "ptc_func"){
 	CHECK(val(L"-38") == Approx(-38));
 	CHECK(val(L"-2059.54") == Approx(-2059.54));
 	
+	CHECK(val(L"&HFFFFF") == Approx(-1.0));
+	CHECK(val(L"&H80000") == Approx(-0.0));
+	CHECK(val(L"&HF3") == Approx(243));
+	CHECK(val(L"&HD4") == Approx(212));
+	
+	CHECK(val(L"&B00010000") == Approx(16));
+	CHECK(val(L"&B10010000") == Approx(144));
+	
+	CHECK(val(L"B10010") == Approx(0));
+	CHECK(val(L"...") == Approx(0));
+	CHECK(val(L".2.") == Approx(0));
+	CHECK(val(L"0.2.") == Approx(0.2));
+	
 	CHECK_THROWS(ptc::val({0.0}));
 	CHECK_THROWS(ptc::val({L"0", L"0"}));
 }
