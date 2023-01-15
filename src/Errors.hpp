@@ -1,4 +1,5 @@
 #pragma once
+#include "Vars.hpp"
 
 #include <stdexcept>
 
@@ -15,9 +16,5 @@ struct ptc_exception : public std::runtime_error {
 	ptc_exception(std::string c);
 };
 
-#define PTC_COMMAND_ARGS(c, a, l, h) if (a.size() < l || a.size() > h) throw ptc_exception(a.size() <= h ? "Missing operand (##c)" : "Syntax error (##c)");
-#define PTC_FUNCTION_ARGS(c, v, l, h) if (v.size() < l || v.size() > h) throw ptc_exception(v.size() > h ? "Missing operand (##c)" : "Syntax error (##c)");
-
-#define PTC_SYNTAX_ERROR(c, comp) if (a.size() ##comp) { throw ptc_exception{"Syntax error (##c)"}; }
-#define PTC_MISSING_OPERAND(c, comp) if (a.size() ##comp) { throw ptc_exception{"Missing operand (##c)"}; }
-
+void check_command_args(std::string c, const Args& a, std::size_t l, std::size_t h);
+void check_function_args(std::string c, const Vals& v, std::size_t l, std::size_t h);

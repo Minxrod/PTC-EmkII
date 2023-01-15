@@ -514,7 +514,6 @@ void Graphics::gcopy_(const Args& a){
 }
 
 /// PTC function to get the color at a point.
-/// @warning Does not implement the 3-argument version yet.
 /// 
 /// Format: 
 /// * `GSPOIT([page,]x,y)`

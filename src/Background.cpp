@@ -1,4 +1,5 @@
 #include "Background.hpp"
+#include "Errors.hpp"
 
 ///
 /// Converts tile coordinates to a SCR index.
@@ -97,8 +98,8 @@ void place_tile(SCR& s, TileMap& t, int x, int y, int d){
 	s.data[to_scr_coords(x,y)] = d & 0x00ff;
 	s.data[to_scr_coords(x,y)+1] = (d & 0xff00) >> 8;
 	
-	t.tile(x,y,get_chr(d),get_h(d),get_v(d));
-	t.palette(x,y,16*get_pal(d));
+	t.tile(x & 0x3f,y & 0x3f,get_chr(d),get_h(d),get_v(d));
+	t.palette(x & 0x3f,y & 0x3f,16*get_pal(d));
 }
 
 /// Gets a tile from the given SCR and location.
@@ -276,6 +277,8 @@ void Background::bgput_(const Args& a){
 /// @param a Arguments
 void Background::bgfill_(const Args& a){
 	//BGFILL layer x1 y1 x2 y2 tile
+	check_command_args("BGFILL", a, 7, 10);
+	
 	std::string name = "SCU";
 	std::string screen = page ? "L" : "U";
 	int layer = static_cast<int>(std::get<Number>(e.evaluate(a[1])));

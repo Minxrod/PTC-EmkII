@@ -257,12 +257,14 @@ void Visual::chrread_(const Args& a){
 }
 
 /// PTC command to reset the colors to their default state.
+/// @warning Bug: Affects both screens; should only modfy current page.
+/// @warning Bug: No-argument version should reset all colors, not implemented yet.
 /// 
 /// Format: 
-/// * `COLINIT resource[,color]`
+/// * `COLINIT [resource[,color]]`
 /// 
 /// Arguments:
-/// * resource: Color resource to reset
+/// * resource: Color resource to reset If none, reset every resource's color.
 /// * color: Color code to reset. If none, resets all colors.
 /// 
 /// @param a Arguments

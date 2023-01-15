@@ -1,4 +1,5 @@
 #include "Variables.hpp"
+#include "Errors.hpp"
 
 Variables::Variables(){
 	init_sysvars();
@@ -8,12 +9,24 @@ VarPtr get_varptr(std::string name, std::vector<Var> args, std::map<std::string,
 	Var& v = vars.at(name);
 	if (name.find("[]") != std::string::npos){
 		if (args.size() == 2){
-			auto& a_ij = std::get<Array2>(v)[std::get<Number>(args[0])][std::get<Number>(args[1])];
+			Number i = std::get<Number>(args[0]);
+			Number j = std::get<Number>(args[1]);
+			auto& arr = std::get<Array2>(v);
+			if (arr.size()<=i || i<0 || arr[i].size()<=j || j<0){
+				throw ptc_exception{"Subscript out of range"};
+			}
+			
+			auto& a_ij = arr[i][j];
 			if (std::holds_alternative<String>(a_ij))
 				return VarPtr(&std::get<String>(a_ij));
 			return VarPtr(&std::get<Number>(a_ij));
 		} else if (args.size() == 1){
-			auto& a_i = std::get<Array1>(v)[std::get<Number>(args[0])];
+			Number i = std::get<Number>(args[0]);
+			auto& arr = std::get<Array1>(v);
+			if (arr.size()<=i || i<0){
+				throw ptc_exception{"Subscript out of range"};
+			}
+			auto& a_i = arr[i];
 			if (std::holds_alternative<String>(a_i))
 				return VarPtr(&std::get<String>(a_i));
 			return VarPtr(&std::get<Number>(a_i));
@@ -134,7 +147,7 @@ void Variables::init_sysvars(){
 	*std::get<Number*>(get_var_ptr("TRUE")) = 1;
 	*std::get<Number*>(get_var_ptr("FALSE")) = 0;
 	*std::get<Number*>(get_var_ptr("CANCEL")) = -1;
-	*std::get<Number*>(get_var_ptr("VERSION")) = 0x2020; //2.2
+	*std::get<Number*>(get_var_ptr("VERSION")) = 0x2030; //2.3
 	
 	//variables
 	*std::get<Number*>(get_var_ptr("ICONPMAX")) = 1;
