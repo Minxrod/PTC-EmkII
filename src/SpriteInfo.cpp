@@ -75,16 +75,16 @@ bool is_hit(SpriteInfo& a, SpriteInfo& b){
 		normal(a).sub(normal(b))
 	};
 	std::vector<vec> a_verts{
-		vec{a.pos.x, a.pos.y},
-		vec{a.pos.x + a.hit.w, a.pos.y},
-		vec{a.pos.x + a.hit.w, a.pos.y + a.hit.h},
-		vec{a.pos.x, a.pos.y + a.hit.h},
+		vec{a.pos.x + a.hit.x, a.pos.y + a.hit.y},
+		vec{a.pos.x + a.hit.x + a.hit.w, a.pos.y + a.hit.y},
+		vec{a.pos.x + a.hit.x + a.hit.w, a.pos.y + a.hit.y + a.hit.h},
+		vec{a.pos.x + a.hit.x, a.pos.y + a.hit.y + a.hit.h},
 	};
 	std::vector<vec> b_verts{
-		vec{b.pos.x, b.pos.y},
-		vec{b.pos.x + b.hit.w, b.pos.y},
-		vec{b.pos.x + b.hit.w, b.pos.y + b.hit.h},
-		vec{b.pos.x, b.pos.y + b.hit.h},
+		vec{b.pos.x + b.hit.x, b.pos.y + b.hit.y},
+		vec{b.pos.x + b.hit.x + b.hit.w, b.pos.y + b.hit.y},
+		vec{b.pos.x + b.hit.x + b.hit.w, b.pos.y + b.hit.y + b.hit.h},
+		vec{b.pos.x + b.hit.x, b.pos.y + b.hit.y + b.hit.h},
 	};
 	
 	for (int i = 0; i < 4; ++i){
